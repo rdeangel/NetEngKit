@@ -1,0 +1,42 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tileBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#161622"/>
+      <stop offset="1" stop-color="#0a0a0f"/>
+    </linearGradient>
+    <linearGradient id="neonRim" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00f0e2"/>
+      <stop offset="60%" stop-color="#00d4c8"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="glyphGrad" x1="0" y1="0" x2="370" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00f0e2"/>
+      <stop offset="1" stop-color="#00c4b8"/>
+    </linearGradient>
+    <filter id="rimGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="0.6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Full-bleed background matching Android splash background #0d0d12 -->
+  <rect width="80" height="80" fill="#0d0d12"/>
+
+  <!-- Inset Squircle Badge safely within the 62% safe zone (Zero OS clipping) -->
+  <rect x="15" y="15" width="50" height="50" rx="11.5" fill="url(#tileBg)" stroke="url(#neonRim)" stroke-width="1.4" filter="url(#rimGlow)"/>
+  <rect x="17.5" y="17.5" width="45" height="45" rx="9" fill="none" stroke="#00d4c8" stroke-width="0.4" opacity="0.2"/>
+
+  <!-- Centered NEK Option B Monogram -->
+  <g transform="translate(22.5, 30.73) scale(0.0945946)" fill="url(#glyphGrad)">
+    <rect x="0" y="0" width="34" height="196"/>
+    <polygon points="34,0 68,0 160,162 160,196 126,196 34,34"/>
+    <rect x="126" y="0" width="34" height="196"/>
+    <rect x="160" y="0" width="98" height="34"/>
+    <rect x="160" y="81" width="78" height="34"/>
+    <rect x="160" y="162" width="98" height="34"/>
+    <polygon points="370,0 333,0 261,98 333,196 370,196 298,98"/>
+  </g>
+</svg>

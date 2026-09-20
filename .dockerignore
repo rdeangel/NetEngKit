@@ -1,0 +1,10 @@
+node_modules
+.git
+docs/
+data/
+NetEngKit-file.html
+NetEngKit-offline.html
+*-file.html
+*-offline.html
+*.md
+*.txt

@@ -1,0 +1,295 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+  pages: write
+  id-token: write
+
+# Tag pushes use the tag name (v1.0.0). Manual dispatch must pass that same tag,
+# not the branch name — GITHUB_REF_NAME is `main` on workflow_dispatch.
+env:
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+
+jobs:
+  build-offline:
+    name: Build Offline HTML
+    runs-on: ubuntu-latest
+    outputs:
+      offline_file: ${{ steps.build.outputs.filename }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build offline bundle
+        id: build
+        run: |
+          VERSION="${RELEASE_TAG}"
+          VERSION="v${VERSION#v}"
+          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Invalid RELEASE_TAG='$RELEASE_TAG' (expected vX.Y.Z)"
+            exit 1
+          fi
+          FILENAME="NetEngKit-${VERSION}-Offline.html"
+          node scripts/build/bundle.js NetEngKit.html -o "${FILENAME}"
+          echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
+
+      - name: Upload offline HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-html
+          path: ${{ steps.build.outputs.filename }}
+
+  build-docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    # Map optional Hub secrets to env. `if:` cannot read the secrets context
+    # (GitHub: "Unrecognized named-value: 'secrets'"). Empty if unset.
+    env:
+      # Prefer DOCKERHUB_*; fall back to DOCKER_USERNAME / DOCKER_PASSWORD
+      # (names already set on this repo).
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || secrets.DOCKER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Image names
+        id: image-names
+        run: |
+          {
+            echo 'list<<EOF'
+            echo "ghcr.io/${GITHUB_REPOSITORY}"
+            if [ -n "${DOCKERHUB_USERNAME}" ]; then
+              echo "${DOCKERHUB_USERNAME}/netengkit"
+            fi
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image-names.outputs.list }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ env.RELEASE_TAG }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.RELEASE_TAG }}
+            type=semver,pattern={{major}},value=${{ env.RELEASE_TAG }}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-pages:
+    name: Build GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build offline bundle for Pages
+        run: node scripts/build/bundle.js NetEngKit.html -o index.html
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build-pages
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-offline, build-docker, deploy-pages]
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download offline HTML
+        uses: actions/download-artifact@v4
+        with:
+          name: offline-html
+
+      - name: Generate release notes
+        id: changelog
+        run: |
+          VERSION="${RELEASE_TAG}"
+          VERSION="v${VERSION#v}"
+          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Invalid RELEASE_TAG='$RELEASE_TAG' (expected vX.Y.Z)"
+            exit 1
+          fi
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -v "^${VERSION}$" | head -1)
+
+          # Get commits
+          if [ -n "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --format="%h|%s" --no-merges)
+          else
+            COMMITS=$(git log --format="%h|%s" --no-merges)
+          fi
+
+          # Filter meta-commits
+          COMMITS=$(echo "$COMMITS" | grep -ivE '\|(chore: update CHANGELOG|chore: release )' || true)
+
+          export OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}
+          export REPO_NAME=${GITHUB_REPOSITORY#*/}
+          export REPO_NAME_LC=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+
+          # Categorize commits
+          fmt() {
+            local title="$1"
+            local items="$2"
+            if [ -n "$items" ]; then
+              echo "" >> RELEASE_NOTES.md
+              echo "### $title" >> RELEASE_NOTES.md
+              echo "$items" | while IFS='|' read -r hash msg; do
+                if [ -n "$hash" ] && [ -n "$msg" ]; then
+                  echo "- $msg ([$hash](https://github.com/${{ github.repository }}/commit/$hash))" >> RELEASE_NOTES.md
+                fi
+              done
+            fi
+          }
+
+          {
+            echo "# 🚀 Release ${VERSION}"
+            echo ""
+            [ -n "$PREVIOUS_TAG" ] && echo "## What's Changed Since $PREVIOUS_TAG" || echo "## What's Changed"
+          } > RELEASE_NOTES.md
+
+          # Breaking & Security first
+          breaking=$(echo "$COMMITS" | grep -iE '\|(breaking|BREAKING CHANGE|!:)' || true)
+          security=$(echo "$COMMITS" | grep -iE '\|(security|sec:|vulnerability|CVE)' || true)
+          remaining=$(echo "$COMMITS" | grep -ivE '\|(breaking|BREAKING CHANGE|!:|security|sec:|vulnerability|CVE)' || true)
+
+          ui=$(echo "$remaining" | grep -iE '\|(feat|fix|style|refactor|update)\(ui\):' || true)
+          remaining=$(echo "$remaining" | grep -ivE '\|(feat|fix|style|refactor|update)\(ui\):' || true)
+
+          fmt "⚠️ Breaking Changes" "$breaking"
+          fmt "🔒 Security" "$security"
+          fmt "📱 UI & Layout" "$ui"
+
+          features=$(echo "$remaining" | grep -iE '\|(feat|add)(\([^)]*\))?:' || true)
+          fmt "✨ New Features" "$features"
+
+          fixes=$(echo "$remaining" | grep -iE '\|(fix|bug)(\([^)]*\))?:' || true)
+          fmt "🐛 Bug Fixes" "$fixes"
+
+          remaining=$(echo "$remaining" | grep -ivE '\|(feat|add|fix|bug)(\([^)]*\))?:' || true)
+
+          refactor=$(echo "$remaining" | grep -iE '\|refactor(\([^)]*\))?:' || true)
+          fmt "♻️ Refactor" "$refactor"
+
+          perf=$(echo "$remaining" | grep -iE '\|perf(\([^)]*\))?:' || true)
+          fmt "⚡ Performance" "$perf"
+
+          docs=$(echo "$remaining" | grep -iE '\|docs(\([^)]*\))?:' || true)
+          fmt "📚 Documentation" "$docs"
+
+          chore=$(echo "$remaining" | grep -iE '\|chore(\([^)]*\))?:' || true)
+          fmt "📝 Chore" "$chore"
+
+          tests=$(echo "$remaining" | grep -iE '\|(test|tests)(\([^)]*\))?:' || true)
+          fmt "🧪 Tests" "$tests"
+
+          build=$(echo "$remaining" | grep -iE '\|(build|ci)(\([^)]*\))?:' || true)
+          fmt "🏗️ Build" "$build"
+
+          remaining=$(echo "$remaining" | grep -ivE '\|(refactor|perf|docs|chore|test|tests|build|ci)(\([^)]*\))?:' || true)
+
+          improvements=$(echo "$remaining" | grep -iE '\|(improve|enhance|update|optimize)' || true)
+          fmt "🚀 Improvements" "$improvements"
+
+          HUB_USER="${DOCKERHUB_USERNAME}"
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🌐 Live Site"
+            echo "https://${OWNER_LC}.github.io/${REPO_NAME}/"
+            echo ""
+            echo "## 🐳 Docker"
+            echo '```'
+            echo "docker pull ghcr.io/${OWNER_LC}/${REPO_NAME_LC}:${VERSION}"
+            if [ -n "$HUB_USER" ]; then
+              echo "docker pull ${HUB_USER}/netengkit:${VERSION}"
+            fi
+            echo '```'
+          } >> RELEASE_NOTES.md
+
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          files: "NetEngKit-*.html"
+          generate_release_notes: false
+          make_latest: true

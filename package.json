@@ -1,0 +1,21 @@
+{
+  "name": "netengkit",
+  "version": "1.0.0",
+  "description": "Network engineering tools built for engineers",
+  "private": true,
+  "scripts": {
+    "start": "PORT=8880 node scripts/proxy.js",
+    "test": "node components/configParser/reconcile.test.js",
+    "build:offline": "node scripts/build/bundle.js NetEngKit.html",
+    "build:file": "node scripts/build/build-dev.js",
+    "fetch:mermaid": "node scripts/build/fetch-mermaid.js",
+    "postinstall": "node scripts/build/fetch-mermaid.js",
+    "docker:rebuild": "docker compose build --no-cache && docker compose up -d",
+    "docker:up": "docker compose up -d --build",
+    "update:oui-db": "node scripts/build/generate-oui-db.js",
+    "postversion": "node scripts/build/sync-version.js && git add version.js && git commit --amend --no-edit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}
