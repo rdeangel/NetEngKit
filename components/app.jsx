@@ -320,6 +320,13 @@ const TOOLS = [
     { labelKey: 'uptime.tab_composite', nav: { activeTab: 'composite' }, keywords: 'composite series parallel multi-tier aggregate' },
     { labelKey: 'uptime.tab_impact',    nav: { activeTab: 'impact' },    keywords: 'outage impact cost revenue mttr incidents' },
   ] },
+  { id: 'erlang-trunk', label: 'Erlang B / C Trunk Sizer', group: 'Tools', type: 'tool',
+    keywords: 'erlang trunk sizing voice telephony circuits sip sessions ds0 pri concurrent calls blocking grade of service gos busy hour bhca',
+    subTools: [
+      { labelKey: 'erlang_trunk.tab_size',      nav: { activeTab: 'size' },      keywords: 'erlang b sizing trunks circuits blocking p.01 p.001 offered load bhca hold time inverse' },
+      { labelKey: 'erlang_trunk.tab_erlangc',   nav: { activeTab: 'erlangc' },   keywords: 'erlang c queue wait time contact centre call center agents service level asa' },
+      { labelKey: 'erlang_trunk.tab_reference', nav: { activeTab: 'reference' }, keywords: 'erlang reference units worked example b vs c lost calls cleared' },
+    ] },
   { id: 'cronparse', label: 'Cron Parser', group: 'Tools', type: 'tool' },
   { id: 'redircheck', label: 'Redirect Checker', group: 'Tools', type: 'tool', online: true, server: true },
   { id: 'uaparse', label: 'User Agent Parser', group: 'Tools', type: 'tool' },
@@ -786,6 +793,7 @@ function App() {
       case 'passgen': return <PasswordGenerator initialData={hashData} onShare={handleShare} />;
       case 'tsconv': return <TimestampConverter initialData={hashData} onShare={handleShare} />;
       case 'uptime': return <UptimeCalculator initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'erlang-trunk': return <ErlangTrunkSizer initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'cronparse': return <CronParser initialData={hashData} onShare={handleShare} />;
       case 'redircheck': return <RedirectChecker initialData={hashData} onShare={handleShare} />;
       case 'uaparse': return <UserAgentParser initialData={hashData} onShare={handleShare} />;

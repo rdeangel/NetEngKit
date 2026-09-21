@@ -3517,6 +3517,55 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### Erlang B / C Voice Trunk Sizer
+**ID:** `erlang-trunk` | **Type:** Tool | **Offline**
+
+**Description:** Sizes voice circuits from offered traffic and a target grade of service using the numerically stable Erlang B recursion, runs the same model backwards to read blocking off a circuit count you already have, and covers queued contact-centre trunks with Erlang C. Replaces the printed Erlang B table. One Erlang is one busy circuit — one concurrent SIP session, or one DS0 on a PRI; there is no access-technology selector because the arithmetic does not have one.
+
+**Tabs:**
+
+#### Size (`activeTab: size`)
+**Inputs:**
+- Offered load, entered either directly in Erlangs or as BHCA × mean hold time (seconds or minutes; `A = BHCA × T ÷ 3600`)
+- Direction: load → circuits, or circuits → blocking
+- Target grade of service: `P.01`, `P.001`, or a custom blocking fraction
+- Circuit count (inverse direction only)
+
+**Outputs:**
+- Circuits required, or blocking probability at the configured count
+- Blocking at the sized count and at one circuit lower, as a percentage and in exponential notation
+- Carried load, lost load, trunk efficiency
+- Erlang B table for ±3 circuits around the answer, with a meets/misses target flag per row
+- Review hints: small-group efficiency, large-group Engset caveat, aggregate-load caveat, loose GoS target
+- Copy All (header row + metric block + table block, tab-separated)
+
+#### Erlang C (`activeTab: erlangc`)
+**Inputs:**
+- Server / trunk count
+- Mean handle time (seconds)
+- Answer target (seconds)
+- Offered load is taken from the Size tab — it is not re-entered here
+
+**Outputs:**
+- Server utilisation, probability of waiting
+- Average wait across all calls and across the delayed calls only
+- Service level: share of calls answered within the answer target
+- Explicit unstable-queue message with the minimum stable server count when servers ≤ offered load (never `NaN`, never `Infinity`)
+- Copy All with a header row
+
+#### Reference (`activeTab: reference`)
+**Outputs:**
+- Erlang B vs Erlang C comparison: what happens to a blocked call, what each sizes, typical use, key assumption
+- Unit definitions: Erlang, BHCA, mean hold time, grade of service, P-notation
+- Worked example: 200 BHCA × 180 s = 10.0 E; at P.01 the answer is 18 circuits (blocking 0.714% at 18, 1.295% at 17)
+- The recursion itself, stated
+
+**Not covered here:** availability and downtime budgets (see [Uptime & SLA Calculator](#uptime--sla-calculator)), codec bit rate and link sizing (see Bandwidth & Throughput and the TCP Throughput Estimator), voice RSSI and airtime (see Wireless & RF Planner), DSCP marking and MOS estimation (see QoS & DSCP Tool). No SIP, CUBE, or PRI configuration is generated.
+
+**Current Keywords:** `erlang trunk sizing voice telephony circuits sip sessions ds0 pri concurrent calls blocking grade of service gos busy hour bhca`
+
+---
+
 ### Flow Export Builder
 **ID:** `flow-export` | **Type:** Tool | **Offline**
 
@@ -3619,13 +3668,13 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 119 top-level entries in `components/app.jsx` — 105 tools, 14 references.
+**Registry (source of truth):** 120 top-level entries in `components/app.jsx` — 106 tools, 14 references.
 
-**This catalog:** 115 `###` headings.
+**This catalog:** 116 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
-- IPv4 Subnet & Addressing — 7
+- IPv4 Subnet & Addressing — 8
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1

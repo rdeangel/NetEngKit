@@ -1,8 +1,8 @@
 # Utilities
 
-The **41** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
+The **42** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
 
-Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 41 have no `###` heading yet — named in the last section, not given a fake anchor.
+Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 42 have no `###` heading yet — named in the last section, not given a fake anchor.
 
 ## DNS, syslog, SNMP, CLI, flow export (6)
 
@@ -20,13 +20,13 @@ Certificate Chain Validator can call `/api/get-cert-chain` when the proxy is up;
 
 Parser and converter headings sit under Routing / Switching in the catalog. Registry `group:` is Tools.
 
-## Text, diagrams, units, ops (9)
+## Text, diagrams, units, ops (10)
 
-[Format toolkit](../../TOOLS.md#format-toolkit), [regex find & replace](../../TOOLS.md#regex-find--replace), [hex dump / ASCII decoder](../../TOOLS.md#hex-dump--ascii-decoder), [ASCII network diagram](../../TOOLS.md#ascii-network-diagram), [Mermaid network diagram](../../TOOLS.md#mermaid-network-diagram), [data unit converter](../../TOOLS.md#data-unit-converter), [uptime & SLA calculator](../../TOOLS.md#uptime--sla-calculator), [country & timezone reference](../../TOOLS.md#country--timezone-reference), [traffic generator (Scapy/TRex)](../../TOOLS.md#traffic--load-generator) (command/profile builder — not the host-binary capture path).
+[Format toolkit](../../TOOLS.md#format-toolkit), [regex find & replace](../../TOOLS.md#regex-find--replace), [hex dump / ASCII decoder](../../TOOLS.md#hex-dump--ascii-decoder), [ASCII network diagram](../../TOOLS.md#ascii-network-diagram), [Mermaid network diagram](../../TOOLS.md#mermaid-network-diagram), [data unit converter](../../TOOLS.md#data-unit-converter), [uptime & SLA calculator](../../TOOLS.md#uptime--sla-calculator), [Erlang B/C voice trunk sizer](../../TOOLS.md#erlang-b--c-voice-trunk-sizer), [country & timezone reference](../../TOOLS.md#country--timezone-reference), [traffic generator (Scapy/TRex)](../../TOOLS.md#traffic--load-generator) (command/profile builder — not the host-binary capture path).
 
 ## In the app, no catalog heading yet (6)
 
-These ids are in `components/app.jsx`. [TOOLS.md](../../TOOLS.md) has no `###` for them (114 headings vs 118 registry entries; two extra catalog headings are leftover). Treat the app as source of truth until the catalog headings catch up.
+These ids are in `components/app.jsx`. [TOOLS.md](../../TOOLS.md) has no `###` for them (116 headings vs 120 registry entries; two extra catalog headings are leftover). Treat the app as source of truth until the catalog headings catch up.
 
 - Bandwidth & Throughput (`bandwidth`)
 - TLS Cipher Suite Decoder (`cipher-suite`)

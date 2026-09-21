@@ -1,0 +1,13 @@
+# TEMPORARY: runs the published image instead of building locally.
+# Delete this file and `docker compose down` when done verifying.
+services:
+  NetEngKit:
+    image: rdeangel/netengkit:latest
+    container_name: NetEngKit
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    cap_add:
+      - NET_RAW
+    restart: unless-stopped
