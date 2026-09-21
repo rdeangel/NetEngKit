@@ -1045,6 +1045,56 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### IPsec / IKEv2 Config Builder
+**ID:** `ipsec-config` | **Type:** Tool | **Offline**
+
+**Description:** Generates a complete IKEv2 site-to-site tunnel configuration — phase 1 and phase 2 — for Cisco IOS-XE, Juniper Junos, strongSwan/pfSense, and FortiGate from a single set of crypto parameters, with legacy/recommended hints on the proposal and a local pre-shared-key generator. Everything runs in the browser; the key never leaves the page and is excluded from the share URL.
+
+**Tabs:** one per target platform. All tabs share the same inputs.
+
+#### Cisco IOS / IOS-XE (`vendor: cisco_iosxe`)
+**Outputs:**
+- `crypto ikev2 proposal` / `policy` / `keyring` / `profile`
+- `crypto ipsec transform-set` and `crypto ipsec profile` with PFS and SA lifetime
+- `interface Tunnel` with `tunnel mode ipsec ipv4` and `tunnel protection ipsec profile` (route-based VTI, not crypto-map)
+- Static routes for each remote network over the tunnel interface
+
+#### Juniper Junos (SRX) (`vendor: junos`)
+**Outputs:**
+- `security ike proposal` / `policy` / `gateway` with `version v2-only` and DPD
+- `security ipsec proposal` / `policy` / `vpn` bound to `st0`
+- One `traffic-selector` per local/remote pair, plus `st0` addressing and static routes
+
+#### strongSwan / pfSense (`vendor: strongswan`)
+**Outputs:**
+- `swanctl.conf` `connections {}` block with IKE and ESP proposal strings, `local_ts` / `remote_ts`, rekey and life times, DPD
+- `secrets {}` block in PSK mode, or certificate file paths in certificate mode
+- Note on where the same parameters live in the pfSense GUI (Phase 1 / Phase 2). No pfSense XML is produced.
+
+#### FortiGate (FortiOS) (`vendor: fortigate`)
+**Outputs:**
+- `config vpn ipsec phase1-interface` — `set proposal`, `set dhgrp`, `set keylife`, `set ike-version 2`, DPD, PSK or certificate auth
+- `config vpn ipsec phase2-interface` — `set proposal` (ESP), `set dhgrp`, `set pfs`, `set keylifeseconds`, `set src-subnet` / `set dst-subnet`, one stanza per pair
+- `config system interface` transit addressing for the tunnel
+
+**Inputs (shared by all tabs):**
+- Tunnel name, local and peer public IPv4, outside interface, tunnel interface, tunnel transit prefix
+- Local and remote protected networks (IPv4 CIDR, comma or newline separated)
+- Authentication: pre-shared key (with a local `crypto.getRandomValues` generator, 16/24/32/48 characters, entropy readout) or certificates (local/CA object names and peer identity — no key material is generated)
+- IKE proposal: encryption (3DES, AES-128/256-CBC, AES-128/256-GCM), integrity/PRF (SHA-1/256/384/512), DH group (2, 5, 14, 15, 16, 19, 20, 21), SA lifetime
+- ESP proposal: encryption, authentication, PFS on/off with its own group, SA lifetime
+
+**Outputs (shared):**
+- Generated configuration for the selected platform, comment lines dimmed
+- Proposal review: legacy / acceptable / recommended hints, including AEAD PRF behaviour and platform-version caveats
+- Copy to clipboard, export as `.txt`
+
+**Not covered here:** tunnel MTU and overhead math (see Tunnel Overhead / MTU calculator), WireGuard configuration (see WireGuard Tunnel Config Builder), and the phase-1/phase-2 architectural reference (see VPN / IPsec Architect). IPv4 endpoints only.
+
+**Current Keywords:** `ipsec ikev2 ike vpn site-to-site s2s tunnel psk pre-shared-key esp phase1 phase2 crypto proposal transform-set dh pfs vti cisco ios-xe junos srx strongswan swanctl pfsense fortigate fortios st0`
+
+---
+
 ### BGP Looking Glass
 **ID:** `bgp-lg` | **Type:** Tool | **Online (backend required)**
 
@@ -3569,9 +3619,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 118 top-level entries in `components/app.jsx` — 104 tools, 14 references.
+**Registry (source of truth):** 119 top-level entries in `components/app.jsx` — 105 tools, 14 references.
 
-**This catalog:** 114 `###` headings.
+**This catalog:** 115 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3580,7 +3630,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 10
-- Routing & Layer 3 — 12
+- Routing & Layer 3 — 13
 - Infrastructure, QoS & Planning — 22
 - Media & Broadcast — 2
 - Diagnostics & Tools — 52

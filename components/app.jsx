@@ -136,6 +136,15 @@ const TOOLS = [
       { labelKey: 'wireguard_config.tab_comparison', nav: { mode: 'comparison' }, keywords: 'ipsec compare performance handshake crypto roaming' },
     ],
   },
+  { id: 'ipsec-config', label: 'IPsec / IKEv2 Config Builder', group: 'Routing', type: 'tool',
+    keywords: 'ipsec ikev2 ike vpn site-to-site s2s tunnel psk pre-shared-key esp phase1 phase2 crypto proposal transform-set dh pfs vti cisco ios-xe junos srx strongswan swanctl pfsense fortigate fortios st0',
+    subTools: [
+      { labelKey: 'ipsec_config.vendor_cisco_iosxe', nav: { vendor: 'cisco_iosxe' }, keywords: 'cisco ios ios-xe ikev2 proposal policy keyring profile transform-set ipsec profile tunnel vti rsa-sig' },
+      { labelKey: 'ipsec_config.vendor_junos',       nav: { vendor: 'junos' },       keywords: 'juniper junos srx security ike gateway ipsec vpn st0 traffic-selector bind-interface' },
+      { labelKey: 'ipsec_config.vendor_strongswan',  nav: { vendor: 'strongswan' },  keywords: 'strongswan swanctl pfsense linux ipsec.conf connections children esp_proposals secrets' },
+      { labelKey: 'ipsec_config.vendor_fortigate',   nav: { vendor: 'fortigate' },   keywords: 'fortigate fortios fortinet phase1-interface phase2-interface psksecret dhgrp keylife proposal' },
+    ],
+  },
   { id: 'bgp-lg', label: 'BGP Looking Glass', group: 'Routing', type: 'tool', online: true, server: true },
   { id: 'asn', label: 'BGP / ASN Lookup', group: 'Routing', type: 'tool', online: true, server: true },
   { id: 'bgp-community', label: 'BGP Community Builder', group: 'Routing', type: 'tool' },
@@ -741,6 +750,7 @@ function App() {
       case 'iosxr-cfg': return <IOSXRConfigBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'image-transfer-planner': return <ImageTransferPlanner initialData={hashData} onShare={handleShare} />;
       case 'wireguard-cfg': return <WireGuardConfigBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'ipsec-config': return <IPsecConfigBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'proto-ref': return <RoutingReference />;
       case 'vpn-ref': return <VPNArchitect />;
       case 'qos-tool': return <QoSDSCPTool initialData={hashData} onShare={handleShare} onNav={handleNav} />;

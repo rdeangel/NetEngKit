@@ -1,10 +1,10 @@
 # Routing
 
-Layer-3 config builders and protocol references. **11** registry entries. Two of them need the local server **and** the internet; the other nine run in the browser.
+Layer-3 config builders and protocol references. **12** registry entries. Two of them need the local server **and** the internet; the other ten run in the browser.
 
 Catalog: [TOOLS.md](../../TOOLS.md). Section: [Routing & Layer 3](../../TOOLS.md#routing--layer-3).
 
-## Client-side (9)
+## Client-side (10)
 
 - [IP protocol reference](../../TOOLS.md#ip-proto-reference)
 - [Routing config builder](../../TOOLS.md#routing-config-builder)
@@ -12,6 +12,7 @@ Catalog: [TOOLS.md](../../TOOLS.md). Section: [Routing & Layer 3](../../TOOLS.md
 - [MPLS reference](../../TOOLS.md#mpls-reference)
 - [VPN / IPsec architect](../../TOOLS.md#vpn--ipsec-architect)
 - [WireGuard tunnel config builder](../../TOOLS.md#wireguard-tunnel-config-builder)
+- [IPsec / IKEv2 config builder](../../TOOLS.md#ipsec--ikev2-config-builder)
 - [BGP community builder](../../TOOLS.md#bgp-community-builder)
 - [FHRP calculator](../../TOOLS.md#fhrp-calculator)
 - [Prefix list & route map builder](../../TOOLS.md#prefix-list--route-map-builder)
