@@ -269,6 +269,13 @@ const TOOLS = [
       { labelKey: 'iperf.tab_server',     nav: { tab: 'server' },     keywords: 'server daemon listen' },
       { labelKey: 'iperf.tab_cheatsheet', nav: { tab: 'cheatsheet' }, keywords: 'cheatsheet reference flags options comparison benchmark' },
     ] },
+  { id: 'ipsla-twamp', label: 'IP SLA / TWAMP Probe Builder', group: 'Tools', type: 'tool',
+    keywords: 'ip sla ipsla twamp owamp synthetic probe icmp-echo udp-jitter http dns operation responder reflector sender track object reaction threshold frequency schedule cisco ios-xe juniper junos rpm sla monitoring',
+    subTools: [
+      { labelKey: 'ipsla_twamp.tab_ipsla',     nav: { activeTab: 'ipsla' },     keywords: 'ip sla operation icmp-echo udp-jitter codec g711 g729 http dns frequency timeout threshold schedule track reaction trap cisco' },
+      { labelKey: 'ipsla_twamp.tab_twamp',     nav: { activeTab: 'twamp' },     keywords: 'twamp light full sender reflector control-client session-sender server rpm junos probe-count probe-interval padding port 862' },
+      { labelKey: 'ipsla_twamp.tab_reference', nav: { activeTab: 'reference' }, keywords: 'ip sla vs twamp owamp one-way round-trip threshold interpretation track eem reporting reference' },
+    ] },
   { id: 'bandwidth', label: 'Bandwidth & Throughput', group: 'Tools', type: 'tool' },
   { id: 'dataunit', label: 'Data Unit Converter', group: 'Tools', type: 'tool' },
   { id: 'hashgen', label: 'Hash Generator', group: 'Tools', type: 'tool' },
@@ -743,6 +750,7 @@ function App() {
       case 'asn': return <ASNLookup initialData={hashData} onShare={handleShare} />;
       case 'scanner': return <NetworkScanner initialData={hashData} onShare={handleShare} />;
       case 'iperf': return <IperfBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'ipsla-twamp': return <IpSlaTwampBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'ports': return <PortReference initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'cheatsheet': return <CheatSheet />;
       case 'icmp-ref': return <ICMPRef initialData={hashData} onShare={handleShare} onNav={handleNav} />;

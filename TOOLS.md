@@ -3620,6 +3620,61 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### IP SLA / TWAMP Probe Builder
+**ID:** `ipsla-twamp` | **Type:** Tool | **Offline**
+
+**Description:** Generates persistent synthetic-probe configuration — Cisco IP SLA operations (ICMP echo, UDP jitter with an optional codec profile, HTTP, DNS) with frequency/timeout/threshold, a lifetime and schedule, an optional track object binding and an optional reaction, plus TWAMP sender and reflector sessions for Cisco IOS-XE and Juniper Junos in full and Light modes. Also sizes what a UDP jitter probe costs the link it measures. Configuration only — no probe is run from the browser.
+
+**Tabs:**
+
+#### IP SLA (`activeTab: ipsla`)
+**Inputs:**
+- Operation number; probe type (icmp-echo, udp-jitter, http, dns)
+- Target, destination port (udp-jitter), name server (dns), URL (http)
+- Codec profile (`g711alaw`, `g711ulaw`, `g729a`) or raw packet count / size / interval; optional advantage factor
+- Source address or source interface, VRF
+- Frequency (s), timeout (ms), threshold (ms), tag, owner, optional enhanced history
+- Lifetime (forever or fixed) and start time (now or after hh:mm:ss)
+- Optional track object: number, reachability or state, delay down/up
+- Optional reaction: monitored element, rising/falling thresholds, threshold type, action
+
+**Outputs:**
+- Cisco IOS / IOS-XE configuration block: operation, schedule, track, reaction, verify comments
+- Separate far-end `ip sla responder` block for UDP jitter
+- Probe budget: L3 packet size, in-burst packet and bit rate, burst duration, averaged rate, duty cycle (Copy All with a header row)
+- Review hints: responder requirement, duty cycle, ICMP punt caveat, inert threshold, track damping, VRF reachability, trap prerequisites
+- `.txt` export
+
+#### TWAMP (`activeTab: twamp`)
+**Inputs:**
+- Vendor (Cisco IOS-XE, Juniper Junos), role (sender, reflector), mode (full, Light)
+- Server address, test target, control port, test port
+- Control-connection and test-session names, history size
+- Probe count, probe interval, test interval, padding / data size
+- Client list name and allowed client prefix (server), control inactivity timer and reflector timeout (Cisco)
+
+**Outputs:**
+- Cisco IOS-XE `ip sla server twamp` + `ip sla responder twamp` reflector block
+- Junos `set services rpm twamp client` / `server` blocks, full and Light
+- An explicit "not supported, nothing generated" block for the two Cisco cells that have no CLI (sender role, Light mode)
+- Review hints: role support, Light has no negotiation, padding is the sender's, clock sync only matters for the one-way split
+- `.txt` export
+
+#### Reference (`activeTab: reference`)
+**Outputs:**
+- IP SLA vs TWAMP vs OWAMP comparison (standard, what it measures, direction, clock requirement, interoperability, control plane, use case)
+- Round-trip vs one-way delay, and why one-way inherits clock offset
+- Threshold interpretation: frequency, timeout, threshold, rising/falling, threshold types
+- What consumes a probe: track objects, HSRP, EEM, SNMP traps and collectors
+- Worked example: G.711 probe cost arithmetic
+- Cross-links to Remote Ping / MTR, iPerf, Uptime & SLA, QoS / DSCP, NTP toolkit, Flow Export
+
+**Current Keywords:** `ip sla ipsla twamp owamp synthetic probe icmp-echo udp-jitter http dns operation responder reflector sender track object reaction threshold frequency schedule cisco ios-xe juniper junos rpm sla monitoring`
+
+**Suggested Keywords to Add:** _(none)_
+
+---
+
 ### Flow Export Builder
 **ID:** `flow-export` | **Type:** Tool | **Offline**
 
@@ -3722,9 +3777,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 121 top-level entries in `components/app.jsx` — 107 tools, 14 references.
+**Registry (source of truth):** 122 top-level entries in `components/app.jsx` — 108 tools, 14 references.
 
-**This catalog:** 117 `###` headings.
+**This catalog:** 118 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3736,7 +3791,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Routing & Layer 3 — 13
 - Infrastructure, QoS & Planning — 22
 - Media & Broadcast — 2
-- Diagnostics & Tools — 52
+- Diagnostics & Tools — 53
 - Education & Entertainment — 1
 
 **Catalog drift vs the registry:** six registry ids have no `###` heading (`bandwidth`, `cipher-suite`, `tsconv`, `cronparse`, `uaparse`, `config-template`). Two leftover headings are not in the registry (`wlan-tool` — use `wifi-rf-planner`; `radius-tacacs-ref` — duplicate of `radius-tacacs`). Remaining `**ID:**` tokens match the registry except those leftover headings and the six missing headings.

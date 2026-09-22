@@ -1,12 +1,12 @@
 # Utilities
 
-The **42** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
+The **43** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
 
-Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 42 have no `###` heading yet — named in the last section, not given a fake anchor.
+Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 43 have no `###` heading yet — named in the last section, not given a fake anchor.
 
-## DNS, syslog, SNMP, CLI, flow export (6)
+## DNS, syslog, SNMP, CLI, flow export, synthetic probes (7)
 
-[DNS zone file builder](../../TOOLS.md#dns-zone-file-builder), [syslog builder & parser](../../TOOLS.md#syslog-builder--parser), [SNMP command builder](../../TOOLS.md#snmp-command-builder), [SysTool CLI builder](../../TOOLS.md#systool-cli-builder), [CLI quick reference](../../TOOLS.md#cli-quick-reference), [flow export builder](../../TOOLS.md#flow-export-builder).
+[DNS zone file builder](../../TOOLS.md#dns-zone-file-builder), [syslog builder & parser](../../TOOLS.md#syslog-builder--parser), [SNMP command builder](../../TOOLS.md#snmp-command-builder), [SysTool CLI builder](../../TOOLS.md#systool-cli-builder), [CLI quick reference](../../TOOLS.md#cli-quick-reference), [flow export builder](../../TOOLS.md#flow-export-builder), [IP SLA / TWAMP probe builder](../../TOOLS.md#ip-sla--twamp-probe-builder).
 
 ## Crypto, certs, encoding (8)
 
