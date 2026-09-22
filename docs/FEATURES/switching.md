@@ -1,6 +1,6 @@
 # Switching
 
-Layer-2 design and reference: spanning tree, port-channels, QinQ, VXLAN/EVPN, SPAN, 802.1X. All **9** Switching entries are client-side.
+Layer-2 design and reference: spanning tree, port-channels, QinQ, VXLAN/EVPN, SPAN, 802.1X. All **10** Switching entries are client-side.
 
 Catalog: [TOOLS.md](../../TOOLS.md). Section: [Switching & Layer 2](../../TOOLS.md#switching--layer-2).
 
@@ -10,6 +10,7 @@ Catalog: [TOOLS.md](../../TOOLS.md). Section: [Switching & Layer 2](../../TOOLS.
 - [Interface config generator](../../TOOLS.md#interface-config-gen)
 - [MAC address table parser](../../TOOLS.md#mac-address-table-parser)
 - [802.1X / NAC config builder](../../TOOLS.md#8021x--nac-config-builder)
+- [MACsec / 802.1AE config builder](../../TOOLS.md#macsec--8021ae-config-builder)
 - [Port mirror / SPAN builder](../../TOOLS.md#port-mirror--span-builder)
 - [VXLAN reference](../../TOOLS.md#vxlan-reference)
 - [EVPN/VXLAN fabric designer](../../TOOLS.md#evpnvxlan-fabric-designer)

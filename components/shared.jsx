@@ -184,7 +184,7 @@ function CopyBtn({ text, label = 'copy', id }) {
 }
 window.CopyBtn = CopyBtn;
 
-function ResultItem({ label, value, accent, green, yellow, red }) {
+function ResultItem({ label, value, accent, green, yellow, red, sub }) {
   const cls = accent ? 'accent' : green ? 'green' : yellow ? 'yellow' : red ? 'red' : '';
   const isRFC = label === 'RFC';
   return (
@@ -194,6 +194,7 @@ function ResultItem({ label, value, accent, green, yellow, red }) {
         <div className={`result-value ${cls}`}>
           {isRFC ? <RFCLink rfc={value} /> : value}
         </div>
+        {sub ? <div className="hint" style={{ marginTop: 2 }}>{sub}</div> : null}
       </div>
       <CopyBtn text={String(value)} />
     </div>

@@ -727,6 +727,60 @@ Sub-tabs: Variants, States, Timers, Bridge ID Calculator, Config Snippets
 
 ---
 
+### MACsec / 802.1AE Config Builder
+**ID:** `macsec-config` | **Type:** Tool | **Offline**
+
+**Description:** Builds IEEE 802.1AE MACsec link-encryption configuration for Cisco IOS/IOS-XE, Cisco NX-OS and Juniper Junos from one set of parameters, and checks the configured SAK rekey interval against the packet-number budget the link actually burns at line rate. CAK and CKN are generated with `crypto.getRandomValues` in the browser, held in memory only, and excluded from the share URL.
+
+**Tabs:**
+
+#### Config Builder (`activeTab: builder`)
+**Inputs:**
+- Vendor: Cisco IOS/IOS-XE, Cisco NX-OS, Juniper Junos
+- Interface, policy / connectivity-association name, key chain name
+- CAK source: static CAK (pre-shared) or dynamic CAK (802.1X EAP-derived)
+- CKN and CAK (generated, or pasted); CAK length follows the cipher suite key size
+- Cipher suite: `GCM-AES-128`, `GCM-AES-256`, `GCM-AES-XPN-128`, `GCM-AES-XPN-256`
+- Key server priority (0–255), SAK rekey interval (vendor-clamped), confidentiality offset (0/30/50)
+- Include SCI in the SecTAG, replay protection window
+- Behaviour when MKA does not come up: `must-secure` (fail closed) or `should-secure` (fail open)
+- Emit key-encryption enabling commands as comments
+
+**Outputs:**
+- Complete per-vendor CLI: `key chain … macsec` + `mka policy` + interface on IOS-XE; `key chain … macsec` + `macsec policy` + interface on NX-OS; `set security macsec connectivity-association …` on Junos
+- Verification commands as trailing comments
+- Review chips: plaintext-CAK warning, XPN-required, packet-number headroom, AES-128, fail-open, strict replay window, confidentiality offset, key-server priority ties, Junos 64-digit CKN
+- Copy and Export `.txt`
+
+#### Key Rotation Planner (`activeTab: rekey`)
+**Inputs:**
+- Line rate: 1 / 10 / 25 / 40 / 100 / 400 GbE
+- Frame size in bytes (64–9216; 64 is the worst case)
+- Cipher suite, SCI setting and rekey interval are read from the Config Builder tab
+
+**Outputs:**
+- MACsec frame size on the wire with the SecTAG/ICV breakdown
+- Packet-number burn rate in frames per second
+- Time to exhaust the 32-bit or 64-bit packet-number space
+- The same figure for the other packet-number width, so the XPN trade is explicit
+- Recommended rekey interval, clamped to the selected vendor's range, or an explicit "no safe timer value" when the packet number exhausts faster than the platform's minimum timer
+- Packet-number space consumed per SAK, data protected per SAK, SAK rotations per day
+- KaY operational notes: key-server election and SCI tie-break, the EAPOL exception under `must-secure`, hitless vs forced rollover, delay protection vs replay window, per-member LAG sessions, MKA hello timeout, SecY counter reading
+- Copy All (header row, tab-separated)
+
+#### Reference (`activeTab: reference`)
+**Outputs:**
+- Static CAK vs dynamic CAK: key source, who configures it, typical use, scaling, rotation — with the note that both run MKA
+- MACsec vs 802.1X vs IPsec: layer, what it protects, scope, hop behaviour, key exchange, where it runs, what it does not do
+- Cipher suite table rendered from the same constant the builder uses, with XPN notes
+- Worked example: 10 GbE, 64-byte frames, SCI on → 96 bytes on the wire, 10,775,862 fps, 32-bit PN wraps in 398.6 s, 64-bit XPN in ~54,245 years; 100 GbE wraps a 32-bit PN in 39.9 s
+
+**Not covered here:** 802.1X authenticator and RADIUS configuration (see [802.1X / NAC Config Builder](#8021x--nac-config-builder)), routed-path encryption (see IPsec / IKEv2 Config Builder), TLS cipher suite naming (see Cipher Suite Reference). No key distribution, no certificate handling, and no network calls of any kind.
+
+**Current Keywords:** `macsec 802.1ae mka link encryption cak ckn sak xpn gcm-aes key server rekey secy kay cisco nexus juniper junos nx-os layer2 encryption`
+
+---
+
 ### Port Mirror / SPAN Builder
 **ID:** `span-builder` | **Type:** Tool | **Offline**
 
@@ -3668,9 +3722,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 120 top-level entries in `components/app.jsx` — 106 tools, 14 references.
+**Registry (source of truth):** 121 top-level entries in `components/app.jsx` — 107 tools, 14 references.
 
-**This catalog:** 116 `###` headings.
+**This catalog:** 117 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3678,7 +3732,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
-- Switching & Layer 2 — 10
+- Switching & Layer 2 — 11
 - Routing & Layer 3 — 13
 - Infrastructure, QoS & Planning — 22
 - Media & Broadcast — 2

@@ -111,6 +111,13 @@ const TOOLS = [
   { id: 'config-gen', label: 'Interface Config Gen', group: 'Switching', type: 'tool' },
   { id: 'mac-table-parser', label: 'MAC Address Table Parser', group: 'Switching', type: 'tool', keywords: 'mac address table parser show mac flapping port-security vlan distribution oui vendor cisco nxos snapshot diff' },
   { id: 'dot1x-builder', label: '802.1X / NAC Config Builder', group: 'Switching', type: 'tool', keywords: '802.1x dot1x nac mab webauth radius coa cisco aruba port-access single-host multi-host multi-domain authentication' },
+  { id: 'macsec-config', label: 'MACsec / 802.1AE Config Builder', group: 'Switching', type: 'tool',
+    keywords: 'macsec 802.1ae mka link encryption cak ckn sak xpn gcm-aes key server rekey secy kay cisco nexus juniper junos nx-os layer2 encryption',
+    subTools: [
+      { labelKey: 'macsec_config.tab_builder',   nav: { activeTab: 'builder' },   keywords: 'macsec config builder cipher suite key server priority static cak dynamic cak key chain pre-shared-key should-secure must-secure confidentiality offset' },
+      { labelKey: 'macsec_config.tab_rekey',     nav: { activeTab: 'rekey' },     keywords: 'sak rekey interval packet number pn exhaustion xpn wrap line rate kay warnings sak-expiry-time' },
+      { labelKey: 'macsec_config.tab_reference', nav: { activeTab: 'reference' }, keywords: 'macsec reference mka static dynamic cak comparison 802.1x ipsec hop-by-hop cipher suite xpn notes' },
+    ] },
   { id: 'span-builder', label: 'Port Mirror / SPAN Builder', group: 'Switching', type: 'tool', keywords: 'span rspan erspan mirror port mirroring monitoring analyzer packet capture traffic monitoring tap cisco arista juniper configuration' },
   { id: 'vxlan-ref', label: 'VXLAN Reference', group: 'Switching', type: 'ref' },
   { id: 'evpn-vxlan-designer', label: 'EVPN/VXLAN Fabric Designer', group: 'Switching', type: 'tool', keywords: 'evpn vxlan spine leaf bgp underlay overlay nve tenant fabric design switch routing config' },
@@ -775,6 +782,7 @@ function App() {
       case 'flow-export': return <FlowExportBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'mac-table-parser': return <MacTableParser initialData={hashData} onShare={handleShare} />;
       case 'dot1x-builder': return <Dot1xBuilder initialData={hashData} onShare={handleShare} />;
+      case 'macsec-config': return <MacsecConfigBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'net-arcade': return <ArcadeHub initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'bandwidth': return <BandwidthCalc initialData={hashData} onShare={handleShare} />;
       case 'dataunit': return <DataUnitConverter initialData={hashData} onShare={handleShare} />;
