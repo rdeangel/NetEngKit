@@ -184,6 +184,12 @@ const TOOLS = [
       { labelKey: 'qos_tool.token_bucket',   nav: { activeTab: 'bucket' }, keywords: 'token bucket cir bc burst committed information rate policing shaping policer' },
       { labelKey: 'qos_tool.cbwfq_shaping',  nav: { activeTab: 'cbwfq' },  keywords: 'cbwfq class based weighted fair queue bandwidth allocation tc interval shaping cisco' },
     ] },
+  { id: 'copp-builder', label: 'CoPP / Control Plane Policing Builder', group: 'Infrastructure', type: 'tool',
+    keywords: 'copp control plane policing protection cppr policer police rate burst class-map policy-map service-policy lo0 protect-re firewall filter cisco ios ios-xe nx-os nexus juniper junos ssh snmp bgp ospf icmp arp ntp',
+    subTools: [
+      { labelKey: 'copp_builder.tab_config',    nav: { activeTab: 'config' },    keywords: 'copp config class-map policy-map control-plane service-policy input police cir bc conform exceed violate lo0 filter policer preset lenient moderate strict' },
+      { labelKey: 'copp_builder.tab_reference', nav: { activeTab: 'reference' }, keywords: 'copp profile strict moderate lenient dense system-cpp-policy ddos-protection deployment guidance rate-limit dialect' },
+    ] },
   { id: 'mtu', label: 'MTU & Encapsulation', group: 'Infrastructure', type: 'tool' },
   { id: 'wifi-rf-planner', label: 'Wireless & RF Planner', group: 'Infrastructure', type: 'tool', keywords: 'wifi wireless rf planner airtime capacity mcs roaming 802.11 spectrum fast transition', subTools: [
     { labelKey: 'wifi_rf.tab_design', nav: { tab: 'design' }, keywords: 'wifi wireless rf planner link budget fspl fresnel path loss' },
@@ -776,6 +782,7 @@ function App() {
       case 'proto-ref': return <RoutingReference />;
       case 'vpn-ref': return <VPNArchitect />;
       case 'qos-tool': return <QoSDSCPTool initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'copp-builder': return <CoPPBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'wifi-rf-planner': return <WirelessRFPlanner initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'lorawan-planner': return <LoRaWANPlanner initialData={hashData} onShare={handleShare} />;
       case 'wifi-qr': return <WifiQRCode initialData={hashData} onShare={handleShare} onNav={handleNav} />;

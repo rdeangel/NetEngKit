@@ -1566,6 +1566,40 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### CoPP / Control Plane Policing Builder
+**ID:** `copp-builder` | **Type:** Tool | **Offline**
+
+**Description:** Generates control-plane protection policy: per-protocol policers chained class-map → policy-map → control-plane for Cisco IOS, IOS-XE and NX-OS, and a policed lo0 firewall filter for Juniper Junos. Includes lenient/moderate/strict presets and a deployment reference.
+
+**Tabs:**
+
+#### Config (`config`)
+**Inputs:**
+- Platform: Cisco IOS, IOS-XE, NX-OS, Juniper Junos
+- Policy/filter name; attachment (aggregate / host / transit) on IOS and IOS-XE; unmatched-traffic action on Junos
+- Presets: Lenient (monitor), Moderate, Strict
+- Protocol classes (SSH, SNMP, BGP, OSPF, IS-IS, ICMP, ARP, NTP): enable, source prefix, rate + burst (kbps/bytes, or pps/packets on NX-OS), action (police / monitor)
+- Up to six custom ACL-backed classes: name, protocol, destination port, source, rate, action (police / monitor / block)
+- class-default rate and action
+
+**Outputs:**
+- Full vendor configuration: ACLs, class-maps, policy-map with policers, control-plane service-policy (Cisco); policers, lo0 inet filter terms and interface attachment in set format (Junos)
+- Burst duration per class; review hints (lockout risk, sub-MTU bursts, unrestricted management sources, non-IP protocols)
+- Copy and .txt download
+
+#### Reference (`reference`)
+**Outputs:**
+- Built-in CoPP per platform (NX-OS profiles, Catalyst 9000 system-cpp-policy, Junos ddos-protection)
+- Tool preset table, policing dialect comparison, deployment guidance, related tools
+
+**Current Keywords (parent):** `copp control plane policing protection cppr policer police rate burst class-map policy-map service-policy lo0 protect-re firewall filter cisco ios ios-xe nx-os nexus juniper junos ssh snmp bgp ospf icmp arp ntp`
+
+**Sub-tool Keywords:**
+- Config: `copp config class-map policy-map control-plane service-policy input police cir bc conform exceed violate lo0 filter policer preset lenient moderate strict`
+- Reference: `copp profile strict moderate lenient dense system-cpp-policy ddos-protection deployment guidance rate-limit dialect`
+
+---
+
 ### MTU & Encapsulation
 **ID:** `mtu` | **Type:** Tool | **Offline**
 
@@ -3777,9 +3811,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 122 top-level entries in `components/app.jsx` — 108 tools, 14 references.
+**Registry (source of truth):** 123 top-level entries in `components/app.jsx` — 109 tools, 14 references.
 
-**This catalog:** 118 `###` headings.
+**This catalog:** 119 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3789,7 +3823,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 11
 - Routing & Layer 3 — 13
-- Infrastructure, QoS & Planning — 22
+- Infrastructure, QoS & Planning — 23
 - Media & Broadcast — 2
 - Diagnostics & Tools — 53
 - Education & Entertainment — 1
