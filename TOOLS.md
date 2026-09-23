@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **118** top-level entries: **104** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **125** top-level entries: **111** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **114** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **121** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -126,6 +126,29 @@ This file documents **114** of them as `###` headings (inputs, outputs, tabs, ke
 - Overlap detection with visual indicators and collision highlighting
 
 **Current Keywords:** `subnet planner vlsm supernet summary split merge overlap range cidr collision check`
+
+---
+
+### Subnet Host Slicer
+**ID:** `subnet-slicer` | **Type:** Tool | **Offline**
+
+**Description:** Pulls the same host position out of a whole list of subnets in one go: first/last usable, +N from the network, −N from the broadcast, Nth host, or both point-to-point endpoints. Rows where the offset doesn't fit get an out-of-bounds flag. Handles IPv4 and IPv6, including /31 (RFC 3021), /127 (RFC 6164) and host routes.
+
+**Inputs:**
+- Subnet list (IPv4/IPv6 `addr/prefix`, or IPv4 `addr` + dotted mask; separated by space, comma or semicolon; `#`, `!` or `//` comments become row labels)
+- Samples: P2P WAN links, campus subnets, IPv6 peering
+- Mode: first usable, last usable, +N from start, −N from end, Nth host, P2P endpoints
+- N (offset / host index)
+- Output affixes (independent toggles): `/prefix`, dotted mask, wildcard (mask/wildcard exclusive); `A <-> B` join in P2P mode
+
+**Outputs:**
+- Output column ready to paste (out-of-bounds and invalid rows left out), one-click copy
+- Per-subnet table: network, broadcast/last, usable range, usable count, selected address(es), mask, status (`[out-of-bounds]` with the valid N range, invalid, host bits set)
+- Table copy (TSV with header), CSV and JSON export, share URL
+
+**Current Keywords:** `subnet host slicer batch bulk first last usable offset nth gateway peer point-to-point p2p /30 /31 /127 rfc 3021 rfc 6164 wildcard mask ipv6 extract`
+
+**Suggested Keywords to Add:** _(none)_
 
 ---
 
@@ -3843,13 +3866,13 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 124 top-level entries in `components/app.jsx` — 110 tools, 14 references.
+**Registry (source of truth):** 125 top-level entries in `components/app.jsx` — 111 tools, 14 references.
 
-**This catalog:** 120 `###` headings.
+**This catalog:** 121 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
-- IPv4 Subnet & Addressing — 8
+- IPv4 Subnet & Addressing — 9
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1

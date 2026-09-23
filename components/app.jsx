@@ -58,6 +58,8 @@ const TOOLS = [
       { labelKey: 'tools.overlap.title', nav: { mode: 'overlap' }, keywords: 'overlap collision conflict duplicate check validation' },
     ],
   },
+  { id: 'subnet-slicer', label: 'Subnet Host Slicer', group: 'IPv4', type: 'tool',
+    keywords: 'subnet host slicer batch bulk first last usable offset nth gateway peer point-to-point p2p /30 /31 /127 rfc 3021 rfc 6164 wildcard mask ipv6 extract' },
   { id: 'dhcp', label: 'DHCP Scope Planner', group: 'IPv4', type: 'tool' },
   { id: 'converter', label: 'IP Converter', group: 'IPv4', type: 'tool',
     keywords: 'ip converter representation decimal binary hex integer conversion format',
@@ -730,6 +732,7 @@ function App() {
     switch (activeTool) {
       case 'subnet': return <SubnetCalc onShare={handleShare} initialData={hashData} onNav={handleNav} />;
       case 'subnet-planner': return <SubnetPlanner onShare={handleShare} initialData={hashData} onNav={handleNav} />;
+      case 'subnet-slicer': return <SubnetHostSlicer onShare={handleShare} initialData={hashData} />;
       case 'converter': return <IPConverter initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'ipv6': return <IPv6Tools initialData={hashData} onShare={handleShare} />;
       case 'acl': return <ACLGenerator initialData={hashData} onShare={handleShare} />;
