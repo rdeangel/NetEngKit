@@ -148,17 +148,18 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
   const [includeSci, setIncludeSci] = usePersistentState('macsec:include_sci', initialData?.includeSci ?? true);
   const [replayWin,  setReplayWin]  = usePersistentState('macsec:replay_win',  initialData?.replayWin  ?? '0');
   const [failMode,   setFailMode]   = usePersistentState('macsec:fail_mode',   initialData?.failMode   ?? 'must_secure'); // 'must_secure' | 'should_secure'
-  const [type6,      setType6]      = usePersistentState('macsec:type6',       true);   // emit key-encryption enabling commands as comments
+  const [type6,      setType6]      = usePersistentState('macsec:type6',       initialData?.type6 ?? true);   // emit key-encryption enabling commands as comments
 
   // --- Key Rotation Planner inputs
   const [lineRate,   setLineRate]   = usePersistentState('macsec:line_rate',   initialData?.lineRate   ?? '10');
   const [frameBytes, setFrameBytes] = usePersistentState('macsec:frame_bytes', initialData?.frameBytes ?? '64');
 
   // --- SECRETS. Plain useState on purpose: never written to window.toolStateCache,
-  // never emitted in the share payload, gone the moment the tool unmounts.
-  // ponytail: the cheapest way to not leak a key is to not store it
-  const [cak, setCak] = useState('');
-  const [ckn, setCkn] = useState('');
+  // ponytail: the cheapest way to not leak a key is to not store it.
+  // Lazy seeds: no mount effect, so the first paint already has keys (reviewer minor 6).
+  const [cak, setCak] = useState(() => macsecRandomHex(
+    (MACSEC_CIPHERS.find(x => x.id === cipher) || MACSEC_CIPHERS[3]).bits / 8));
+  const [ckn, setCkn] = useState(() => macsecRandomHex(MACSEC_CKN_HEX_LEN / 2));
 
   // One-shot clamp hint
   const [clampedHint, setClampedHint] = useState(null);
@@ -172,8 +173,6 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
     setCak(macsecRandomHex(cakHexLen / 2));
     setCkn(macsecRandomHex(MACSEC_CKN_HEX_LEN / 2));
   }, [cakHexLen]);
-
-  useEffect(() => { if (!cak && !ckn) regenerateKeys(); }, []);   // dep [] — mount only
 
   // Cipher change alters the required CAK length. Regrow ONLY when the current CAK
   // is a key this tool generated at the previous length — never clobber a pasted key
@@ -252,8 +251,8 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
       return t('macsec_config.err_bad_rekey', { min: limits.rekeyMin, max: limits.rekeyMax });
     }
     const sFrame = String(frameBytes).trim();
-    if (sFrame !== '' && (!/^\d+$/.test(sFrame) || Number(sFrame) < 64 || Number(sFrame) > 9216)) {
-      return t('macsec_config.err_bad_frame', { min: 64, max: 9216 });
+    if (sFrame !== '' && (!/^\d+$/.test(sFrame) || Number(sFrame) < 64 || Number(sFrame) > MACSEC_MAX_FRAME)) {
+      return t('macsec_config.err_bad_frame', { min: 64, max: MACSEC_MAX_FRAME });
     }
     return '';
   }, [rekey, limits, frameBytes, t]);
@@ -265,7 +264,7 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
     const sRekey = String(rekey).trim();
     if (!sFrame || !sRekey) return null;
     const frame = Number(sFrame);
-    if (!isFinite(frame) || frame < 64 || frame > 9216) return null;
+    if (!isFinite(frame) || frame < 64 || frame > MACSEC_MAX_FRAME) return null;
     const configured = Number(sRekey);
     if (!isFinite(configured) || configured < limits.rekeyMin || configured > limits.rekeyMax) return null;
 
@@ -480,7 +479,7 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
     if (Number(ksPriority) === 0) {
       list.push({ level: 'yellow', key: 'hint_ks_priority_zero' });
     }
-    if (ckn.length !== 64 && vendor === 'junos') {
+    if (keyMode === 'static_cak' && ckn.length !== 64 && vendor === 'junos') {
       list.push({ level: 'yellow', key: 'hint_ckn_junos_64' });
     }
     if (clampedHint) {
@@ -556,11 +555,11 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
       activeTab, vendor, keyMode,
       iface, policyName, keychainName,
       cipher, ksPriority, rekey, confOffset, includeSci, replayWin, failMode,
-      lineRate, frameBytes,
+      lineRate, frameBytes, type6,
     });
     window.addEventListener('app:request-share', h);
     return () => window.removeEventListener('app:request-share', h);
-  }, [activeTab, vendor, keyMode, iface, policyName, keychainName, cipher, ksPriority, rekey, confOffset, includeSci, replayWin, failMode, lineRate, frameBytes, onShare]);
+  }, [activeTab, vendor, keyMode, iface, policyName, keychainName, cipher, ksPriority, rekey, confOffset, includeSci, replayWin, failMode, lineRate, frameBytes, type6, onShare]);
 
   const kayWarningKeys = [
     'kay_election',
@@ -873,7 +872,7 @@ function MacsecConfigBuilder({ initialData, onShare, onNav }) {
             </div>
 
             <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, padding: '8px 10px', background: 'var(--panel)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              {t('macsec_config.rekey_from_builder_note')} ({cipherDef.id.toUpperCase().replace(/_/g, '-')}, {includeSci ? t('macsec_config.sci_on') : t('macsec_config.sci_off')}, {rekey} s)
+              {t('macsec_config.rekey_from_builder_note')} ({t('macsec_config.vendor_' + vendor)}, {cipherDef.id.toUpperCase().replace(/_/g, '-')}, {includeSci ? t('macsec_config.sci_on') : t('macsec_config.sci_off')}, {rekey} s)
             </div>
           </div>
 

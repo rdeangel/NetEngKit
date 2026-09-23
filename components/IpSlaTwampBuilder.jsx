@@ -847,7 +847,7 @@ function IpSlaTwampBuilder({ initialData, onShare, onNav }) {
                     <label className="label">{t('ipsla_twamp.codec')}</label>
                     <select className="select" value={codec} onChange={e => handleCodecChange(e.target.value)}>
                       {IPSLA_CODECS.map(c => (
-                        <option key={c.id} value={c.id}>{c.cli.toUpperCase()}</option>
+                        <option key={c.id} value={c.id}>{c.cli}</option>
                       ))}
                       <option value="none">{t('ipsla_twamp.codec_none')}</option>
                     </select>
@@ -1293,7 +1293,7 @@ function IpSlaTwampBuilder({ initialData, onShare, onNav }) {
                     className="btn btn-sm btn-ghost"
                     onClick={() => ipslaDownloadTxt(ipslaConfig, `ipsla-${opNumber}.txt`)}
                   >
-                    {t('common.export')} .txt
+                    {t('ipsla_twamp.export_txt')}
                   </button>
                 </div>
               </div>
@@ -1321,7 +1321,7 @@ function IpSlaTwampBuilder({ initialData, onShare, onNav }) {
                     className="btn btn-sm btn-ghost"
                     onClick={() => ipslaDownloadTxt(responderConfig, `ipsla-responder-${opNumber}.txt`)}
                   >
-                    {t('common.export')} .txt
+                    {t('ipsla_twamp.export_txt')}
                   </button>
                 </div>
               </div>
@@ -1613,7 +1613,7 @@ function IpSlaTwampBuilder({ initialData, onShare, onNav }) {
                     className="btn btn-sm btn-ghost"
                     onClick={() => ipslaDownloadTxt(twampConfig, `twamp-${twVendor}-${twRole}.txt`)}
                   >
-                    {t('common.export')} .txt
+                    {t('ipsla_twamp.export_txt')}
                   </button>
                 </div>
               </div>
