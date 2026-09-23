@@ -1233,6 +1233,38 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### BGP Best Path Simulator
+**ID:** `bgp-best-path` | **Type:** Tool | **Offline**
+
+**Description:** Simulates the BGP best-path decision process over 2–8 candidate paths and shows, round by round, which step eliminated each path and why. Cisco IOS/IOS-XE, Juniper Junos, Arista EOS and RFC 4271 step orders, MED modes (deterministic-med, always-compare-med, missing-as-worst) and multipath ECMP.
+
+**Tabs:**
+
+#### Simulator (`simulator`)
+**Inputs:**
+- Decision process: Cisco IOS / IOS-XE, Juniper Junos, Arista EOS, RFC 4271
+- Knobs: deterministic-med, always-compare-med, missing MED as worst, compare router ID, maximum paths, multipath relax
+- Per path: next-hop reachable, weight, local preference, locally originated, AS_PATH (AS_SET / confederation notation), origin, MED, eBGP/iBGP/confed, IGP metric, received order, router/originator ID, cluster list length, neighbor address
+- Scenarios: AS-path prepend, transit vs peering, MED order trap, multipath ECMP, route reflector tiebreak
+
+**Outputs:**
+- Elimination trace per step (pairwise arrival-order walk when deterministic-med is off)
+- Best path banner and ECMP set with exclusion reasons
+- Review hints (MED order trap, missing MED, multipath prerequisites)
+- Copy decision summary (text), JSON export, share URL
+
+#### Reference (`reference`)
+**Outputs:**
+- Decision-order matrix: RFC 4271 vs Cisco vs Junos vs Arista
+- Knob table with per-vendor CLI
+- Common traps: MED order (RFC 3345), missing MED, unreachable next hop, multipath prerequisites, weight, oldest path, confederations
+
+**Current Keywords:** `bgp best path bestpath selection decision algorithm simulator weight local preference local-pref as-path origin med multi-exit discriminator deterministic-med always-compare-med ebgp ibgp igp metric multipath ecmp router id originator cluster list route reflector tiebreak cisco juniper junos arista rfc 4271`
+
+**Suggested Keywords to Add:** _(none)_
+
+---
+
 ### FHRP Calculator
 **ID:** `fhrp-calc` | **Type:** Tool | **Offline**
 
@@ -3811,9 +3843,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 123 top-level entries in `components/app.jsx` — 109 tools, 14 references.
+**Registry (source of truth):** 124 top-level entries in `components/app.jsx` — 110 tools, 14 references.
 
-**This catalog:** 119 `###` headings.
+**This catalog:** 120 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3822,7 +3854,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 11
-- Routing & Layer 3 — 13
+- Routing & Layer 3 — 14
 - Infrastructure, QoS & Planning — 23
 - Media & Broadcast — 2
 - Diagnostics & Tools — 53

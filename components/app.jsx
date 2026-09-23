@@ -155,6 +155,12 @@ const TOOLS = [
   { id: 'bgp-lg', label: 'BGP Looking Glass', group: 'Routing', type: 'tool', online: true, server: true },
   { id: 'asn', label: 'BGP / ASN Lookup', group: 'Routing', type: 'tool', online: true, server: true },
   { id: 'bgp-community', label: 'BGP Community Builder', group: 'Routing', type: 'tool' },
+  { id: 'bgp-best-path', label: 'BGP Best Path Simulator', group: 'Routing', type: 'tool',
+    keywords: 'bgp best path bestpath selection decision algorithm simulator weight local preference local-pref as-path origin med multi-exit discriminator deterministic-med always-compare-med ebgp ibgp igp metric multipath ecmp router id originator cluster list route reflector tiebreak cisco juniper junos arista rfc 4271',
+    subTools: [
+      { labelKey: 'bgp_best_path.tab_simulator', nav: { activeTab: 'simulator' }, keywords: 'bgp best path simulator candidates elimination trace winner multipath ecmp preset med trap prepend transit peering' },
+      { labelKey: 'bgp_best_path.tab_reference', nav: { activeTab: 'reference' }, keywords: 'bgp decision process comparison rfc 4271 cisco junos arista deterministic-med rfc 3345 missing-as-worst multipath-relax compare-routerid' },
+    ] },
   { id: 'fhrp-calc', label: 'FHRP Calculator', group: 'Routing', type: 'tool', keywords: 'fhrp hsrp vrrp glbp redundancy gateway virtual mac priority preempt active standby election first hop' },
   { id: 'prefix-list-builder', label: 'Prefix List & Route Map Builder', group: 'Routing', type: 'tool', keywords: 'prefix-list route-map redistribution bgp ospf filter ge le cisco ios nxos juniper arista policy routing' },
 
@@ -828,6 +834,7 @@ function App() {
       case 'config-diff': return <ConfigDiff initialData={hashData} onShare={handleShare} />;
       case 'config-redactor': return <ConfigRedactor initialData={hashData} onShare={handleShare} />;
       case 'bgp-community': return <BGPCommunity initialData={hashData} onShare={handleShare} />;
+      case 'bgp-best-path': return <BGPBestPathSimulator initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'tcp-congestion': return <TCPCongestion initialData={hashData} onShare={handleShare} />;
       case 'fhrp-calc': return <FHRPCalc initialData={hashData} onShare={handleShare} />;
       case 'nxapi-builder': return <NXAPIBuilder initialData={hashData} onShare={handleShare} />;
