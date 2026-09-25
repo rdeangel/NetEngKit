@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **125** top-level entries: **111** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **126** top-level entries: **112** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **121** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **122** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -1306,6 +1306,38 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Common traps: MED order (RFC 3345), missing MED, unreachable next hop, multipath prerequisites, weight, oldest path, confederations
 
 **Current Keywords:** `bgp best path bestpath selection decision algorithm simulator weight local preference local-pref as-path origin med multi-exit discriminator deterministic-med always-compare-med ebgp ibgp igp metric multipath ecmp router id originator cluster list route reflector tiebreak cisco juniper junos arista rfc 4271`
+
+**Suggested Keywords to Add:** _(none)_
+
+---
+
+### BGP AS-Path Regex & Filter Tester
+**ID:** `bgp-aspath-regex` | **Type:** Tool | **Offline**
+
+**Description:** Tests BGP as-path filters (ordered permit/deny regex entries, first match wins, implicit deny) against a batch of AS paths, per vendor dialect: Cisco IOS/IOS-XE (POSIX with `_`), Juniper Junos (whole-AS terms, implicitly anchored), Arista EOS asn and string regex-mode. Shows which entry decided each path, the matched span and capture groups; converts Cisco ↔ Junos with explicit warnings and a verdict diff; generates CLI.
+
+**Tabs:**
+
+#### Tester (`tester`)
+**Inputs:**
+- Dialect: Cisco IOS / IOS-XE, Juniper Junos, Arista EOS (asn mode), Arista EOS (string mode)
+- Filter: 1–8 permit/deny regex entries
+- Test AS paths, one per line (`""` = empty path, `{a,b}` AS_SET, `(a b)` confederation)
+- Recipes: `_` boundary, only local routes, customer's own prefixes, anything via neighbor, originated by AS, transit-carrier block, prepend detection, private ASN block
+
+**Outputs:**
+- Per-path verdict (permit / deny / implicit deny / invalid), deciding entry, highlighted match, capture groups
+- Cisco ↔ Junos converter with unsupported/approximation warnings and a test-path verdict diff
+- CLI: `ip as-path access-list` (IOS, EOS incl. `regex-mode`), Junos `policy-options as-path` + policy terms
+- Review hints, copy results (with header row), JSON export, share URL
+
+#### Reference (`reference`)
+**Outputs:**
+- Operator cheat sheet: IOS vs Junos vs EOS asn mode
+- Recipe matrix per dialect
+- Traps: undelimited ASN, Junos anchoring, `_.*_`, naive prepend regex, implicit deny vs default accept, EOS regex-mode, literal braces
+
+**Current Keywords:** `bgp as-path aspath as_path regex regular expression filter access-list ip as-path access-list policy-options as-path underscore posix cisco ios ios-xe juniper junos arista eos regex-mode prepend private asn rfc 6996 transit leak customer peer upstream`
 
 **Suggested Keywords to Add:** _(none)_
 
@@ -3889,9 +3921,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 125 top-level entries in `components/app.jsx` — 111 tools, 14 references.
+**Registry (source of truth):** 126 top-level entries in `components/app.jsx` — 112 tools, 14 references.
 
-**This catalog:** 121 `###` headings.
+**This catalog:** 122 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3900,7 +3932,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 12
-- Routing & Layer 3 — 14
+- Routing & Layer 3 — 15
 - Infrastructure, QoS & Planning — 23
 - Media & Broadcast — 2
 - Diagnostics & Tools — 53

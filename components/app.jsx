@@ -168,6 +168,12 @@ const TOOLS = [
       { labelKey: 'bgp_best_path.tab_simulator', nav: { activeTab: 'simulator' }, keywords: 'bgp best path simulator candidates elimination trace winner multipath ecmp preset med trap prepend transit peering' },
       { labelKey: 'bgp_best_path.tab_reference', nav: { activeTab: 'reference' }, keywords: 'bgp decision process comparison rfc 4271 cisco junos arista deterministic-med rfc 3345 missing-as-worst multipath-relax compare-routerid' },
     ] },
+  { id: 'bgp-aspath-regex', label: 'BGP AS-Path Regex & Filter Tester', group: 'Routing', type: 'tool',
+    keywords: 'bgp as-path aspath as_path regex regular expression filter access-list ip as-path access-list policy-options as-path underscore posix cisco ios ios-xe juniper junos arista eos regex-mode prepend private asn rfc 6996 transit leak customer peer upstream',
+    subTools: [
+      { labelKey: 'bgp_aspath_regex.tab_tester', nav: { activeTab: 'tester' }, keywords: 'as-path regex tester filter permit deny implicit deny match highlight capture group converter cisco junos cli generator preset' },
+      { labelKey: 'bgp_aspath_regex.tab_reference', nav: { activeTab: 'reference' }, keywords: 'as-path regex cheat sheet operators underscore anchor junos range eos asn string mode recipes traps' },
+    ] },
   { id: 'fhrp-calc', label: 'FHRP Calculator', group: 'Routing', type: 'tool', keywords: 'fhrp hsrp vrrp glbp redundancy gateway virtual mac priority preempt active standby election first hop' },
   { id: 'prefix-list-builder', label: 'Prefix List & Route Map Builder', group: 'Routing', type: 'tool', keywords: 'prefix-list route-map redistribution bgp ospf filter ge le cisco ios nxos juniper arista policy routing' },
 
@@ -844,6 +850,7 @@ function App() {
       case 'config-redactor': return <ConfigRedactor initialData={hashData} onShare={handleShare} />;
       case 'bgp-community': return <BGPCommunity initialData={hashData} onShare={handleShare} />;
       case 'bgp-best-path': return <BGPBestPathSimulator initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'bgp-aspath-regex': return <BGPASPathRegexTester initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'tcp-congestion': return <TCPCongestion initialData={hashData} onShare={handleShare} />;
       case 'fhrp-calc': return <FHRPCalc initialData={hashData} onShare={handleShare} />;
       case 'nxapi-builder': return <NXAPIBuilder initialData={hashData} onShare={handleShare} />;
