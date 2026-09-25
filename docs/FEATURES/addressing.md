@@ -1,12 +1,12 @@
 # Addressing
 
-IPv4, IPv6, dual-stack classification, and multicast addressing. All **17** entries in these groups are client-side — no `proxy.js`, no internet flag.
+IPv4, IPv6, dual-stack classification, and multicast addressing. All **16** entries in these groups are client-side — no `proxy.js`, no internet flag.
 
 Catalog: [TOOLS.md](../../TOOLS.md). This page is the area index.
 
-## IPv4 (9)
+## IPv4 (8)
 
-[IPv4 subnet calculator](../../TOOLS.md#ipv4-subnet-calculator), [subnetting planner](../../TOOLS.md#subnetting-planner) (VLSM / supernet / split / merge / overlap), [subnet host slicer](../../TOOLS.md#subnet-host-slicer) (batch first/last/offset extraction), [DHCP scope planner](../../TOOLS.md#dhcp-scope-planner), [IP converter](../../TOOLS.md#ip-converter), [ACL generator](../../TOOLS.md#acl-generator), [NAT/PAT calculator](../../TOOLS.md#natpat-calculator), [Split Tunnel Calculator](../../TOOLS.md#split-tunnel-calculator) (`split-tunnel`), [bogon / martian filter](../../TOOLS.md#bogon--martian-filter-generator).
+[IPv4 subnet calculator](../../TOOLS.md#ipv4-subnet-calculator), [subnetting planner](../../TOOLS.md#subnetting-planner) (VLSM / supernet / split & merge / subnet host slicer / range ↔ CIDR / overlap), [DHCP scope planner](../../TOOLS.md#dhcp-scope-planner), [IP converter](../../TOOLS.md#ip-converter), [ACL generator](../../TOOLS.md#acl-generator), [NAT/PAT calculator](../../TOOLS.md#natpat-calculator), [Split Tunnel Calculator](../../TOOLS.md#split-tunnel-calculator) (`split-tunnel`), [bogon / martian filter](../../TOOLS.md#bogon--martian-filter-generator).
 
 Section in the catalog: [IPv4 Subnet & Addressing](../../TOOLS.md#ipv4-subnet--addressing).
 

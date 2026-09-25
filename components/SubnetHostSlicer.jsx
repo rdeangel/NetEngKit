@@ -273,7 +273,7 @@ function SubnetHostSlicer({ initialData, onShare }) {
   }, [fmtInit, initialData]);
 
   const [input, setInput]       = usePersistentState('subnet-slicer:input',  initialData?.input  ?? SLICER_SAMPLES.p2p.text);
-  const [mode, setMode]         = usePersistentState('subnet-slicer:mode',   initialData?.mode   ?? 'first');
+  const [mode, setMode]         = usePersistentState('subnet-slicer:mode',   SLICER_MODES.includes(initialData?.mode) ? initialData.mode : 'first');
   const [offset, setOffset]     = usePersistentState('subnet-slicer:offset', initialData?.offset ?? '2');
   const [outFmt, setOutFmt]     = usePersistentState('subnet-slicer:fmt',    initialFmt);
   const [pairJoin, setPairJoin] = usePersistentState('subnet-slicer:join',   initialData?.join   ?? (fmtInit === 'pair'));

@@ -52,14 +52,12 @@ const TOOLS = [
     subTools: [
       { labelKey: 'tools.vlsm.title', nav: { mode: 'vlsm' }, keywords: 'vlsm variable length host allocation subnet designer planner' },
       { labelKey: 'tools.supernet.title', nav: { mode: 'supernet' }, keywords: 'supernet summarization route aggregation summary' },
-      { labelKey: 'split.split_subnet', nav: { mode: 'split' }, keywords: 'split partition subnet divide' },
-      { labelKey: 'split.merge_summarize', nav: { mode: 'merge' }, keywords: 'merge combine collapse summarize' },
+      { labelKey: 'split.split_subnet', nav: { mode: 'split' }, keywords: 'split partition subnet divide merge summarize' },
+      { labelKey: 'tools.subnet-slicer.title', nav: { mode: 'slicer' }, keywords: 'subnet host slicer batch bulk first last usable offset nth gateway peer point-to-point p2p /30 /31 /127 rfc 3021 rfc 6164 wildcard mask ipv6 extract' },
       { labelKey: 'tools.range.title', nav: { mode: 'range' }, keywords: 'range cidr convert boundaries boundary' },
       { labelKey: 'tools.overlap.title', nav: { mode: 'overlap' }, keywords: 'overlap collision conflict duplicate check validation' },
     ],
   },
-  { id: 'subnet-slicer', label: 'Subnet Host Slicer', group: 'IPv4', type: 'tool',
-    keywords: 'subnet host slicer batch bulk first last usable offset nth gateway peer point-to-point p2p /30 /31 /127 rfc 3021 rfc 6164 wildcard mask ipv6 extract' },
   { id: 'dhcp', label: 'DHCP Scope Planner', group: 'IPv4', type: 'tool' },
   { id: 'converter', label: 'IP Converter', group: 'IPv4', type: 'tool',
     keywords: 'ip converter representation decimal binary hex integer conversion format',
@@ -863,7 +861,8 @@ function App() {
     }
   };
 
-  const toolInfo = TOOLS.find(tool => tool.id === activeTool);
+  const toolInfo = TOOLS.find(tool => tool.id === activeTool)
+    || (activeTool ? { id: activeTool, label: t(`tools.${activeTool}.title`, activeTool) } : null);
 
   return (
     <div className="app">
@@ -883,7 +882,7 @@ function App() {
         {/* Center: Tool title and category centered in the header */}
         <div className="header-center">
           <span className="topbar-title">{t(`tools.${toolInfo && toolInfo.id}.title`, toolInfo && toolInfo.label)}</span>
-          <span className="topbar-badge">{toolInfo ? t(navGroupMap[toolInfo.group] || toolInfo.group) : ''}</span>
+          <span className="topbar-badge">{toolInfo && toolInfo.group ? t(navGroupMap[toolInfo.group] || toolInfo.group) : ''}</span>
           {toolInfo && toolInfo.online && (
             <span className="badge badge-blue" style={{ fontSize: 10, padding: '2px 8px', display: 'flex', alignItems: 'center', gap: 5, opacity: 0.8 }} title={t('common.online_tool_desc')}>
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>

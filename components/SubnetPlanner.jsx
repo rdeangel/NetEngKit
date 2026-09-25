@@ -1,13 +1,20 @@
 const { useState, useEffect, useCallback, useRef } = React;
 
+const PLANNER_MODES = ['vlsm', 'supernet', 'split', 'slicer', 'range', 'overlap'];
+
 function SubnetPlanner({ onShare, initialData, onNav }) {
   const { t } = useTranslation();
+  // Clamp stale/invalid tab memory (e.g. a removed tab id) to a valid tab
+  if (!PLANNER_MODES.includes(window.toolStateCache?.['subnet-planner:mode'])) {
+    window.toolStateCache['subnet-planner:mode'] =
+      PLANNER_MODES.includes(initialData?.mode) ? initialData.mode : 'vlsm';
+  }
   const [mode, setMode] = usePersistentState('subnet-planner:mode', initialData?.mode ?? 'vlsm');
   const skipNavReport = useRef(false);
 
   // Apply-down: sidebar / Ctrl+K nav drives the active mode
   useEffect(() => {
-    if (initialData?.mode && initialData.mode !== mode) {
+    if (PLANNER_MODES.includes(initialData?.mode) && initialData.mode !== mode) {
       skipNavReport.current = true;
       setMode(initialData.mode);
     }
@@ -33,6 +40,7 @@ function SubnetPlanner({ onShare, initialData, onNav }) {
     { id: 'vlsm', label: t('tools.vlsm.title') },
     { id: 'supernet', label: t('tools.supernet.title') },
     { id: 'split', label: t('tools.split.title') },
+    { id: 'slicer', label: t('tools.subnet-slicer.title') },
     { id: 'range', label: t('tools.range.title') },
     { id: 'overlap', label: t('tools.overlap.title') },
   ];
@@ -48,6 +56,7 @@ function SubnetPlanner({ onShare, initialData, onNav }) {
       {mode === 'vlsm' && <VLSMPlanner initialData={initialData} onShare={onShare} />}
       {mode === 'supernet' && <SupernetCalc initialData={initialData} onShare={onShare} />}
       {mode === 'split' && <SplitMerge initialData={initialData} onShare={onShare} />}
+      {mode === 'slicer' && <SubnetHostSlicer initialData={initialData} onShare={onShare} />}
       {mode === 'range' && <RangeCIDR initialData={initialData} onShare={onShare} />}
       {mode === 'overlap' && <OverlapDetector initialData={initialData} onShare={onShare} />}
     </div>
