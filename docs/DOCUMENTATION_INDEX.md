@@ -1,6 +1,6 @@
 # Documentation index
 
-NetEngKit is a browser-based network engineering toolkit (React 18 + Babel Standalone in `NetEngKit.html`). Most of the 124 registry entries run in the browser. Fourteen tools need the optional local server (`scripts/proxy.js` or Docker). There is no product REST API.
+NetEngKit is a browser-based network engineering toolkit (React 18 + Babel Standalone in `NetEngKit.html`). Most of the 125 registry entries run in the browser. Fourteen tools need the optional local server (`scripts/proxy.js` or Docker). There is no product REST API.
 
 This hub is the map. The deep catalog stays at [TOOLS.md](../TOOLS.md).
 
@@ -42,13 +42,13 @@ Short area pages. Each links into [TOOLS.md](../TOOLS.md). Not a second catalog.
 
 - [Troubleshooting](TROUBLESHOOTING/README.md) — `file://` blank page, ports, greyed-out server tools, `NET_RAW`, CORS, blocked CDN, stale bundle, missing `npm install`
 
-## Numbers (verified 2026-09-24)
+## Numbers (verified 2026-09-25)
 
 Recount from `components/app.jsx` `TOOLS` before changing a number.
 
 | Fact | Value |
 |---|---|
-| Registry entries | 124 (110 tools, 14 references) |
+| Registry entries | 125 (111 tools, 14 references) |
 | Need the local server (`server: true`) | 14 |
 | Need the internet (`online: true`) | 11 (all 11 also `server: true`) |
 | Proxy default port | 8080 (`PORT` overrides; `npm start` uses 8880) |

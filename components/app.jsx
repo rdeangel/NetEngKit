@@ -108,6 +108,13 @@ const TOOLS = [
   ] },
   { id: 'lacp-tool', label: 'LACP / Port-Channel', group: 'Switching', type: 'tool' },
   { id: 'qinq-config', label: 'QinQ / VLAN Translation', group: 'Switching', type: 'tool', keywords: 'qinq 802.1ad vlan translation tunnel stacking double-tag provider bridging' },
+  { id: 'pvlan-designer', label: 'Private VLAN (PVLAN) Designer', group: 'Switching', type: 'tool',
+    keywords: 'pvlan private vlan rfc5517 isolated community promiscuous primary secondary host-association mapping vtp transparent cisco nxos arista junos',
+    subTools: [
+      { labelKey: 'pvlan_designer.tab_design', nav: { activeTab: 'design' }, keywords: 'pvlan hierarchy primary secondary isolated community port role preset dmz hotel guest wifi multi-tenant' },
+      { labelKey: 'pvlan_designer.tab_matrix', nav: { activeTab: 'matrix' }, keywords: 'pvlan reachability matrix who can talk isolation communication' },
+      { labelKey: 'pvlan_designer.tab_config', nav: { activeTab: 'config' }, keywords: 'pvlan config cli switchport mode private-vlan host promiscuous trunk svi mapping audit' },
+    ] },
   { id: 'config-gen', label: 'Interface Config Gen', group: 'Switching', type: 'tool' },
   { id: 'mac-table-parser', label: 'MAC Address Table Parser', group: 'Switching', type: 'tool', keywords: 'mac address table parser show mac flapping port-security vlan distribution oui vendor cisco nxos snapshot diff' },
   { id: 'dot1x-builder', label: '802.1X / NAC Config Builder', group: 'Switching', type: 'tool', keywords: '802.1x dot1x nac mab webauth radius coa cisco aruba port-access single-host multi-host multi-domain authentication' },
@@ -798,6 +805,7 @@ function App() {
       case 'bgp-lg': return <BGPLookingGlass initialData={hashData} onShare={handleShare} />;
       case 'lacp-tool': return <LACPSimulator initialData={hashData} onShare={handleShare} />;
       case 'qinq-config': return <QinQConfig initialData={hashData} onShare={handleShare} />;
+      case 'pvlan-designer': return <PrivateVLANDesigner initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'span-builder': return <SPANConfigBuilder initialData={hashData} onShare={handleShare} />;
       case 'evpn-vxlan-designer': return <EVPNVXLANFabricDesigner initialData={hashData} onShare={handleShare} />;
       case 'k8s-netpol-builder': return <KubernetesNetworkPolicyBuilder initialData={hashData} onShare={handleShare} />;

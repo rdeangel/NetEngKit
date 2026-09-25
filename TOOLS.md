@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **124** top-level entries: **110** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **125** top-level entries: **111** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **120** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **121** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -620,6 +620,40 @@ Sub-tabs: Variants, States, Timers, Bridge ID Calculator, Config Snippets
 **Current Keywords:** `qinq 802.1ad vlan translation tunnel stacking double-tag provider bridging`
 
 **Assessment:** Good. Could add: `nested vlan service provider customer tag frame format mtu`
+
+---
+
+### Private VLAN (PVLAN) Designer
+**ID:** `pvlan-designer` | **Type:** Tool | **Offline**
+
+**Description:** Designs an RFC 5517 private VLAN (one primary, one isolated, any number of communities), shows who can talk to whom, audits common PVLAN traps and generates Cisco IOS/IOS-XE, NX-OS, Arista EOS and Juniper Junos (ELS and non-ELS) config.
+
+**Tabs:**
+
+#### Design (`design`)
+**Inputs:**
+- Primary VLAN ID, name, optional SVI address (CIDR)
+- Secondary VLANs: one isolated, up to 16 total with communities
+- Ports: interface, description, role (promiscuous, host, 802.1Q inter-switch trunk, promiscuous PVLAN trunk, isolated PVLAN trunk), secondary VLAN
+- Presets: multi-tenant DMZ, hotel / guest Wi-Fi, clustered app tier; JSON import/export
+
+**Outputs:**
+- Live audit: errors (duplicate/invalid VLANs, more than one isolated VLAN, host port without a secondary), warnings (VTP v1/v2 transparent mode, trunk pruning/native VLAN, local proxy ARP, vendor mode gaps), passes
+
+#### Reachability Matrix (`matrix`)
+**Outputs:**
+- N×N Layer 2 reachability between ports with reason tooltips; click a port to focus on what it can reach
+
+#### Config (`config`)
+**Inputs:**
+- Vendor: Cisco IOS / IOS-XE, Cisco NX-OS, Arista EOS, Juniper Junos ELS, Juniper Junos non-ELS; VTP version (IOS)
+
+**Outputs:**
+- Full config plus per-section copy (VLANs, interfaces, SVI); download as .txt
+
+**Current Keywords:** `pvlan private vlan rfc5517 isolated community promiscuous primary secondary host-association mapping vtp transparent cisco nxos arista junos`
+
+**Suggested Keywords to Add:** `port isolation protected port switchport protected`
 
 ---
 
@@ -3855,9 +3889,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 124 top-level entries in `components/app.jsx` — 110 tools, 14 references.
+**Registry (source of truth):** 125 top-level entries in `components/app.jsx` — 111 tools, 14 references.
 
-**This catalog:** 120 `###` headings.
+**This catalog:** 121 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3865,7 +3899,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
-- Switching & Layer 2 — 11
+- Switching & Layer 2 — 12
 - Routing & Layer 3 — 14
 - Infrastructure, QoS & Planning — 23
 - Media & Broadcast — 2
