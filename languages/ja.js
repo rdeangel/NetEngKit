@@ -700,6 +700,9 @@ TRANSLATIONS["ja"] = {
     },
     "rdns-generator": {
       "title": "リバースDNS & RFC 2317 ジェネレーター"
+    },
+    "net-table-sorter": {
+      "title": "ネットワークテーブルソーター"
     }
 },
   "dataunit": {
@@ -13467,5 +13470,48 @@ TRANSLATIONS["ja"] = {
     "issues_overflow": "…他 {count} 件",
     "w_rname_not_fqdn": "RNAME {name}の末尾にドットがありません。BINDはゾーンオリジンを付加します。",
     "w_rname_invalid": "RNAME {name}は有効なメールボックス名ではありません — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "ネットワークテーブルソーター",
+    "subtitle": "Excel、Sheets、IPAM、または CLI からテーブルを貼り付けます。行を崩すことなく、ネットワーク順（Eth1/10 の前に Eth1/2、10.0.0.10 の前に 10.0.0.2）で任意の列を基準にソートします。",
+    "input_label": "テーブル",
+    "input_placeholder": "TSV、CSV、; または | で区切られた行、あるいは列揃えされた CLI 出力を貼り付け",
+    "load_sample": "サンプルを読み込む",
+    "delimiter_label": "区切り文字",
+    "delim_auto_detected": "自動 ({d})",
+    "delim_tab": "タブ",
+    "delim_comma": "カンマ",
+    "delim_semicolon": "セミコロン",
+    "delim_pipe": "パイプ",
+    "delim_ws": "空白 (2文字以上のスペース)",
+    "header_label": "ヘッダー行",
+    "header_auto": "自動",
+    "header_yes": "先頭行をヘッダーとする",
+    "header_no": "ヘッダーなし",
+    "iface_order_label": "インターフェースタイプの順序",
+    "iface_order_alpha": "アルファベット順",
+    "iface_order_speed": "速度順",
+    "iface_order_hint": "速度: Fa < Gi < Te < Twe < Fo < Hu。Gi と GigabitEthernet はどちらの表記でも同じタイプとして扱われます。",
+    "stats": "{rows} 行 × {cols} 列",
+    "sort_keys_title": "ソートキー",
+    "sort_hint": "ヘッダーをクリック: 昇順 → 降順 → オフ。Shift+クリックで第2キーを追加。同値の場合は次のキー、その次は元の順序が維持されます。空のセルは常に末尾にソートされます。",
+    "dir_asc": "昇順",
+    "dir_desc": "降順",
+    "move_up": "上に移動",
+    "move_down": "下に移動",
+    "remove_key": "ソートキーを削除",
+    "clear_sort": "ソートをクリア",
+    "th_orig": "#",
+    "col_n": "列 {n}",
+    "empty": "ソートするテーブルを上に貼り付けてください。",
+    "render_cap": "{total} 行中 {shown} 行を表示しています。エクスポートにはすべての行が含まれます。",
+    "export_title": "エクスポート",
+    "copy_tsv": "TSV をコピー",
+    "copy_csv": "CSV をコピー",
+    "copy_md": "Markdown をコピー",
+    "export_hint": "TSV は Excel や Sheets にそのまま貼り付け可能です。ヘッダー行が存在する場合は含まれます。",
+    "regex_link_title": "設定を生成",
+    "regex_link_hint": "ソートされた行を Regex検索と置換 に送り、プリセット「{preset}」を選択します。",
+    "regex_link_btn": "Regex検索と置換で開く"
+  }
 };

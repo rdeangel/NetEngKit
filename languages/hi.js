@@ -700,6 +700,9 @@ TRANSLATIONS["hi"] = {
     },
     "rdns-generator": {
       "title": "रिवर्स DNS और RFC 2317 जेनरेटर"
+    },
+    "net-table-sorter": {
+      "title": "नेटवर्क टेबल सॉर्टर"
     }
 },
   "dataunit": {
@@ -13495,5 +13498,48 @@ TRANSLATIONS["hi"] = {
     "issues_overflow": "…और {count} अधिक",
     "w_rname_not_fqdn": "RNAME {name} में कोई अंतिम बिंदु नहीं है; BIND ज़ोन ओरिजिन जोड़ेगा।",
     "w_rname_invalid": "RNAME {name} एक मान्य मेलबॉक्स नाम नहीं है — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "नेटवर्क टेबल सॉर्टर",
+    "subtitle": "Excel, Sheets, IPAM या CLI से एक टेबल पेस्ट करें। नेटवर्क क्रम में किसी भी कॉलम के अनुसार सॉर्ट करें — Eth1/10 से पहले Eth1/2, 10.0.0.10 से पहले 10.0.0.2 — प्रत्येक पंक्ति को बरकरार रखते हुए।",
+    "input_label": "टेबल",
+    "input_placeholder": "TSV, CSV, ; या | से अलग की गई पंक्तियाँ या कॉलम-संरेखित CLI आउटपुट पेस्ट करें",
+    "load_sample": "नमूना लोड करें",
+    "delimiter_label": "सीमांकक (Delimiter)",
+    "delim_auto_detected": "ऑटो ({d})",
+    "delim_tab": "टैब (Tab)",
+    "delim_comma": "अल्पविराम (Comma)",
+    "delim_semicolon": "अर्धविराम (Semicolon)",
+    "delim_pipe": "पाइप (Pipe)",
+    "delim_ws": "रिक्त स्थान (2+ स्पेस)",
+    "header_label": "हेडर पंक्ति",
+    "header_auto": "ऑटो",
+    "header_yes": "पहली पंक्ति हेडर है",
+    "header_no": "कोई हेडर नहीं",
+    "iface_order_label": "इंटरफ़ेस प्रकार क्रम",
+    "iface_order_alpha": "वर्णानुक्रम (Alphabetical)",
+    "iface_order_speed": "गति के अनुसार (By speed)",
+    "iface_order_hint": "गति: Fa < Gi < Te < Twe < Fo < Hu. Gi और GigabitEthernet दोनों स्थितियों में एक ही प्रकार हैं।",
+    "stats": "{rows} पंक्तियाँ × {cols} कॉलम",
+    "sort_keys_title": "सॉर्ट कुंजियाँ",
+    "sort_hint": "हेडर पर क्लिक करें: आरोही → अवरोही → बंद। द्वितीयक कुंजी जोड़ने के लिए Shift-क्लिक करें। टाई होने पर अगली कुंजी और फिर मूल क्रम लागू होता है। खाली सेल हमेशा अंत में सॉर्ट होते हैं।",
+    "dir_asc": "आरोही (Ascending)",
+    "dir_desc": "अवरोही (Descending)",
+    "move_up": "ऊपर ले जाएं",
+    "move_down": "नीचे ले जाएं",
+    "remove_key": "सॉर्ट कुंजी हटाएं",
+    "clear_sort": "सॉर्टिंग साफ़ करें",
+    "th_orig": "#",
+    "col_n": "कॉलम {n}",
+    "empty": "सॉर्ट करने के लिए ऊपर एक टेबल पेस्ट करें।",
+    "render_cap": "{total} में से {shown} पंक्तियाँ दिखाई जा रही हैं। निर्यात में सभी पंक्तियाँ शामिल होती हैं।",
+    "export_title": "निर्यात",
+    "copy_tsv": "TSV कॉपी करें",
+    "copy_csv": "CSV कॉपी करें",
+    "copy_md": "Markdown कॉपी करें",
+    "export_hint": "TSV सीधे Excel या Sheets में वापस पेस्ट हो जाता है। मौजूद होने पर हेडर पंक्ति शामिल होती है।",
+    "regex_link_title": "कॉन्फ़िगरेशन जनरेट करें",
+    "regex_link_hint": "सॉर्ट की गई पंक्तियों को Regex खोजें और बदलें में भेजें, फिर \"{preset}\" प्रीसेट चुनें।",
+    "regex_link_btn": "Regex खोजें और बदलें में खोलें"
+  }
 };

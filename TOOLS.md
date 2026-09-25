@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **127** top-level entries: **113** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **128** top-level entries: **114** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **123** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **124** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -3095,6 +3095,28 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### Network Table Sorter
+**ID:** `net-table-sorter` | **Type:** Tool | **Offline**
+
+**Description:** Sorts pasted tables in network order while keeping every row intact: interfaces (`Eth1/2` before `Eth1/10`, `Gi` = `GigabitEthernet`), IPv4/IPv6 addresses and prefixes numerically (network, then prefix length), MACs across `:`/`-`/`.` formats, and hostnames naturally. Multi-column stable sort. Hands sorted rows to Regex Find & Replace for config generation.
+
+**Inputs:**
+- Table: TSV (Excel/Sheets), CSV, semicolon, pipe/Markdown, or whitespace-aligned CLI output
+- Delimiter (auto-detected, overridable); header row (auto / yes / no)
+- Sort keys: click header (asc → desc → off), shift-click for secondary keys, reorder list
+- Interface type order: alphabetical or speed (Fa < Gi < Te < Twe < Fo < Hu)
+
+**Outputs:**
+- Sorted table with original line numbers; empty cells last in both directions; mixed columns IPv4 < IPv6 < other
+- Copy as TSV, CSV, Markdown (header row included); share URL
+- Send to Regex Find & Replace (Interfaces from Spreadsheet preset)
+
+**Current Keywords:** `sort table natural interface ip ipv4 ipv6 cidr mac spreadsheet excel csv tsv markdown cabling schedule ipam column order`
+
+**Suggested Keywords to Add:** _(none)_
+
+---
+
 ### Config Redactor
 **ID:** `config-redactor` | **Type:** Tool | **Offline**
 
@@ -3947,9 +3969,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 127 top-level entries in `components/app.jsx` — 113 tools, 14 references.
+**Registry (source of truth):** 128 top-level entries in `components/app.jsx` — 114 tools, 14 references.
 
-**This catalog:** 123 `###` headings.
+**This catalog:** 124 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3961,7 +3983,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Routing & Layer 3 — 15
 - Infrastructure, QoS & Planning — 24
 - Media & Broadcast — 2
-- Diagnostics & Tools — 53
+- Diagnostics & Tools — 54
 - Education & Entertainment — 1
 
 **Catalog drift vs the registry:** seven registry ids have no `###` heading (`subnet-slicer` — documented as a `####` tab of Subnetting Planner; `bandwidth`, `cipher-suite`, `tsconv`, `cronparse`, `uaparse`, `config-template`). Two leftover headings are not in the registry (`wlan-tool` — use `wifi-rf-planner`; `radius-tacacs-ref` — duplicate of `radius-tacacs`). Remaining `**ID:**` tokens match the registry except those leftover headings and the seven missing headings.

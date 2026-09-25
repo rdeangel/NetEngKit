@@ -313,6 +313,7 @@ const TOOLS = [
   { id: 'hashgen', label: 'Hash Generator', group: 'Tools', type: 'tool' },
   { id: 'aescrypt', label: 'Text & File Encryption', group: 'Tools', type: 'tool', online: false, keywords: 'aes gcm encrypt decrypt password pbkdf2 cipher file text crypto symmetric aes256 key derivation secure' },
   { id: 'regex', label: 'Regex Find & Replace', group: 'Tools', type: 'tool' },
+  { id: 'net-table-sorter', label: 'Network Table Sorter', group: 'Tools', type: 'tool', keywords: 'sort table natural interface ip ipv4 ipv6 cidr mac spreadsheet excel csv tsv markdown cabling schedule ipam column order' },
   { id: 'cert-gen', label: 'Self-Signed Cert Gen', group: 'Tools', type: 'tool' },
   { id: 'cert-chain', label: 'Certificate Chain Validator', group: 'Tools', type: 'tool', keywords: 'cert-chain certificate chain builder validator trust path root intermediate leaf pem signature verify expiration validity mismatch ssl tls node-forge' },
   { id: 'cypher', label: 'Cypher Deck', group: 'Tools', type: 'tool', keywords: 'cipher encoding decoding encoder decoder', subTools: [
@@ -834,6 +835,7 @@ function App() {
       case 'aescrypt': return <TextFileCrypto initialData={hashData} onShare={handleShare} />;
       case 'stego': return <Steganography initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'regex': return <RegexTool initialData={hashData} onShare={handleShare} />;
+      case 'net-table-sorter': return <NetTableSorter initialData={hashData} onShare={handleShare} />;
       case 'mtu': return <MTUCalc initialData={hashData} onShare={handleShare} />;
       case 'dhcp': return <DHCPPlanner initialData={hashData} onShare={handleShare} />;
       case 'iplist': return <IPListGenerator initialData={hashData} onShare={handleShare} />;

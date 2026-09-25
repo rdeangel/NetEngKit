@@ -1,8 +1,8 @@
 # Utilities
 
-The **43** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
+The **44** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
 
-Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 43 have no `###` heading yet — named in the last section, not given a fake anchor.
+Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 44 have no `###` heading yet — named in the last section, not given a fake anchor.
 
 ## DNS, syslog, SNMP, CLI, flow export, synthetic probes (7)
 
@@ -20,9 +20,9 @@ Certificate Chain Validator can call `/api/get-cert-chain` when the proxy is up;
 
 Parser and converter headings sit under Routing / Switching in the catalog. Registry `group:` is Tools.
 
-## Text, diagrams, units, ops (10)
+## Text, diagrams, units, ops (11)
 
-[Format toolkit](../../TOOLS.md#format-toolkit), [regex find & replace](../../TOOLS.md#regex-find--replace), [hex dump / ASCII decoder](../../TOOLS.md#hex-dump--ascii-decoder), [ASCII network diagram](../../TOOLS.md#ascii-network-diagram), [Mermaid network diagram](../../TOOLS.md#mermaid-network-diagram), [data unit converter](../../TOOLS.md#data-unit-converter), [uptime & SLA calculator](../../TOOLS.md#uptime--sla-calculator), [Erlang B/C voice trunk sizer](../../TOOLS.md#erlang-b--c-voice-trunk-sizer), [country & timezone reference](../../TOOLS.md#country--timezone-reference), [traffic generator (Scapy/TRex)](../../TOOLS.md#traffic--load-generator) (command/profile builder — not the host-binary capture path).
+[Format toolkit](../../TOOLS.md#format-toolkit), [regex find & replace](../../TOOLS.md#regex-find--replace), [network table sorter](../../TOOLS.md#network-table-sorter), [hex dump / ASCII decoder](../../TOOLS.md#hex-dump--ascii-decoder), [ASCII network diagram](../../TOOLS.md#ascii-network-diagram), [Mermaid network diagram](../../TOOLS.md#mermaid-network-diagram), [data unit converter](../../TOOLS.md#data-unit-converter), [uptime & SLA calculator](../../TOOLS.md#uptime--sla-calculator), [Erlang B/C voice trunk sizer](../../TOOLS.md#erlang-b--c-voice-trunk-sizer), [country & timezone reference](../../TOOLS.md#country--timezone-reference), [traffic generator (Scapy/TRex)](../../TOOLS.md#traffic--load-generator) (command/profile builder — not the host-binary capture path).
 
 ## In the app, no catalog heading yet (6)
 

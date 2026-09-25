@@ -700,6 +700,9 @@ TRANSLATIONS["zh-CN"] = {
     },
     "rdns-generator": {
       "title": "反向 DNS 与 RFC 2317 生成器"
+    },
+    "net-table-sorter": {
+      "title": "网络表格排序器"
     }
 },
   "dataunit": {
@@ -13495,5 +13498,48 @@ TRANSLATIONS["zh-CN"] = {
     "issues_overflow": "…以及其他 {count} 项",
     "w_rname_not_fqdn": "RNAME {name} 未以点结尾；BIND 将自动追加区域 Origin 后缀。",
     "w_rname_invalid": "RNAME {name} 不是有效的邮箱名称 — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "网络表格排序器",
+    "subtitle": "从 Excel、Sheets、IPAM 或 CLI 粘贴表格。按网络顺序对任意列进行排序 — Eth1/2 排在 Eth1/10 之前，10.0.0.2 排在 10.0.0.10 之前 — 每行内容均保持完整。",
+    "input_label": "表格",
+    "input_placeholder": "粘贴 TSV、CSV、分号 (;) 或竖线 (|) 分隔的行，或对齐的 CLI 输出",
+    "load_sample": "加载示例",
+    "delimiter_label": "分隔符",
+    "delim_auto_detected": "自动 ({d})",
+    "delim_tab": "制表符 (Tab)",
+    "delim_comma": "逗号",
+    "delim_semicolon": "分号",
+    "delim_pipe": "竖线 (Pipe)",
+    "delim_ws": "空白字符 (2+ 空格)",
+    "header_label": "表头行",
+    "header_auto": "自动",
+    "header_yes": "首行为表头",
+    "header_no": "无表头",
+    "iface_order_label": "接口类型顺序",
+    "iface_order_alpha": "按字母顺序",
+    "iface_order_speed": "按速率",
+    "iface_order_hint": "速率：Fa < Gi < Te < Twe < Fo < Hu。无论如何，Gi 与 GigabitEthernet 均为同一种接口类型。",
+    "stats": "{rows} 行 × {cols} 列",
+    "sort_keys_title": "排序键",
+    "sort_hint": "点击表头：升序 → 降序 → 关闭。按住 Shift 并点击可添加次要排序键。遇到相同值时将依次应用下一排序键，最后按原始顺序排列。空单元格始终排在末尾。",
+    "dir_asc": "升序",
+    "dir_desc": "降序",
+    "move_up": "上移",
+    "move_down": "下移",
+    "remove_key": "移除排序键",
+    "clear_sort": "清除排序",
+    "th_orig": "#",
+    "col_n": "第 {n} 列",
+    "empty": "在上方粘贴表格以进行排序。",
+    "render_cap": "正在显示 {shown} / {total} 行。导出将包含所有行。",
+    "export_title": "导出",
+    "copy_tsv": "复制 TSV",
+    "copy_csv": "复制 CSV",
+    "copy_md": "复制 Markdown",
+    "export_hint": "TSV 可直接粘贴回 Excel 或 Sheets。如果存在表头行，也将一并包含。",
+    "regex_link_title": "生成配置",
+    "regex_link_hint": "将排序后的行发送到 Regex 查找与替换，然后选择“{preset}”预设。",
+    "regex_link_btn": "在 Regex 查找与替换中打开"
+  }
 };

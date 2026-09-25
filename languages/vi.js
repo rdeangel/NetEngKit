@@ -700,6 +700,9 @@ TRANSLATIONS["vi"] = {
     },
     "rdns-generator": {
       "title": "Trình tạo Reverse DNS & RFC 2317"
+    },
+    "net-table-sorter": {
+      "title": "Trình sắp xếp bảng mạng"
     }
 },
   "dataunit": {
@@ -13515,5 +13518,48 @@ TRANSLATIONS["vi"] = {
     "issues_overflow": "…và còn {count} mục nữa",
     "w_rname_not_fqdn": "RNAME {name} không có dấu chấm ở cuối; BIND sẽ tự động thêm gốc vùng.",
     "w_rname_invalid": "RNAME {name} không phải là tên hộp thư hợp lệ — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Trình sắp xếp bảng mạng",
+    "subtitle": "Dán bảng từ Excel, Sheets, IPAM hoặc CLI. Sắp xếp theo bất kỳ cột nào theo thứ tự mạng — Eth1/2 trước Eth1/10, 10.0.0.2 trước 10.0.0.10 — giữ nguyên vẹn từng hàng.",
+    "input_label": "Bảng",
+    "input_placeholder": "Dán các hàng được phân tách bằng TSV, CSV, ; hoặc |, hoặc đầu ra CLI được căn chỉnh theo cột",
+    "load_sample": "Tải mẫu",
+    "delimiter_label": "Dấu phân cách",
+    "delim_auto_detected": "Tự động ({d})",
+    "delim_tab": "Tab",
+    "delim_comma": "Dấu phẩy",
+    "delim_semicolon": "Dấu chấm phẩy",
+    "delim_pipe": "Dấu gạch đứng (Pipe)",
+    "delim_ws": "Khoảng trắng (2+ khoảng trắng)",
+    "header_label": "Hàng tiêu đề",
+    "header_auto": "Tự động",
+    "header_yes": "Hàng đầu tiên là tiêu đề",
+    "header_no": "Không có tiêu đề",
+    "iface_order_label": "Thứ tự loại giao diện",
+    "iface_order_alpha": "Theo bảng chữ cái",
+    "iface_order_speed": "Theo tốc độ",
+    "iface_order_hint": "Tốc độ: Fa < Gi < Te < Twe < Fo < Hu. Gi và GigabitEthernet đều là cùng một loại.",
+    "stats": "{rows} hàng × {cols} cột",
+    "sort_keys_title": "Khóa sắp xếp",
+    "sort_hint": "Nhấp vào tiêu đề: tăng dần → giảm dần → tắt. Giữ Shift và nhấp để thêm khóa phụ. Nếu trùng giá trị sẽ xét khóa tiếp theo, sau đó là thứ tự ban đầu. Các ô trống luôn được xếp cuối cùng.",
+    "dir_asc": "Tăng dần",
+    "dir_desc": "Giảm dần",
+    "move_up": "Di chuyển lên",
+    "move_down": "Di chuyển xuống",
+    "remove_key": "Xóa khóa sắp xếp",
+    "clear_sort": "Xóa sắp xếp",
+    "th_orig": "#",
+    "col_n": "Cột {n}",
+    "empty": "Dán bảng ở trên để sắp xếp.",
+    "render_cap": "Đang hiển thị {shown} trên {total} hàng. Xuất dữ liệu sẽ bao gồm tất cả các hàng.",
+    "export_title": "Xuất",
+    "copy_tsv": "Sao chép TSV",
+    "copy_csv": "Sao chép CSV",
+    "copy_md": "Sao chép Markdown",
+    "export_hint": "TSV dán trực tiếp trở lại vào Excel hoặc Sheets. Đã bao gồm hàng tiêu đề nếu có.",
+    "regex_link_title": "Tạo cấu hình",
+    "regex_link_hint": "Gửi các hàng đã sắp xếp tới Tìm kiếm và Thay thế Regex, sau đó chọn cấu hình định sẵn \"{preset}\".",
+    "regex_link_btn": "Mở trong Tìm kiếm và Thay thế Regex"
+  }
 };

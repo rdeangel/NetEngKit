@@ -700,6 +700,9 @@ TRANSLATIONS["zh-TW"] = {
     },
     "rdns-generator": {
       "title": "反向 DNS 與 RFC 2317 產生器"
+    },
+    "net-table-sorter": {
+      "title": "網路表格排序器"
     }
 },
   "dataunit": {
@@ -13569,5 +13572,48 @@ TRANSLATIONS["zh-TW"] = {
     "issues_overflow": "…以及其他 {count} 項",
     "w_rname_not_fqdn": "RNAME {name} 未以點結尾；BIND 將自動附加區域 Origin 後綴。",
     "w_rname_invalid": "RNAME {name} 不是有效的信箱名稱 — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "網路表格排序器",
+    "subtitle": "從 Excel、Sheets、IPAM 或 CLI 貼上表格。按網路順序對任意欄位進行排序 — Eth1/2 排在 Eth1/10 之前，10.0.0.2 排在 10.0.0.10 之前 — 每列內容均保持完整。",
+    "input_label": "表格",
+    "input_placeholder": "貼上 TSV、CSV、分號 (;) 或垂直線 (|) 分隔的列，或對齊的 CLI 輸出",
+    "load_sample": "載入範例",
+    "delimiter_label": "分隔符號",
+    "delim_auto_detected": "自動 ({d})",
+    "delim_tab": "定位字元 (Tab)",
+    "delim_comma": "逗號",
+    "delim_semicolon": "分號",
+    "delim_pipe": "垂直線 (Pipe)",
+    "delim_ws": "空白字元 (2+ 空格)",
+    "header_label": "標頭列",
+    "header_auto": "自動",
+    "header_yes": "首列為標頭",
+    "header_no": "無標頭",
+    "iface_order_label": "介面類型順序",
+    "iface_order_alpha": "按字母順序",
+    "iface_order_speed": "按速率",
+    "iface_order_hint": "速率：Fa < Gi < Te < Twe < Fo < Hu。無論如何，Gi 與 GigabitEthernet 均為同一種介面類型。",
+    "stats": "{rows} 列 × {cols} 欄",
+    "sort_keys_title": "排序鍵",
+    "sort_hint": "點擊標頭：遞增 → 遞減 → 關閉。按住 Shift 點擊可新增次要排序鍵。遇到相同值時將依序套用下一排序鍵，最後按原始順序排列。空白儲存格一律排在最後。",
+    "dir_asc": "遞增",
+    "dir_desc": "遞減",
+    "move_up": "上移",
+    "move_down": "下移",
+    "remove_key": "移除排序鍵",
+    "clear_sort": "清除排序",
+    "th_orig": "#",
+    "col_n": "第 {n} 欄",
+    "empty": "在上方貼上表格以進行排序。",
+    "render_cap": "正在顯示 {shown} / {total} 列。匯出將包含所有列。",
+    "export_title": "匯出",
+    "copy_tsv": "複製 TSV",
+    "copy_csv": "複製 CSV",
+    "copy_md": "複製 Markdown",
+    "export_hint": "TSV 可直接貼回 Excel 或 Sheets。如果存在標頭列，亦會一併包含。",
+    "regex_link_title": "產生設定",
+    "regex_link_hint": "將排序後的列傳送至 Regex 查找與替換，然後選取「{preset}」預設組合。",
+    "regex_link_btn": "在 Regex 查找與替換中開啟"
+  }
 };

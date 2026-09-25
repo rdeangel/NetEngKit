@@ -700,6 +700,9 @@ TRANSLATIONS["fr"] = {
     },
     "rdns-generator": {
       "title": "Générateur de DNS Inverse & RFC 2317"
+    },
+    "net-table-sorter": {
+      "title": "Trieur de tableau réseau"
     }
 },
   "dataunit": {
@@ -13515,5 +13518,48 @@ TRANSLATIONS["fr"] = {
     "issues_overflow": "…et {count} de plus",
     "w_rname_not_fqdn": "RNAME {name} n'a pas de point final ; BIND ajoutera l'origine de la zone.",
     "w_rname_invalid": "RNAME {name} n'est pas un nom de boîte aux lettres valide — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Trieur de tableau réseau",
+    "subtitle": "Collez un tableau depuis Excel, Sheets, IPAM ou la CLI. Triez selon n'importe quelle colonne dans l'ordre réseau — Eth1/2 avant Eth1/10, 10.0.0.2 avant 10.0.0.10 — en conservant chaque ligne intacte.",
+    "input_label": "Tableau",
+    "input_placeholder": "Collez des lignes séparées par TSV, CSV, ; ou |, ou une sortie CLI alignée en colonnes",
+    "load_sample": "Charger un exemple",
+    "delimiter_label": "Délimiteur",
+    "delim_auto_detected": "Auto ({d})",
+    "delim_tab": "Tabulation",
+    "delim_comma": "Virgule",
+    "delim_semicolon": "Point-virgule",
+    "delim_pipe": "Pipe",
+    "delim_ws": "Espaces blancs (2+ espaces)",
+    "header_label": "Ligne d'en-tête",
+    "header_auto": "Auto",
+    "header_yes": "La première ligne est l'en-tête",
+    "header_no": "Pas d'en-tête",
+    "iface_order_label": "Ordre des types d'interface",
+    "iface_order_alpha": "Alphabétique",
+    "iface_order_speed": "Par vitesse",
+    "iface_order_hint": "Vitesse : Fa < Gi < Te < Twe < Fo < Hu. Gi et GigabitEthernet sont le même type de toute façon.",
+    "stats": "{rows} lignes × {cols} colonnes",
+    "sort_keys_title": "Clés de tri",
+    "sort_hint": "Cliquez sur un en-tête : croissant → décroissant → désactivé. Maj-clic pour ajouter une clé secondaire. En cas d'égalité, le tri passe à la clé suivante, puis à l'ordre d'origine. Les cellules vides sont toujours triées en dernier.",
+    "dir_asc": "Croissant",
+    "dir_desc": "Décroissant",
+    "move_up": "Monter",
+    "move_down": "Descendre",
+    "remove_key": "Supprimer la clé de tri",
+    "clear_sort": "Effacer le tri",
+    "th_orig": "#",
+    "col_n": "Colonne {n}",
+    "empty": "Collez un tableau ci-dessus pour le trier.",
+    "render_cap": "Affichage de {shown} sur {total} lignes. Les exportations incluent toutes les lignes.",
+    "export_title": "Exporter",
+    "copy_tsv": "Copier le TSV",
+    "copy_csv": "Copier le CSV",
+    "copy_md": "Copier le Markdown",
+    "export_hint": "Le TSV se recolle directement dans Excel ou Sheets. Ligne d'en-tête incluse lorsqu'elle est présente.",
+    "regex_link_title": "Générer des configurations",
+    "regex_link_hint": "Envoyez les lignes triées vers Rechercher et remplacer par Regex, puis choisissez le préréglage \"{preset}\".",
+    "regex_link_btn": "Ouvrir dans Rechercher et remplacer par Regex"
+  }
 };

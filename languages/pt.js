@@ -700,6 +700,9 @@ TRANSLATIONS["pt"] = {
     },
     "rdns-generator": {
       "title": "Gerador de DNS Reverso & RFC 2317"
+    },
+    "net-table-sorter": {
+      "title": "Ordenador de tabelas de rede"
     }
 },
   "dataunit": {
@@ -13515,5 +13518,48 @@ TRANSLATIONS["pt"] = {
     "issues_overflow": "…e mais {count}",
     "w_rname_not_fqdn": "RNAME {name} não tem ponto final; o BIND acrescentará a origem da zona.",
     "w_rname_invalid": "RNAME {name} não é um nome de caixa de correio válido — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Ordenador de tabelas de rede",
+    "subtitle": "Cole uma tabela do Excel, Sheets, IPAM ou CLI. Ordene por qualquer coluna por ordem de rede — Eth1/2 antes de Eth1/10, 10.0.0.2 antes de 10.0.0.10 — mantendo todas as linhas intactas.",
+    "input_label": "Tabela",
+    "input_placeholder": "Cole linhas separadas por TSV, CSV, ; ou |, ou saída da CLI alinhada por colunas",
+    "load_sample": "Carregar exemplo",
+    "delimiter_label": "Delimitador",
+    "delim_auto_detected": "Automático ({d})",
+    "delim_tab": "Tabulação",
+    "delim_comma": "Vírgula",
+    "delim_semicolon": "Ponto e vírgula",
+    "delim_pipe": "Pipe",
+    "delim_ws": "Espaço em branco (2+ espaços)",
+    "header_label": "Linha de cabeçalho",
+    "header_auto": "Automático",
+    "header_yes": "A primeira linha é cabeçalho",
+    "header_no": "Sem cabeçalho",
+    "iface_order_label": "Ordem dos tipos de interface",
+    "iface_order_alpha": "Alfabética",
+    "iface_order_speed": "Por velocidade",
+    "iface_order_hint": "Velocidade: Fa < Gi < Te < Twe < Fo < Hu. Gi e GigabitEthernet são o mesmo tipo em qualquer caso.",
+    "stats": "{rows} linhas × {cols} colunas",
+    "sort_keys_title": "Chaves de ordenação",
+    "sort_hint": "Clique num cabeçalho: ascendente → descendente → desligado. Shift-clique para adicionar uma chave secundária. Os empates passam para a chave seguinte e depois para a ordem original. As células vazias ficam sempre no fim.",
+    "dir_asc": "Ascendente",
+    "dir_desc": "Descendente",
+    "move_up": "Mover para cima",
+    "move_down": "Mover para baixo",
+    "remove_key": "Remover chave de ordenação",
+    "clear_sort": "Limpar ordenação",
+    "th_orig": "#",
+    "col_n": "Coluna {n}",
+    "empty": "Cole uma tabela acima para ordená-la.",
+    "render_cap": "A mostrar {shown} de {total} linhas. As exportações incluem todas as linhas.",
+    "export_title": "Exportar",
+    "copy_tsv": "Copiar TSV",
+    "copy_csv": "Copiar CSV",
+    "copy_md": "Copiar Markdown",
+    "export_hint": "TSV cola diretamente de volta no Excel ou Sheets. Linha de cabeçalho incluída quando presente.",
+    "regex_link_title": "Gerar configurações",
+    "regex_link_hint": "Envie as linhas ordenadas para Procurar e substituir por Regex e escolha a predefinição \"{preset}\".",
+    "regex_link_btn": "Abrir no Procurar e substituir por Regex"
+  }
 };

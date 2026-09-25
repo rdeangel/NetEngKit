@@ -700,6 +700,9 @@ TRANSLATIONS["de"] = {
     },
     "rdns-generator": {
       "title": "Reverse-DNS & RFC 2317-Generator"
+    },
+    "net-table-sorter": {
+      "title": "Netzwerktabellen-Sortierer"
     }
 },
   "dataunit": {
@@ -13495,5 +13498,48 @@ TRANSLATIONS["de"] = {
     "issues_overflow": "…und {count} weitere",
     "w_rname_not_fqdn": "RNAME {name} hat keinen abschließenden Punkt; BIND hängt den Zonenursprung an.",
     "w_rname_invalid": "RNAME {name} ist kein gültiger Mailbox-Name — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Netzwerktabellen-Sortierer",
+    "subtitle": "Fügen Sie eine Tabelle aus Excel, Sheets, IPAM oder CLI ein. Sortieren Sie nach beliebigen Spalten in Netzwerk-Reihenfolge — Eth1/2 vor Eth1/10, 10.0.0.2 vor 10.0.0.10 — wobei jede Zeile intakt bleibt.",
+    "input_label": "Tabelle",
+    "input_placeholder": "TSV-, CSV-, ;- oder |-getrennte Zeilen oder spaltenbündige CLI-Ausgabe einfügen",
+    "load_sample": "Beispiel laden",
+    "delimiter_label": "Trennzeichen",
+    "delim_auto_detected": "Automatisch ({d})",
+    "delim_tab": "Tab",
+    "delim_comma": "Komma",
+    "delim_semicolon": "Semikolon",
+    "delim_pipe": "Pipe",
+    "delim_ws": "Leerzeichen (2+ Leerzeichen)",
+    "header_label": "Kopfzeile",
+    "header_auto": "Automatisch",
+    "header_yes": "Erste Zeile ist Kopfzeile",
+    "header_no": "Keine Kopfzeile",
+    "iface_order_label": "Reihenfolge der Schnittstellentypen",
+    "iface_order_alpha": "Alphabetisch",
+    "iface_order_speed": "Nach Geschwindigkeit",
+    "iface_order_hint": "Geschwindigkeit: Fa < Gi < Te < Twe < Fo < Hu. Gi und GigabitEthernet entsprechen ohnehin demselben Typ.",
+    "stats": "{rows} Zeilen × {cols} Spalten",
+    "sort_keys_title": "Sortierschlüssel",
+    "sort_hint": "Klicken Sie auf eine Kopfzeile: aufsteigend → absteigend → aus. Umschalt-Klick fügt einen sekundären Schlüssel hinzu. Bei Gleichstand greift der nächste Schlüssel, danach die ursprüngliche Reihenfolge. Leere Zellen stehen immer an letzter Stelle.",
+    "dir_asc": "Aufsteigend",
+    "dir_desc": "Absteigend",
+    "move_up": "Nach oben",
+    "move_down": "Nach unten",
+    "remove_key": "Sortierschlüssel entfernen",
+    "clear_sort": "Sortierung zurücksetzen",
+    "th_orig": "#",
+    "col_n": "Spalte {n}",
+    "empty": "Fügen Sie oben eine Tabelle ein, um sie zu sortieren.",
+    "render_cap": "Zeigt {shown} von {total} Zeilen. Exporte enthalten alle Zeilen.",
+    "export_title": "Exportieren",
+    "copy_tsv": "TSV kopieren",
+    "copy_csv": "CSV kopieren",
+    "copy_md": "Markdown kopieren",
+    "export_hint": "TSV lässt sich direkt wieder in Excel oder Sheets einfügen. Kopfzeile wird übernommen, sofern vorhanden.",
+    "regex_link_title": "Konfigurationen generieren",
+    "regex_link_hint": "Senden Sie die sortierten Zeilen an Regex Suchen & Ersetzen und wählen Sie die Vorlage \"{preset}\".",
+    "regex_link_btn": "In Regex Suchen & Ersetzen öffnen"
+  }
 };

@@ -539,6 +539,9 @@ TRANSLATIONS["en"] = {
     "regex": {
       "title": "Regex Find & Replace"
     },
+    "net-table-sorter": {
+      "title": "Network Table Sorter"
+    },
     "jsonfmt": {
       "title": "Format Toolkit"
     },
@@ -1085,6 +1088,49 @@ TRANSLATIONS["en"] = {
     "helper_btn_load": "Load into Find & Replace",
     "helper_btn_clean": "Clean Text Now",
     "helper_preview_label": "Generated Pattern:"
+  },
+  "net_table_sorter": {
+    "title": "Network Table Sorter",
+    "subtitle": "Paste a table from Excel, Sheets, IPAM or CLI. Sort by any columns in network order — Eth1/2 before Eth1/10, 10.0.0.2 before 10.0.0.10 — with every row kept intact.",
+    "input_label": "Table",
+    "input_placeholder": "Paste TSV, CSV, ; or | separated rows, or column-aligned CLI output",
+    "load_sample": "Load sample",
+    "delimiter_label": "Delimiter",
+    "delim_auto_detected": "Auto ({d})",
+    "delim_tab": "Tab",
+    "delim_comma": "Comma",
+    "delim_semicolon": "Semicolon",
+    "delim_pipe": "Pipe",
+    "delim_ws": "Whitespace (2+ spaces)",
+    "header_label": "Header row",
+    "header_auto": "Auto",
+    "header_yes": "First row is header",
+    "header_no": "No header",
+    "iface_order_label": "Interface type order",
+    "iface_order_alpha": "Alphabetical",
+    "iface_order_speed": "By speed",
+    "iface_order_hint": "Speed: Fa < Gi < Te < Twe < Fo < Hu. Gi and GigabitEthernet are the same type either way.",
+    "stats": "{rows} rows × {cols} columns",
+    "sort_keys_title": "Sort keys",
+    "sort_hint": "Click a header: ascending → descending → off. Shift-click to add a secondary key. Ties fall through to the next key, then original order. Empty cells always sort last.",
+    "dir_asc": "Ascending",
+    "dir_desc": "Descending",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "remove_key": "Remove sort key",
+    "clear_sort": "Clear sort",
+    "th_orig": "#",
+    "col_n": "Column {n}",
+    "empty": "Paste a table above to sort it.",
+    "render_cap": "Showing {shown} of {total} rows. Exports include all rows.",
+    "export_title": "Export",
+    "copy_tsv": "Copy TSV",
+    "copy_csv": "Copy CSV",
+    "copy_md": "Copy Markdown",
+    "export_hint": "TSV pastes straight back into Excel or Sheets. Header row included when present.",
+    "regex_link_title": "Generate configs",
+    "regex_link_hint": "Send the sorted rows to Regex Find & Replace, then pick the \"{preset}\" preset.",
+    "regex_link_btn": "Open in Regex Find & Replace"
   },
   "bandwidth": {
     "pps": "pps",

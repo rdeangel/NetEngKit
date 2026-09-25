@@ -700,6 +700,9 @@ TRANSLATIONS["pl"] = {
     },
     "rdns-generator": {
       "title": "Generator Reverse DNS i RFC 2317"
+    },
+    "net-table-sorter": {
+      "title": "Sortownik tabel sieciowych"
     }
 },
   "dataunit": {
@@ -13515,5 +13518,48 @@ TRANSLATIONS["pl"] = {
     "issues_overflow": "…i jeszcze {count}",
     "w_rname_not_fqdn": "RNAME {name} nie ma końcowej kropki; BIND dołączy początek strefy.",
     "w_rname_invalid": "RNAME {name} nie jest prawidłową nazwą skrzynki pocztowej — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Sortownik tabel sieciowych",
+    "subtitle": "Wklej tabelę z programu Excel, Sheets, IPAM lub CLI. Sortuj według dowolnych kolumn w porządku sieciowym — Eth1/2 przed Eth1/10, 10.0.0.2 przed 10.0.0.10 — z zachowaniem integralności każdego wiersza.",
+    "input_label": "Tabela",
+    "input_placeholder": "Wklej wiersze rozdzielane znakami TSV, CSV, ; lub |, albo wyrównane kolumnowo wyjście CLI",
+    "load_sample": "Wczytaj przykład",
+    "delimiter_label": "Separator",
+    "delim_auto_detected": "Automatycznie ({d})",
+    "delim_tab": "Tabulator",
+    "delim_comma": "Przecinek",
+    "delim_semicolon": "Średnik",
+    "delim_pipe": "Pionowa kreska (Pipe)",
+    "delim_ws": "Białe znaki (2+ spacje)",
+    "header_label": "Wiersz nagłówka",
+    "header_auto": "Automatycznie",
+    "header_yes": "Pierwszy wiersz to nagłówek",
+    "header_no": "Brak nagłówka",
+    "iface_order_label": "Kolejność typów interfejsów",
+    "iface_order_alpha": "Alfabetycznie",
+    "iface_order_speed": "Według prędkości",
+    "iface_order_hint": "Prędkość: Fa < Gi < Te < Twe < Fo < Hu. Gi i GigabitEthernet to w obu przypadkach ten sam typ.",
+    "stats": "{rows} wierszy × {cols} kolumn",
+    "sort_keys_title": "Klucze sortowania",
+    "sort_hint": "Kliknij nagłówek: rosnąco → malejąco → wyłączone. Shift-kliknięcie dodaje klucz podrzędny. Przy równości decyduje kolejny klucz, a następnie pierwotna kolejność. Puste komórki zawsze sortowane są na końcu.",
+    "dir_asc": "Rosnąco",
+    "dir_desc": "Malejąco",
+    "move_up": "Przenieś w górę",
+    "move_down": "Przenieś w dół",
+    "remove_key": "Usuń klucz sortowania",
+    "clear_sort": "Wyczyść sortowanie",
+    "th_orig": "#",
+    "col_n": "Kolumna {n}",
+    "empty": "Wklej tabelę powyżej, aby ją posortować.",
+    "render_cap": "Wyświetlanie {shown} z {total} wierszy. Eksport obejmuje wszystkie wiersze.",
+    "export_title": "Eksport",
+    "copy_tsv": "Kopiuj TSV",
+    "copy_csv": "Kopiuj CSV",
+    "copy_md": "Kopiuj Markdown",
+    "export_hint": "TSV można wkleić bezpośrednio z powrotem do programu Excel lub Sheets. Wiersz nagłówka jest dołączany, jeśli występuje.",
+    "regex_link_title": "Generowanie konfiguracji",
+    "regex_link_hint": "Wyślij posortowane wiersze do Wyszukiwanie i zamiana Regex, a następnie wybierz szablon \"{preset}\".",
+    "regex_link_btn": "Otwórz w Wyszukiwanie i zamiana Regex"
+  }
 };

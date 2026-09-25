@@ -700,6 +700,9 @@ TRANSLATIONS["ko"] = {
     },
     "rdns-generator": {
       "title": "역방향 DNS & RFC 2317 생성기"
+    },
+    "net-table-sorter": {
+      "title": "네트워크 테이블 정렬기"
     }
 },
   "dataunit": {
@@ -13496,5 +13499,48 @@ TRANSLATIONS["ko"] = {
     "issues_overflow": "…외 {count}개",
     "w_rname_not_fqdn": "RNAME {name} 끝에 마침표가 없습니다. BIND가 존 오리진을 추가합니다.",
     "w_rname_invalid": "RNAME {name}은(는) 유효한 메일박스 이름이 아닙니다 — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "네트워크 테이블 정렬기",
+    "subtitle": "Excel, Sheets, IPAM 또는 CLI에서 테이블을 붙여넣으세요. 행의 무결성을 유지하면서 네트워크 순서(Eth1/10 앞의 Eth1/2, 10.0.0.10 앞의 10.0.0.2)로 모든 열을 정렬합니다.",
+    "input_label": "테이블",
+    "input_placeholder": "TSV, CSV, ; 또는 |로 구분된 행이나 열이 정렬된 CLI 출력을 붙여넣으세요",
+    "load_sample": "샘플 로드",
+    "delimiter_label": "구분자",
+    "delim_auto_detected": "자동 ({d})",
+    "delim_tab": "탭",
+    "delim_comma": "쉼표",
+    "delim_semicolon": "세미콜론",
+    "delim_pipe": "파이프",
+    "delim_ws": "공백 (2개 이상의 공백)",
+    "header_label": "헤더 행",
+    "header_auto": "자동",
+    "header_yes": "첫 번째 행이 헤더",
+    "header_no": "헤더 없음",
+    "iface_order_label": "인터페이스 유형 순서",
+    "iface_order_alpha": "알파벳순",
+    "iface_order_speed": "속도순",
+    "iface_order_hint": "속도: Fa < Gi < Te < Twe < Fo < Hu. Gi와 GigabitEthernet은 어느 쪽이든 동일한 유형으로 처리됩니다.",
+    "stats": "{rows}행 × {cols}열",
+    "sort_keys_title": "정렬 키",
+    "sort_hint": "헤더 클릭: 오름차순 → 내림차순 → 끄기. Shift-클릭으로 보조 키 추가. 동점일 경우 다음 키가 적용되며, 그 후에는 원래 순서가 유지됩니다. 빈 셀은 항상 마지막으로 정렬됩니다.",
+    "dir_asc": "오름차순",
+    "dir_desc": "내림차순",
+    "move_up": "위로 이동",
+    "move_down": "아래로 이동",
+    "remove_key": "정렬 키 제거",
+    "clear_sort": "정렬 지우기",
+    "th_orig": "#",
+    "col_n": "{n}열",
+    "empty": "정렬할 테이블을 위에 붙여넣으세요.",
+    "render_cap": "전체 {total}행 중 {shown}행 표시 중. 내보내기에는 모든 행이 포함됩니다.",
+    "export_title": "내보내기",
+    "copy_tsv": "TSV 복사",
+    "copy_csv": "CSV 복사",
+    "copy_md": "Markdown 복사",
+    "export_hint": "TSV는 Excel이나 Sheets에 바로 다시 붙여넣을 수 있습니다. 헤더 행이 있는 경우 포함됩니다.",
+    "regex_link_title": "설정 생성",
+    "regex_link_hint": "정렬된 행을 Regex 찾기 및 바꾸기로 보낸 후 \"{preset}\" 프리셋을 선택하세요.",
+    "regex_link_btn": "Regex 찾기 및 바꾸기에서 열기"
+  }
 };

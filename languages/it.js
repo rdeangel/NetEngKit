@@ -700,6 +700,9 @@ TRANSLATIONS["it"] = {
     },
     "rdns-generator": {
       "title": "Generatore Reverse DNS & RFC 2317"
+    },
+    "net-table-sorter": {
+      "title": "Ordinatore tabelle di rete"
     }
 },
   "dataunit": {
@@ -13515,5 +13518,48 @@ TRANSLATIONS["it"] = {
     "issues_overflow": "…e altri {count}",
     "w_rname_not_fqdn": "RNAME {name} non termina con un punto; BIND aggiungerà l'origine della zona.",
     "w_rname_invalid": "RNAME {name} non è un nome di casella di posta valido — {why}"
-}
+},
+  "net_table_sorter":   {
+    "title": "Ordinatore tabelle di rete",
+    "subtitle": "Incolla una tabella da Excel, Sheets, IPAM o CLI. Ordina per qualsiasi colonna in ordine di rete — Eth1/2 prima di Eth1/10, 10.0.0.2 prima di 10.0.0.10 — mantenendo intatta ogni riga.",
+    "input_label": "Tabella",
+    "input_placeholder": "Incolla righe separate da TSV, CSV, ; o |, oppure output CLI allineato in colonne",
+    "load_sample": "Carica esempio",
+    "delimiter_label": "Delimitatore",
+    "delim_auto_detected": "Auto ({d})",
+    "delim_tab": "Tab",
+    "delim_comma": "Virgola",
+    "delim_semicolon": "Punto e virgola",
+    "delim_pipe": "Pipe",
+    "delim_ws": "Spazio bianco (2+ spazi)",
+    "header_label": "Riga di intestazione",
+    "header_auto": "Auto",
+    "header_yes": "La prima riga è l'intestazione",
+    "header_no": "Nessuna intestazione",
+    "iface_order_label": "Ordine tipo interfaccia",
+    "iface_order_alpha": "Alfabetico",
+    "iface_order_speed": "Per velocità",
+    "iface_order_hint": "Velocità: Fa < Gi < Te < Twe < Fo < Hu. Gi e GigabitEthernet sono lo stesso tipo in ogni caso.",
+    "stats": "{rows} righe × {cols} colonne",
+    "sort_keys_title": "Chiavi di ordinamento",
+    "sort_hint": "Fai clic su un'intestazione: crescente → decrescente → disattivato. Shift-clic per aggiungere una chiave secondaria. I pareggi passano alla chiave successiva, quindi all'ordine originale. Le celle vuote sono sempre ordinate per ultime.",
+    "dir_asc": "Crescente",
+    "dir_desc": "Decrescente",
+    "move_up": "Sposta su",
+    "move_down": "Sposta giù",
+    "remove_key": "Rimuovi chiave di ordinamento",
+    "clear_sort": "Cancella ordinamento",
+    "th_orig": "#",
+    "col_n": "Colonna {n}",
+    "empty": "Incolla una tabella sopra per ordinarla.",
+    "render_cap": "Visualizzazione di {shown} su {total} righe. Le esportazioni includono tutte le righe.",
+    "export_title": "Esporta",
+    "copy_tsv": "Copia TSV",
+    "copy_csv": "Copia CSV",
+    "copy_md": "Copia Markdown",
+    "export_hint": "Il TSV si incolla direttamente in Excel o Sheets. Riga di intestazione inclusa quando presente.",
+    "regex_link_title": "Genera configurazioni",
+    "regex_link_hint": "Invia le righe ordinate a Cerca e sostituisci Regex, quindi scegli il preset \"{preset}\".",
+    "regex_link_btn": "Apri in Cerca e sostituisci Regex"
+  }
 };
