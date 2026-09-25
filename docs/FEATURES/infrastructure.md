@@ -1,6 +1,6 @@
 # Infrastructure
 
-Physical plant, QoS, wireless/IoT, TCP math, and platform planning. All **27** Infrastructure entries are client-side. None are `server: true`.
+Physical plant, QoS, wireless/IoT, TCP math, and platform planning. All **28** Infrastructure entries are client-side. None are `server: true`.
 
 Catalog: [TOOLS.md](../../TOOLS.md). Most headings sit under [Infrastructure, QoS & Planning](../../TOOLS.md#infrastructure-qos--planning). A few (port reference, k8s, Docker/Podman, rack) are filed under the catalog’s Diagnostics section; links still go to those headings.
 
@@ -18,9 +18,9 @@ The catalog still has a leftover [WLAN / 802.11 Planner](../../TOOLS.md#wlan--80
 
 [Wireless & RF planner](../../TOOLS.md#wireless--rf-planner), [QR code generator](../../TOOLS.md#qr-code-generator), [LoRaWAN / IoT capacity planner](../../TOOLS.md#lorawan--iot-capacity-planner), [Zigbee / IEEE 802.15.4 toolkit](../../TOOLS.md#zigbee--ieee-802154-toolkit).
 
-## Time, AAA, ports, tunnels (5)
+## Time, AAA, DNS, ports, tunnels (6)
 
-[NTP stratum calculator](../../TOOLS.md#ntp-stratum-calculator), [RADIUS / TACACS+ reference](../../TOOLS.md#radius--tacacs-reference), [port reference](../../TOOLS.md#port-reference), [tunnel overhead](../../TOOLS.md#tunnel--vpn-overhead-calculator), [DNS over HTTPS/TLS builder](../../TOOLS.md#dns-over-httpstls-builder).
+[NTP stratum calculator](../../TOOLS.md#ntp-stratum-calculator), [RADIUS / TACACS+ reference](../../TOOLS.md#radius--tacacs-reference), [port reference](../../TOOLS.md#port-reference), [tunnel overhead](../../TOOLS.md#tunnel--vpn-overhead-calculator), [DNS over HTTPS/TLS builder](../../TOOLS.md#dns-over-httpstls-builder), [reverse DNS & RFC 2317 generator](../../TOOLS.md#reverse-dns--rfc-2317-generator).
 
 ## Platform and DC planning (6)
 

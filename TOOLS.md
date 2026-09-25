@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **126** top-level entries: **112** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **127** top-level entries: **113** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **122** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **123** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -2159,6 +2159,32 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### Reverse DNS & RFC 2317 Generator
+**ID:** `rdns-generator` | **Type:** Tool | **Offline**
+
+**Description:** Generates reverse DNS from a prefix: `in-addr.arpa` zones for IPv4 /8–/24 (split on octet boundaries), RFC 2317 classless delegation for /25–/32 (parent NS + CNAME snippet and child zone), and `ip6.arpa` nibble zones for IPv6 (split on nibble boundaries). PTR names from a token template or an imported IP ↔ hostname list, with per-record edits. Exports BIND zone files and Unbound `local-zone` / `local-data`.
+
+**Modes:** IPv4 zone (`v4`), IPv4 RFC 2317 (`rfc2317`), IPv6 ip6.arpa (`v6`)
+
+**Inputs:**
+- Prefix (CIDR)
+- PTR name template with tokens `{ip}`, `{dashes}`, `{octets}`, `{octet1}`–`{octet4}`, `{hex}`, `{v6hextets}`, `{n}`
+- RFC 2317 child label style: `start-length`, `start/length`, `first-last`; skip network/broadcast toggle
+- SOA: nameservers, RNAME, TTL, serial
+- Host list import (CSV or whitespace, header row tolerated)
+
+**Outputs:**
+- Zone names, PTR owner names (relative), per-record table with edit/delete/restore and filter
+- BIND zone file(s); RFC 2317 parent snippet (NS + CNAMEs); Unbound config
+- Checks: trailing-dot FQDN, hostname syntax, out-of-prefix / wrong-family / duplicate import lines, hosts without PTR, parent CNAMEs without a child PTR
+- Copy (records with header row), JSON export, share URL
+
+**Current Keywords:** `reverse dns rdns ptr pointer record in-addr.arpa ip6.arpa nibble zone file bind named unbound local-data local-zone rfc 2317 classless delegation cname subnet /25 /26 /27 /28 /29 ipv6 prefix bulk hostname template csv import soa ns`
+
+**Suggested Keywords to Add:** _(none)_
+
+---
+
 ### Zigbee / IEEE 802.15.4 Toolkit
 **ID:** `zigbee-toolkit` | **Type:** Tool | **Offline**
 
@@ -3921,9 +3947,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 126 top-level entries in `components/app.jsx` — 112 tools, 14 references.
+**Registry (source of truth):** 127 top-level entries in `components/app.jsx` — 113 tools, 14 references.
 
-**This catalog:** 122 `###` headings.
+**This catalog:** 123 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -3933,7 +3959,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 12
 - Routing & Layer 3 — 15
-- Infrastructure, QoS & Planning — 23
+- Infrastructure, QoS & Planning — 24
 - Media & Broadcast — 2
 - Diagnostics & Tools — 53
 - Education & Entertainment — 1

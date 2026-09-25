@@ -244,6 +244,13 @@ const TOOLS = [
     ],
   },
   { id: 'doh-dot-cfg', label: 'DNS over HTTPS/TLS Builder', group: 'Infrastructure', type: 'tool', keywords: 'dns doh dot doq https tls security cisco bind unbound resolved browser profile cert pin policy' },
+  { id: 'rdns-generator', label: 'Reverse DNS & RFC 2317 Generator', group: 'Infrastructure', type: 'tool',
+    keywords: 'reverse dns rdns ptr pointer record in-addr.arpa ip6.arpa nibble zone file bind named unbound local-data local-zone rfc 2317 classless delegation cname subnet /25 /26 /27 /28 /29 ipv6 prefix bulk hostname template csv import soa ns',
+    subTools: [
+      { labelKey: 'rdns_generator.mode_v4', nav: { mode: 'v4' }, keywords: 'in-addr.arpa ipv4 reverse zone /24 /16 /8 ptr bulk' },
+      { labelKey: 'rdns_generator.mode_rfc2317', nav: { mode: 'rfc2317' }, keywords: 'rfc 2317 classless delegation cname parent child /25 /26 /27 /28 /29 /30 /32' },
+      { labelKey: 'rdns_generator.mode_v6', nav: { mode: 'v6' }, keywords: 'ip6.arpa nibble ipv6 reverse zone /32 /48 /56 /64 ptr' },
+    ] },
   { id: 'zigbee-toolkit', label: 'Zigbee / IEEE 802.15.4 Toolkit', group: 'Infrastructure', type: 'tool', keywords: 'zigbee ieee 802.15.4 iot protocol smart home sensor mesh coordinator router', subTools: [
     { labelKey: 'zigbee_toolkit.tab_channel', nav: { tab: 'channel' }, keywords: 'zigbee toolkit channel interference wifi overlap' },
     { labelKey: 'zigbee_toolkit.tab_capacity', nav: { tab: 'capacity' }, keywords: 'capacity mesh network size' },
@@ -790,6 +797,7 @@ function App() {
       case 'netbox-import': return <NetboxImport initialData={hashData} onShare={handleShare} />;
       case 'kea-dhcp': return <KeaDHCP initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'doh-dot-cfg': return <DohDotConfig initialData={hashData} onShare={handleShare} />;
+      case 'rdns-generator': return <ReverseDNSGenerator initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'zigbee-toolkit': return <ZigbeeToolkit initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'traffic-gen': return <TrafficGen initialData={hashData} onShare={handleShare} />;
       case 'systools': return <SysToolBuilder initialData={hashData} onShare={handleShare} onNav={handleNav} />;
