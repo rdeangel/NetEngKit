@@ -991,7 +991,9 @@ TRANSLATIONS["vi"] = {
     "ss_col_command_3": "Lệnh 3",
     "ss_card_columns": "{count} cột",
     "ss_setup_total_badge": "Tổng cộng {total} cột",
-    "ss_setup_total_columns": "Tổng số cột: {total} ({base} cơ sở + {extra} bổ sung)"
+    "ss_setup_total_columns": "Tổng số cột: {total} ({base} cơ sở + {extra} bổ sung)",
+    "ss_keep_input": "Giữ nguyên văn bản đầu vào hiện có",
+    "ss_keep_input_desc": "Bỏ qua dữ liệu mẫu — áp dụng mẫu vào văn bản đã có trong trường nhập liệu"
 },
   "bandwidth": {
     "pps": "pps",

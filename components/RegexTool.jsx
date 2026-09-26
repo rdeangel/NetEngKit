@@ -1,5 +1,8 @@
 const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
+// Upper bound for "Add extra capture groups" in the Interfaces-from-Spreadsheet flow
+const IFACE_EXTRA_MAX = 100;
+
 // ─── Regex Syntax Highlighter ───────────────────────────────
 // Tokenizes a regex pattern and returns an array of { text, type } spans
 function tokenizeRegex(pattern) {
@@ -560,6 +563,7 @@ function RegexTool({ onShare, initialData }) {
   const [ifaceSelectedTpl, setIfaceSelectedTpl] = useState(null);
   const [ifaceExtraMode, setIfaceExtraMode] = useState('default'); // 'default' | 'more'
   const [ifaceExtraCount, setIfaceExtraCount] = useState(1);
+  const [ifaceKeepInput, setIfaceKeepInput] = useState(false);
   const [showTsvDrop, setShowTsvDrop] = useState(false);
   const [tsvDragOver, setTsvDragOver] = useState(false);
   const jsonFileRef = useRef(null);
@@ -894,19 +898,20 @@ function RegexTool({ onShare, initialData }) {
 
   const applyIfaceTemplate = useCallback(() => {
     if (!ifaceSelectedTpl) return;
-    const extraCount = ifaceExtraMode === 'more' ? Math.max(1, Math.min(10, ifaceExtraCount)) : 0;
+    const extraCount = ifaceExtraMode === 'more' ? Math.max(1, Math.min(IFACE_EXTRA_MAX, ifaceExtraCount)) : 0;
     const tpl = buildTemplateWithExtra(ifaceSelectedTpl, extraCount);
     setFindPattern(tpl.find);
     setReplacePattern(tpl.replace);
     setFlags(tpl.flags);
-    setInputText(tpl.sampleInput);
+    if (!ifaceKeepInput) setInputText(tpl.sampleInput);
     setResult(null);
     setError(null);
     setIfaceStep(null);
     setIfaceSelectedTpl(null);
     setIfaceExtraMode('default');
     setIfaceExtraCount(1);
-  }, [ifaceSelectedTpl, ifaceExtraMode, ifaceExtraCount]);
+    setIfaceKeepInput(false);
+  }, [ifaceSelectedTpl, ifaceExtraMode, ifaceExtraCount, ifaceKeepInput]);
 
   return (
     <div className="tool-content">
@@ -979,7 +984,7 @@ function RegexTool({ onShare, initialData }) {
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
                     {visibleTemplates.map(tpl => (
-                      <button key={tpl.id} onClick={() => { setIfaceSelectedTpl(tpl); setIfaceExtraMode('default'); setIfaceExtraCount(1); setIfaceStep('configure'); }} style={{
+                      <button key={tpl.id} onClick={() => { setIfaceSelectedTpl(tpl); setIfaceExtraMode('default'); setIfaceExtraCount(1); setIfaceKeepInput(false); setIfaceStep('configure'); }} style={{
                         background: 'var(--bg)', border: '1px solid var(--border)',
                         borderRadius: 'var(--radius)', padding: '12px 14px',
                         cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
@@ -1101,9 +1106,9 @@ function RegexTool({ onShare, initialData }) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <label style={{ fontSize: 12, color: 'var(--dim)', flex: 1 }}>{t('regex.ss_setup_more_label', 'How many additional groups?')}</label>
                         <input
-                          type="number" min={1} max={10}
+                          type="number" min={1} max={IFACE_EXTRA_MAX}
                           value={ifaceExtraCount}
-                          onChange={e => setIfaceExtraCount(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
+                          onChange={e => setIfaceExtraCount(Math.max(1, Math.min(IFACE_EXTRA_MAX, parseInt(e.target.value) || 1)))}
                           className="input"
                           style={{ width: 64, fontFamily: 'monospace', fontSize: 13, padding: '4px 8px', textAlign: 'center' }}
                         />
@@ -1119,6 +1124,23 @@ function RegexTool({ onShare, initialData }) {
                       </div>
                     </div>
                   )}
+                </div>
+              </label>
+              <label style={{
+                display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px',
+                border: '1px solid ' + (ifaceKeepInput ? 'var(--cyan)' : 'var(--border)'),
+                borderRadius: 'var(--radius)', cursor: 'pointer',
+                background: ifaceKeepInput ? 'rgba(0,212,200,0.08)' : 'var(--bg)'
+              }}>
+                <input type="checkbox" checked={ifaceKeepInput}
+                  onChange={e => setIfaceKeepInput(e.target.checked)} style={{ marginTop: 2 }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>
+                    {t('regex.ss_keep_input', 'Keep existing input text')}
+                  </div>
+                  <div style={{ color: 'var(--dim)', fontSize: 11, marginTop: 2 }}>
+                    {t('regex.ss_keep_input_desc', 'Skip the sample data — apply the template to the text already in the input field')}
+                  </div>
                 </div>
               </label>
             </div>

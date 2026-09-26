@@ -991,7 +991,9 @@ TRANSLATIONS["pt"] = {
     "ss_col_command_3": "Comando 3",
     "ss_card_columns": "{count} colunas",
     "ss_setup_total_badge": "{total} colunas no total",
-    "ss_setup_total_columns": "Total de colunas: {total} ({base} base + {extra} adicionais)"
+    "ss_setup_total_columns": "Total de colunas: {total} ({base} base + {extra} adicionais)",
+    "ss_keep_input": "Manter o texto de entrada existente",
+    "ss_keep_input_desc": "Ignorar os dados de exemplo — aplicar o modelo ao texto já presente no campo de entrada"
 },
   "bandwidth": {
     "tabs": {

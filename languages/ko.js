@@ -991,7 +991,9 @@ TRANSLATIONS["ko"] = {
     "ss_col_command_3": "명령어 3",
     "ss_card_columns": "{count}개 열",
     "ss_setup_total_badge": "총 {total}개 열",
-    "ss_setup_total_columns": "총 열 개수: {total}개 (기본 {base}개 + 추가 {extra}개)"
+    "ss_setup_total_columns": "총 열 개수: {total}개 (기본 {base}개 + 추가 {extra}개)",
+    "ss_keep_input": "기존 입력 텍스트 유지",
+    "ss_keep_input_desc": "샘플 데이터 건너뛰기 — 입력 필드에 이미 있는 텍스트에 템플릿 적용"
 },
   "bandwidth": {
     "pps": "pps",

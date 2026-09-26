@@ -991,7 +991,9 @@ TRANSLATIONS["ja"] = {
     "ss_col_command_3": "コマンド 3",
     "ss_card_columns": "{count} 列",
     "ss_setup_total_badge": "合計 {total} 列",
-    "ss_setup_total_columns": "合計列数: {total} (基本 {base} + 追加 {extra})"
+    "ss_setup_total_columns": "合計列数: {total} (基本 {base} + 追加 {extra})",
+    "ss_keep_input": "既存の入力テキストを保持",
+    "ss_keep_input_desc": "サンプルデータをスキップ — 入力フィールドに既にあるテキストにテンプレートを適用"
 },
   "bandwidth": {
     "pps": "pps",

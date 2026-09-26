@@ -1017,6 +1017,8 @@ TRANSLATIONS["en"] = {
     "ss_setup_more_desc": "Appends extra columns to the sample and replace",
     "ss_setup_more_label": "How many additional groups?",
     "ss_setup_total_badge": "{total} cols total",
+    "ss_keep_input": "Keep existing input text",
+    "ss_keep_input_desc": "Skip the sample data — apply the template to the text already in the input field",
     "ss_setup_total_columns": "Total columns: {total} ({base} base + {extra} extra)",
     "ss_setup_btn": "Apply",
     "ss_back": "Back",

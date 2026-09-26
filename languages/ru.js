@@ -991,7 +991,9 @@ TRANSLATIONS["ru"] = {
     "ss_col_command_3": "Команда 3",
     "ss_card_columns": "{count} стлб.",
     "ss_setup_total_badge": "Всего {total} стлб.",
-    "ss_setup_total_columns": "Всего столбцов: {total} ({base} основных + {extra} дополн.)"
+    "ss_setup_total_columns": "Всего столбцов: {total} ({base} основных + {extra} дополн.)",
+    "ss_keep_input": "Сохранить существующий входной текст",
+    "ss_keep_input_desc": "Пропустить пример данных — применить шаблон к тексту, уже находящемуся в поле ввода"
 },
   "bandwidth": {
     "pps": "pps",

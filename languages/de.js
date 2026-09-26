@@ -991,8 +991,10 @@ TRANSLATIONS["de"] = {
     "ss_col_command_3": "Befehl 3",
     "ss_card_columns": "{count} Spalten",
     "ss_setup_total_badge": "{total} Spalten gesamt",
-    "ss_setup_total_columns": "Spalten gesamt: {total} ({base} Basis + {extra} zusätzlich)"
-  },
+    "ss_setup_total_columns": "Spalten gesamt: {total} ({base} Basis + {extra} zusätzlich)",
+    "ss_keep_input": "Vorhandenen Eingabetext behalten",
+    "ss_keep_input_desc": "Beispieldaten überspringen — die Vorlage auf den bereits im Eingabefeld vorhandenen Text anwenden"
+},
   "bandwidth": {
     "pps": "pps",
     "bits": "bits",

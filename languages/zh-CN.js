@@ -991,7 +991,9 @@ TRANSLATIONS["zh-CN"] = {
     "ss_col_command_3": "命令 3",
     "ss_card_columns": "{count} 列",
     "ss_setup_total_badge": "共 {total} 列",
-    "ss_setup_total_columns": "总列数: {total} ({base} 基础 + {extra} 额外)"
+    "ss_setup_total_columns": "总列数: {total} ({base} 基础 + {extra} 额外)",
+    "ss_keep_input": "保留现有输入文本",
+    "ss_keep_input_desc": "跳过示例数据 — 将模板应用于输入框中已有的文本"
 },
   "bandwidth": {
     "pps": "pps",

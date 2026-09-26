@@ -991,7 +991,9 @@ TRANSLATIONS["hi"] = {
     "ss_col_command_3": "कमांड 3",
     "ss_card_columns": "{count} कॉलम",
     "ss_setup_total_badge": "कुल {total} कॉलम",
-    "ss_setup_total_columns": "कुल कॉलम: {total} ({base} आधार + {extra} अतिरिक्त)"
+    "ss_setup_total_columns": "कुल कॉलम: {total} ({base} आधार + {extra} अतिरिक्त)",
+    "ss_keep_input": "मौजूदा इनपुट टेक्स्ट रखें",
+    "ss_keep_input_desc": "सैंपल डेटा छोड़ें — टेम्पलेट को इनपुट फ़ील्ड में पहले से मौजूद टेक्स्ट पर लागू करें"
 },
   "bandwidth": {
     "pps": "pps",

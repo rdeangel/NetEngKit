@@ -991,7 +991,9 @@ TRANSLATIONS["it"] = {
     "ss_col_command_3": "Comando 3",
     "ss_card_columns": "{count} col",
     "ss_setup_total_badge": "{total} col totali",
-    "ss_setup_total_columns": "Colonne totali: {total} ({base} base + {extra} extra)"
+    "ss_setup_total_columns": "Colonne totali: {total} ({base} base + {extra} extra)",
+    "ss_keep_input": "Mantieni il testo di input esistente",
+    "ss_keep_input_desc": "Salta i dati di esempio — applica il modello al testo già presente nel campo di input"
 },
   "bandwidth": {
     "pps": "pps",

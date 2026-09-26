@@ -991,7 +991,9 @@ TRANSLATIONS["pl"] = {
     "ss_col_command_3": "Polecenie 3",
     "ss_card_columns": "{count} kol.",
     "ss_setup_total_badge": "Łącznie {total} kol.",
-    "ss_setup_total_columns": "Łącznie kolumn: {total} ({base} bazowych + {extra} dodatkowych)"
+    "ss_setup_total_columns": "Łącznie kolumn: {total} ({base} bazowych + {extra} dodatkowych)",
+    "ss_keep_input": "Zachowaj istniejący tekst wejściowy",
+    "ss_keep_input_desc": "Pomiń dane przykładowe — zastosuj szablon do tekstu już znajdującego się w polu wejściowym"
 },
   "bandwidth": {
     "pps": "pps",
