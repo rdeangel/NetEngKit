@@ -707,20 +707,21 @@ Sub-tabs: Variants, States, Timers, Bridge ID Calculator, Config Snippets
 ### Device Config Converter
 **ID:** `device-converter` | **Type:** Tool | **Offline**
 
-**Description:** Converts Layer 2 and Layer 3 switch configurations (VLANs, trunk/access ports, LACP, STP) OR firewall rules and security policies between major network vendors.
+**Description:** Converts Layer 2/3 switch configurations (VLANs, trunk/access ports, LACP, STP) between vendors, and translates firewall security policy between FortiGate, Palo Alto PAN-OS, Juniper SRX and Cisco ASA (Cisco FTD/Firepower as source only) through a vendor-neutral model. Firewall output is a migration draft for candidate config / `commit check`, with a mandatory Translation Report. NAT is not translated yet.
 
 **Inputs:**
-- Source vendor selector (Auto-Detect, Cisco IOS/EOS, Juniper Junos, Aruba AOS-CX, HPE Comware, Cisco ASA, Palo Alto PAN-OS, Fortinet FortiOS)
-- Target vendor selector (filtered by source type)
-- Raw source CLI configuration text
+- Converter tab: source vendor (Auto-Detect, Cisco IOS/EOS, Cisco NX-OS, Juniper Junos, HPE Comware, Aruba AOS-CX), target vendor, source CLI text
+- Firewall Policy Translator tab: source (Auto-detect, FortiOS CLI, PAN-OS set or XML incl. Panorama pre/post, SRX set or curly, ASA running-config, FTD FMC access-rule JSON or LINA running-config), target (FortiOS, PAN-OS, SRX, ASA — never FTD), pasted policy, zone ↔ interface mapping table seeded from the source
 
 **Outputs:**
-- Converted target network or security configuration script
+- Converted switch configuration script
+- Firewall draft: address/service objects and groups (nesting kept, predefined services mapped by exact port signature, names sanitised to target limits), security rules in order with names, comments, enable/disable, logging and address negation (native, or expanded to prefixes on ASA), zone definitions from the mapping table
+- Translation Report: per-rule status (exact / approximated / not translated) with reasons, dropped constructs (security/UTM profiles, App-ID, URL categories, users/groups, schedules, geo, Panorama pre/post, NAT/VIP), renamed objects, parser warnings; copy as TSV
 - Copy and download controls
 - Line-by-line validation reports (converted, ignored/unsupported, and warning lines)
 - Side-by-side switching and security syntax equivalency cheat sheet
 
-**Current Keywords:** `device switch config converter migration translate cisco ios junos arista eos aruba aos-cx comware vlan trunk access port-channel lacp stp firewall rule policy security asa palo alto fortios pan-os fortinet acl access-list`
+**Current Keywords:** `device switch config converter migration translate cisco ios junos arista eos aruba aos-cx comware vlan trunk access port-channel lacp stp firewall rule policy security asa palo alto fortios pan-os fortinet acl access-list srx firepower ftd fmc translator migration object address-group service-group zone negate`
 
 **Suggested Keywords to Add:** `migration translation switchport switch ethernet-switching native vlan mapping bundle interface security rules filter policy`
 

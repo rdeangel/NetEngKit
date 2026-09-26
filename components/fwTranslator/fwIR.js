@@ -246,6 +246,41 @@
     return ivs.length === 1 && ivs[0][0] === 0 && ivs[0][1] === FULL_V4_HI;
   }
 
+  function complementV4(ivs) {
+    return subtractIntervals([[FULL_V4_LO, FULL_V4_HI]], ivs);
+  }
+
+  // Greedy largest-aligned-block: interval list → minimal CIDR list [{ip, len}].
+  function intervalsToCidrs(ivs) {
+    ivs = mergeIntervals(ivs);
+    var out = [];
+    for (var i = 0; i < ivs.length; i++) {
+      var start = ivs[i][0] >>> 0;
+      var end = ivs[i][1] >>> 0;
+      if (start === 0 && end === FULL_V4_HI) {
+        out.push({ ip: '0.0.0.0', len: 0 });
+        continue;
+      }
+      while (start <= end) {
+        var remaining = (end - start + 1);
+        var align = 0;
+        var s = start;
+        while (align < 32 && (s & 1) === 0) { align++; s >>>= 1; }
+        var maxBlock = 0;
+        var r = remaining;
+        while (r > 1) { maxBlock++; r = Math.floor(r / 2); }
+        var blockBits = align < maxBlock ? align : maxBlock;
+        var len = 32 - blockBits;
+        out.push({ ip: intToIpv4(start), len: len });
+        var blockSize = blockBits === 0 ? 1 : (blockBits >= 32 ? 0x100000000 : (1 << blockBits));
+        var next = start + blockSize;
+        if (next > FULL_V4_HI || next <= start) break;
+        start = next >>> 0;
+      }
+    }
+    return out;
+  }
+
   function isFullPort(ivs) {
     ivs = mergeIntervals(ivs);
     return ivs.length === 1 && ivs[0][0] === 0 && ivs[0][1] === 65535;
@@ -421,7 +456,9 @@
       scopes: [],
       objects: { addr: {}, svc: {} },
       warnings: [],
-      bindings: []
+      bindings: [],
+      zones: {},
+      meta: {}
     };
   }
 
@@ -471,6 +508,7 @@
       dstIntf: partial.dstIntf || [],
       negate: partial.negate || { src: false, dst: false, svc: false },
       unsupported: partial.unsupported ? partial.unsupported.slice() : [],
+      dropped: partial.dropped ? partial.dropped.slice() : [],
       src: partial.src || null,
       dst: partial.dst || null,
       svc: partial.svc || null
@@ -808,7 +846,13 @@
     isIpv4Token: isIpv4Token,
     actionClass: actionClass,
     litToAddr: litToAddr,
-    addrFromParsed: addrFromParsed
+    litToSvc: litToSvc,
+    addrFromParsed: addrFromParsed,
+    expandRefs: expandRefs,
+    expandAddrRef: expandAddrRef,
+    expandSvcRef: expandSvcRef,
+    intervalsToCidrs: intervalsToCidrs,
+    complementV4: complementV4
   };
 
   root.FwIR = api;

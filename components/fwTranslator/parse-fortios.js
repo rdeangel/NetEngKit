@@ -12,14 +12,22 @@
     users: 1, groups: 1, 'fsso-groups': 1, 'utm-status': 1, 'profile-group': 1,
     'srcaddr-negate': 1, 'dstaddr-negate': 1, 'service-negate': 1,
     'internet-service': 1, application: 1, 'app-category': 1, 'app-group': 1,
-    'url-category': 1, srcaddr6: 1, dstaddr6: 1
+    'url-category': 1, srcaddr6: 1, dstaddr6: 1, 'send-deny-packet': 1
   };
   var POLICY_IGNORE = {
     uuid: 1, nat: 1, ippool: 1, poolname: 1, fixedport: 1, wccp: 1,
-    'auto-asic-offload': 1, 'send-deny-packet': 1, 'inspection-mode': 1,
+    'auto-asic-offload': 1, 'inspection-mode': 1,
     comments: 1, name: 1, 'natenable': 1, 'diffserv-forward': 1,
     'tcp-mss-sender': 1, 'tcp-mss-receiver': 1, 'captive-portal-exempt': 1,
     'match-vip': 1, 'global-label': 1, label: 1
+  };
+  var POLICY_NAT_DROP = {
+    nat: 1, natenable: 1, ippool: 1, poolname: 1, fixedport: 1, 'match-vip': 1
+  };
+  var POLICY_OPT_DROP = {
+    wccp: 1, 'inspection-mode': 1, 'diffserv-forward': 1,
+    'tcp-mss-sender': 1, 'tcp-mss-receiver': 1, 'captive-portal-exempt': 1,
+    'auto-asic-offload': 1, 'global-label': 1, label: 1
   };
   var SVC_CUSTOM_KEYS = {
     protocol: 1, 'protocol-number': 1,
@@ -123,7 +131,8 @@
     function top() { return stack[stack.length - 1]; }
     var KEEP = {
       'firewall address': 1, 'firewall addrgrp': 1, 'firewall service custom': 1,
-      'firewall service group': 1, 'firewall policy': 1, vdom: 1
+      'firewall service group': 1, 'firewall policy': 1, vdom: 1,
+      'firewall vip': 1, 'firewall vipgrp': 1, 'system zone': 1
     };
 
     for (var i = 0; i < lines.length; i++) {
@@ -238,6 +247,9 @@
         else if (cfg.name === 'firewall service custom') parseSvcCustom(policy, cfg);
         else if (cfg.name === 'firewall service group') parseSvcGroup(policy, cfg);
         else if (cfg.name === 'firewall policy') parsePolicies(policy, cfg, vdomName || 'root');
+        else if (cfg.name === 'firewall vip') parseVip(policy, cfg);
+        else if (cfg.name === 'firewall vipgrp') parseVipgrp(policy, cfg);
+        else if (cfg.name === 'system zone') parseZones(policy, cfg);
       }
     }
     walkConfigs(configs, 'root');
@@ -355,15 +367,69 @@
     });
   }
 
+  function parseVip(policy, cfg) {
+    (cfg.edits || []).forEach(function (ed) {
+      var ext = asOne(ed, 'extip') || asOne(ed, 'extip6') || '';
+      var mapped = asOne(ed, 'mappedip') || asOne(ed, 'mappedip6') || asList(ed, 'mappedip').join(' ') || '';
+      IR.addAddrObj(policy, {
+        name: ed.name,
+        kind: 'vip',
+        value: { ext: ext, mapped: mapped },
+        extintf: asOne(ed, 'extintf') || '',
+        portforward: String(asOne(ed, 'portforward')).toLowerCase() === 'enable',
+        unanalysable: true,
+        unanalysableConstruct: 'nat',
+        line: ed.line
+      });
+    });
+  }
+
+  function parseVipgrp(policy, cfg) {
+    (cfg.edits || []).forEach(function (ed) {
+      IR.addAddrObj(policy, {
+        name: ed.name,
+        kind: 'group',
+        members: asList(ed, 'member'),
+        exclude: [],
+        unanalysable: true,
+        unanalysableConstruct: 'nat',
+        line: ed.line
+      });
+    });
+  }
+
+  function parseZones(policy, cfg) {
+    (cfg.edits || []).forEach(function (ed) {
+      policy.zones[ed.name] = {
+        ifaces: asList(ed, 'interface'),
+        line: ed.line
+      };
+    });
+  }
+
+  function dropNonEmpty(vals) {
+    if (!vals || !vals.length) return false;
+    var v = String(vals[0] == null ? '' : vals[0]).toLowerCase();
+    if (v === '' || v === 'disable' || v === '0') return false;
+    return true;
+  }
+
   function parsePolicies(policy, cfg, vdomName) {
     var scopeKey = 'vdom:' + (vdomName || 'root');
     IR.ensureScope(policy, scopeKey, { kind: 'policy-list', label: vdomName || 'root' });
     (cfg.edits || []).forEach(function (ed) {
       var actRaw = (asOne(ed, 'action') || 'deny').toLowerCase();
       var action = actRaw === 'accept' || actRaw === 'ipsec' ? 'permit' : (actRaw === 'deny' ? 'deny' : 'deny');
+      if (action === 'deny' && String(asOne(ed, 'send-deny-packet')).toLowerCase() === 'enable') {
+        action = 'reject';
+      }
       var status = (asOne(ed, 'status') || 'enable').toLowerCase();
       var logt = (asOne(ed, 'logtraffic') || '').toLowerCase();
-      var rawLines = [];
+      var neg = {
+        src: String(asOne(ed, 'srcaddr-negate')).toLowerCase() === 'enable',
+        dst: String(asOne(ed, 'dstaddr-negate')).toLowerCase() === 'enable',
+        svc: String(asOne(ed, 'service-negate')).toLowerCase() === 'enable'
+      };
       var rule = IR.makeRule({
         id: String(ed.name),
         name: asOne(ed, 'name') || String(ed.name),
@@ -380,7 +446,24 @@
         dstIntf: asList(ed, 'dstintf'),
         srcRefs: asList(ed, 'srcaddr'),
         dstRefs: asList(ed, 'dstaddr'),
-        svcRefs: asList(ed, 'service')
+        svcRefs: asList(ed, 'service'),
+        negate: neg
+      });
+      if (asOne(ed, 'uuid')) policy.meta.uuidPresent = true;
+      if (actRaw === 'ipsec') {
+        rule.dropped.push({
+          construct: 'vpn',
+          detail: asOne(ed, 'vpntunnel') || 'ipsec',
+          line: (ed.setLines && ed.setLines.action) || ed.line
+        });
+      }
+      Object.keys(ed.sets || {}).forEach(function (k) {
+        var ln = (ed.setLines && ed.setLines[k]) || ed.line;
+        if (POLICY_NAT_DROP[k] && dropNonEmpty(asList(ed, k))) {
+          rule.dropped.push({ construct: 'nat', detail: k, line: ln });
+        } else if (POLICY_OPT_DROP[k] && dropNonEmpty(asList(ed, k))) {
+          rule.dropped.push({ construct: 'option', detail: k, line: ln });
+        }
       });
       var sched = asOne(ed, 'schedule');
       if (sched && sched.toLowerCase() !== 'always' && sched !== '') {

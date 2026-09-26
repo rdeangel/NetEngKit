@@ -165,6 +165,10 @@
         i++; continue;
       }
       if (low === 'interval' || (/^\d+$/.test(low) && rule.log)) { i++; continue; }
+      if (low === 'rule-id') {
+        if (i + 1 < tokens.length) rule.id = String(tokens[i + 1]);
+        i += 2; continue;
+      }
       IR.pushUnsup(rule, 'option', tokens[i], line);
       i++;
     }
@@ -196,6 +200,10 @@
       var sport = [[0, 65535]], dport = [[0, 65535]];
       var icmpType, icmpCode;
       var sawDportOp = false;
+      if (i < tokens.length && /^ifc$/i.test(tokens[i]) && i + 1 < tokens.length) {
+        rule.srcIntf = [tokens[i + 1]];
+        i += 2;
+      }
       // src
       var src = parseAddr(tokens, i, addrMode, rule);
       if (!src) { IR.pushUnsup(rule, 'option', tokens[i] || 'src', rule.lines[0]); return; }
@@ -554,12 +562,15 @@
   ].join('\n');
 
   // ── ASA ─────────────────────────────────────────────────────────────
-  function parseAsa(text) {
-    var policy = IR.emptyPolicy('asa');
+  function parseAsa(text, opts) {
+    opts = opts || {};
+    var flavor = opts.flavor === 'ftd' ? 'ftd' : 'asa';
+    var policy = IR.emptyPolicy(flavor);
     var lines = String(text || '').split(/\r?\n/);
     var ignored = Object.create(null);
     var objMode = null; // { type:'net'|'svc'|'og-net'|'og-svc'|'og-proto'|'og-icmp', name }
     var pendingRemark = {};
+    var pendingByRuleId = Object.create(null);
 
     function ignoreLine(idx, ln) {
       var k = blockKey(ln);
@@ -627,7 +638,8 @@
             var rp = trimmed.replace(/^range\s+/i, '').trim().split(/\s+/);
             obj.kind = 'range'; obj.value = rp[0] + '-' + rp[1];
           } else if (/^fqdn\b/i.test(trimmed)) {
-            obj.kind = 'fqdn'; obj.value = trimmed;
+            obj.kind = 'fqdn';
+            obj.value = trimmed.replace(/^fqdn\s+(?:v4|v6)\s+/i, '').replace(/^fqdn\s+/i, '').trim();
           } else if (/^nat\b/i.test(trimmed)) {
             /* ignore */
           } else {
@@ -730,11 +742,20 @@
 
       if ((m = trimmed.match(/^access-list\s+(\S+)\s+remark\s+(.*)$/i))) {
         pendingRemark[m[1]] = m[2];
+        var ridm = m[2].match(/^rule-id\s+(\d+)\s*:\s*(?:L7\s+RULE:\s*(.+)|RULE:\s*(.+)|ACCESS POLICY:\s*(.+))$/i);
+        if (ridm) {
+          var rname = (ridm[2] || ridm[3] || '').trim();
+          if (ridm[4] && /[-–]\s*(Mandatory|Default)\s*$/i.test(ridm[4])) {
+            rname = rname || ridm[4].trim();
+          }
+          if (rname) pendingByRuleId[ridm[1]] = rname;
+        }
         IR.ensureScope(policy, 'acl:' + m[1], { kind: 'acl', label: m[1] });
         continue;
       }
-      if ((m = trimmed.match(/^access-list\s+(\S+)\s+(?:line\s+(\d+)\s+)?extended\s+(permit|deny)\s+(.*)$/i))) {
-        var name = m[1], aceLine = m[2] ? Number(m[2]) : null, act = m[3].toLowerCase(), rest = m[4];
+      if ((m = trimmed.match(/^access-list\s+(\S+)\s+(?:line\s+(\d+)\s+)?(extended|advanced)\s+(permit|deny|trust)\s+(.*)$/i))) {
+        var name = m[1], aceLine = m[2] ? Number(m[2]) : null, actRaw = m[4].toLowerCase(), rest = m[5];
+        var act = actRaw === 'trust' ? 'permit' : actRaw;
         IR.ensureScope(policy, 'acl:' + name, { kind: 'acl', label: name });
         var order = aceLine != null ? aceLine : IR.scopeOrderCount(policy, 'acl:' + name);
         var rule = IR.makeRule({
@@ -742,7 +763,11 @@
           lines: [i + 1], raw: trimmed, comment: pendingRemark[name] || '', action: act, terminal: true
         });
         pendingRemark[name] = '';
+        if (actRaw === 'trust') {
+          rule.dropped.push({ construct: 'ftd_trust', detail: 'trust', line: i + 1 });
+        }
         parseExtendedAce(IR.tokenize(rest), 0, rule, 'mask');
+        if (rule.id && pendingByRuleId[rule.id]) rule.name = pendingByRuleId[rule.id];
         IR.pushRule(policy, rule);
         continue;
       }
@@ -759,7 +784,17 @@
         continue;
       }
       if ((m = trimmed.match(/^access-group\s+(\S+)\s+(in|out)\s+interface\s+(\S+)/i))) {
-        policy.bindings.push({ scopeKey: 'acl:' + m[1], text: trimmed, line: i + 1 });
+        policy.bindings.push({
+          scopeKey: 'acl:' + m[1], acl: m[1], dir: m[2].toLowerCase(), iface: m[3],
+          text: trimmed, line: i + 1
+        });
+        continue;
+      }
+      if ((m = trimmed.match(/^access-group\s+(\S+)\s+global\b/i))) {
+        policy.bindings.push({
+          scopeKey: 'acl:' + m[1], acl: m[1], dir: 'global', iface: '',
+          text: trimmed, line: i + 1
+        });
         continue;
       }
       ignoreLine(i, trimmed);
@@ -836,7 +871,13 @@
   ].join('\n');
 
   var ios = { vendor: 'ios', detect: detectIos, parse: parseIos, sample: IOS_SAMPLE };
-  var asa = { vendor: 'asa', detect: detectAsa, parse: parseAsa, sample: ASA_SAMPLE };
+  var asa = {
+    vendor: 'asa',
+    detect: detectAsa,
+    parse: function (text) { return parseAsa(text); },
+    parseWith: parseAsa,
+    sample: ASA_SAMPLE
+  };
 
   root.FwParsers = root.FwParsers || {};
   root.FwParsers.ios = ios;

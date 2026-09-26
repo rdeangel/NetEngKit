@@ -1,30 +1,34 @@
 const { useState, useEffect, useMemo, useCallback } = React;
 
 const CONVERTER_PLATFORMS = [
-  // Switching/Routing Category
-  { id: 'cisco', label: 'vendor_cisco_ios', category: 'network' },
-  { id: 'nxos', label: 'Cisco NX-OS', category: 'network' },
-  { id: 'junos', label: 'vendor_junos_set', category: 'network' },
-  { id: 'comware', label: 'vendor_comware', category: 'network' },
-  { id: 'arubacx', label: 'vendor_arubacx', category: 'network' },
-  // Firewall Category
-  { id: 'asa', label: 'Cisco ASA', category: 'security' },
-  { id: 'paloalto', label: 'Palo Alto PAN-OS', category: 'security' },
-  { id: 'fortios', label: 'Fortinet FortiOS', category: 'security' },
+  { id: 'cisco', label: 'vendor_cisco_ios' },
+  { id: 'nxos', label: 'Cisco NX-OS' },
+  { id: 'junos', label: 'vendor_junos_set' },
+  { id: 'comware', label: 'vendor_comware' },
+  { id: 'arubacx', label: 'vendor_arubacx' },
 ];
+
+const LEGACY_FW = { asa: 'asa', paloalto: 'panos', fortios: 'fortios' };
 
 function DeviceConfigConverter({ initialData, onShare, onNav }) {
   const { t } = useTranslation();
 
-  // Active Tab: 'converter' or 'cheatsheet'
-  const [activeTab, setActiveTab] = usePersistentState('device_converter:tab', initialData?.activeTab ?? 'converter');
+  const legacyFw = LEGACY_FW[initialData?.sourceVendor];
+  const initTab = initialData?.activeTab
+    ?? (legacyFw && initialData?.sourceConfig ? 'firewall' : 'converter');
+  const initSource = LEGACY_FW[initialData?.sourceVendor] ? 'auto' : (initialData?.sourceVendor ?? 'auto');
+  const initTarget = LEGACY_FW[initialData?.targetVendor] ? 'junos' : (initialData?.targetVendor ?? 'junos');
 
-  // Input states
-  const [sourceVendor, setSourceVendor] = usePersistentState('device_converter:source_vendor', initialData?.sourceVendor ?? 'auto');
-  const [targetVendor, setTargetVendor] = usePersistentState('device_converter:target_vendor', initialData?.targetVendor ?? 'junos');
+  const [activeTab, setActiveTab] = usePersistentState('device_converter:tab', initTab);
+  const [sourceVendor, setSourceVendor] = usePersistentState('device_converter:source_vendor', initSource);
+  const [targetVendor, setTargetVendor] = usePersistentState('device_converter:target_vendor', initTarget);
   const [sourceConfig, setSourceConfig] = usePersistentState('device_converter:source_config', initialData?.sourceConfig ?? '');
 
-  // Wire Share System
+  const fwInitial = Object.assign({}, initialData || {}, legacyFw && initialData?.sourceConfig ? {
+    fwSource: initialData?.fwSource || legacyFw,
+    fwText: initialData?.fwText || initialData.sourceConfig
+  } : {});
+
   useEffect(() => {
     if (initialData?.activeTab && initialData.activeTab !== activeTab) setActiveTab(initialData.activeTab);
   }, [initialData]);
@@ -32,7 +36,15 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
   useEffect(() => { onNav?.({ activeTab }); }, [activeTab]);
 
   useEffect(() => {
+    if (LEGACY_FW[sourceVendor]) setSourceVendor('auto');
+    if (LEGACY_FW[targetVendor] || !CONVERTER_PLATFORMS.some(p => p.id === targetVendor)) {
+      setTargetVendor('junos');
+    }
+  }, []);
+
+  useEffect(() => {
     const handleShareReq = (e) => {
+      if (activeTab === 'firewall') return;
       (e.detail?.respond ?? onShare)({
         tool: 'device-converter',
         sourceVendor,
@@ -42,7 +54,7 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
     };
     window.addEventListener('app:request-share', handleShareReq);
     return () => window.removeEventListener('app:request-share', handleShareReq);
-  }, [sourceVendor, targetVendor, sourceConfig, onShare]);
+  }, [sourceVendor, targetVendor, sourceConfig, onShare, activeTab]);
 
   // Normalize interface names (Switching)
   const normalizeInterfaceName = (name) => {
@@ -85,7 +97,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
   const parseSourceConfig = useCallback((configText, vendor) => {
     const lines = configText.split('\n');
     
-    let actualCategory = 'network';
     let actualVendor = 'cisco';
 
     if (vendor === 'auto') {
@@ -93,9 +104,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
       let scoreJunos = 0;
       let scoreComware = 0;
       let scoreAruba = 0;
-      let scoreASA = 0;
-      let scorePalo = 0;
-      let scoreForti = 0;
 
       for (let line of lines) {
         line = line.trim();
@@ -103,42 +111,29 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
         if (line.match(/^set\s+interfaces/i) || line.match(/^set\s+vlans/i) || line.includes('family ethernet-switching')) scoreJunos += 5;
         if (line.match(/^port\s+link-type/i) || line.match(/^port\s+access\s+vlan/i) || line.match(/^stp\s+edged-port/i)) scoreComware += 5;
         if (line.match(/^vlan\s+access/i) || line.match(/^vlan\s+trunk/i)) scoreAruba += 5;
-        if (line.match(/^access-list\s+\w+\s+extended/i) || line.match(/^object\s+network/i)) scoreASA += 6;
-        if (line.match(/^set\s+rulebase\s+security/i) || line.match(/^set\s+device-group/i)) scorePalo += 6;
-        if (line.match(/^config\s+firewall\s+policy/i) || line.match(/^set\s+srcaddr/i)) scoreForti += 6;
       }
 
       const scores = [
-        { id: 'cisco', val: scoreCisco, cat: 'network' },
-        { id: 'junos', val: scoreJunos, cat: 'network' },
-        { id: 'comware', val: scoreComware, cat: 'network' },
-        { id: 'arubacx', val: scoreAruba, cat: 'network' },
-        { id: 'asa', val: scoreASA, cat: 'security' },
-        { id: 'paloalto', val: scorePalo, cat: 'security' },
-        { id: 'fortios', val: scoreForti, cat: 'security' },
+        { id: 'cisco', val: scoreCisco },
+        { id: 'junos', val: scoreJunos },
+        { id: 'comware', val: scoreComware },
+        { id: 'arubacx', val: scoreAruba },
       ];
 
       scores.sort((a, b) => b.val - a.val);
       if (scores[0].val > 0) {
         actualVendor = scores[0].id;
-        actualCategory = scores[0].cat;
       }
     } else {
       actualVendor = vendor;
-      const found = CONVERTER_PLATFORMS.find(p => p.id === vendor);
-      actualCategory = found ? found.category : 'network';
     }
 
     // Initial Output Structures
     const result = {
       vendor: actualVendor,
-      category: actualCategory,
       hostname: '',
-      // Switching
       vlans: {},
       interfaces: {},
-      // Firewall Rules
-      rules: [],
       warnings: [],
       convertedLinesCount: 0,
       ignoredLinesCount: 0
@@ -146,7 +141,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
 
     let activeIface = null;
     let activeVlanId = null;
-    let activeFWPolicyId = null;
 
     lines.forEach((originalLine, lineIdx) => {
       const line = originalLine.trim();
@@ -157,77 +151,8 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
       let parsed = false;
 
       // -------------------------------------------------------------
-      // FIREWALL SECURITY POLICY PARSING
-      // -------------------------------------------------------------
-      if (actualCategory === 'security') {
-        if (actualVendor === 'asa') {
-          const aclMatch = line.match(/^access-list\s+(\w+)\s+extended\s+(permit|deny)\s+(\w+)\s+(any|host\s+[\d\.]+|[\d\.]+\s+[\d\.]+)\s+(any|host\s+[\d\.]+|[\d\.]+\s+[\d\.]+)(?:\s+eq\s+(\w+|\d+))?/i);
-          if (aclMatch) {
-            result.rules.push({
-              name: aclMatch[1],
-              action: aclMatch[2].toLowerCase() === 'permit' ? 'allow' : 'deny',
-              proto: aclMatch[3].toLowerCase(),
-              src: aclMatch[4].replace('host ', '').trim(),
-              dst: aclMatch[5].replace('host ', '').trim(),
-              port: aclMatch[6] || 'any'
-            });
-            parsed = true;
-          }
-        } else if (actualVendor === 'paloalto') {
-          const ruleMatch = line.match(/^set\s+rulebase\s+security\s+rules\s+([\w\-]+)\s+(source|destination|service|action)\s+(.+)$/i);
-          if (ruleMatch) {
-            const ruleName = ruleMatch[1];
-            const key = ruleMatch[2];
-            const val = ruleMatch[3].trim();
-
-            let rule = result.rules.find(r => r.name === ruleName);
-            if (!rule) {
-              rule = { name: ruleName, src: 'any', dst: 'any', port: 'any', proto: 'ip', action: 'allow' };
-              result.rules.push(rule);
-            }
-
-            if (key === 'source') {
-              rule.src = val.replace(/\[|\]/g, '').trim();
-            } else if (key === 'destination') {
-              rule.dst = val.replace(/\[|\]/g, '').trim();
-            } else if (key === 'service') {
-              rule.port = val.replace('service-', '');
-            } else if (key === 'action') {
-              rule.action = val === 'allow' ? 'allow' : 'deny';
-            }
-            parsed = true;
-          }
-        } else if (actualVendor === 'fortios') {
-          if (line.match(/^edit\s+(\d+)/i)) {
-            activeFWPolicyId = line.match(/^edit\s+(\d+)/i)[1];
-            result.rules.push({ name: `Policy_${activeFWPolicyId}`, src: 'any', dst: 'any', port: 'any', proto: 'ip', action: 'allow' });
-            parsed = true;
-          } else if (activeFWPolicyId) {
-            const latestRule = result.rules[result.rules.length - 1];
-            const srcMatch = line.match(/^set\s+srcaddr\s+["']?([^"']+)["']?/i);
-            const dstMatch = line.match(/^set\s+dstaddr\s+["']?([^"']+)["']?/i);
-            const actionMatch = line.match(/^set\s+action\s+(accept|deny)/i);
-            const serviceMatch = line.match(/^set\s+service\s+["']?([^"']+)["']?/i);
-
-            if (srcMatch) { latestRule.src = srcMatch[1]; parsed = true; }
-            if (dstMatch) { latestRule.dst = dstMatch[1]; parsed = true; }
-            if (serviceMatch) { latestRule.port = serviceMatch[1]; parsed = true; }
-            if (actionMatch) {
-              latestRule.action = actionMatch[1] === 'accept' ? 'allow' : 'deny';
-              parsed = true;
-            }
-
-            if (line === 'next' || line === 'end') {
-              activeFWPolicyId = null;
-            }
-          }
-        }
-      }
-
-      // -------------------------------------------------------------
       // SWITCHING/ROUTING CONFIG PARSING
       // -------------------------------------------------------------
-      else {
         if (actualVendor === 'junos') {
           if (line.startsWith('set ')) {
             const hostnameMatch = line.match(/^set\s+(?:system\s+host-name|groups\s+global\s+system\s+host-name)\s+([\w\-]+)/i);
@@ -392,7 +317,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
             }
           }
         }
-      }
 
       if (parsed) {
         result.convertedLinesCount++;
@@ -417,7 +341,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
   }, [sourceConfig, sourceVendor, parseSourceConfig]);
 
   const detectedVendor = parsedConfig.vendor;
-  const detectedCategory = parsedConfig.category || 'network';
 
   // Generate target CLI output
   const generatedTargetOutput = useMemo(() => {
@@ -431,34 +354,6 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
     output.push(`! ${t('device_converter.source_detected')}: ${detectedVendor?.toUpperCase()}`);
     output.push(`! ============================================================`);
     output.push('');
-
-    // FIREWALL TRANSLATION
-    if (parsed.category === 'security') {
-      if (targetVendor === 'asa') {
-        parsed.rules.forEach(r => {
-          output.push(`access-list OUTSIDE_IN extended ${r.action} ${r.proto} any host ${r.dst} ${r.port !== 'any' ? 'eq ' + r.port : ''}`);
-        });
-      } else if (targetVendor === 'paloalto') {
-        parsed.rules.forEach((r, idx) => {
-          const ruleId = r.name || `RULE_${idx + 1}`;
-          output.push(`set rulebase security rules ${ruleId} from any to any source ${r.src} destination ${r.dst} service ${r.port !== 'any' ? 'service-' + r.port : 'any'} action ${r.action}`);
-        });
-      } else if (targetVendor === 'fortios') {
-        output.push(`config firewall policy`);
-        parsed.rules.forEach((r, idx) => {
-          output.push(`  edit ${idx + 1}`);
-          output.push(`    set srcaddr "${r.src}"`);
-          output.push(`    set dstaddr "${r.dst}"`);
-          output.push(`    set service "${r.port.toUpperCase()}"`);
-          output.push(`    set action ${r.action === 'allow' ? 'accept' : 'deny'}`);
-          output.push(`  next`);
-        });
-        output.push(`end`);
-      } else {
-        output.push(`! Invalid security platform choice`);
-      }
-      return output.join('\n');
-    }
 
     // SWITCHING TRANSLATION
     if (parsed.hostname) {
@@ -709,18 +604,12 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
     URL.revokeObjectURL(url);
   };
 
-  // Dynamically filter destination platforms based on the detected source type
-  const targetPlatformsFiltered = useMemo(() => {
-    return CONVERTER_PLATFORMS.filter(p => p.category === detectedCategory);
-  }, [detectedCategory]);
-
-  // Ensure target platform remains in the valid subset, or falls back to first matching entry
   useEffect(() => {
-    const isTargetValid = targetPlatformsFiltered.some(p => p.id === targetVendor);
-    if (!isTargetValid && targetPlatformsFiltered.length > 0) {
-      setTargetVendor(targetPlatformsFiltered[0].id);
+    const isTargetValid = CONVERTER_PLATFORMS.some(p => p.id === targetVendor);
+    if (!isTargetValid && CONVERTER_PLATFORMS.length > 0) {
+      setTargetVendor(CONVERTER_PLATFORMS[0].id);
     }
-  }, [targetPlatformsFiltered, targetVendor, setTargetVendor]);
+  }, [targetVendor, setTargetVendor]);
 
   return (
     <div className="fadein">
@@ -732,12 +621,22 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
           {t('device_converter.tab_converter')}
         </button>
         <button
+          className={`btn ${activeTab === 'firewall' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => setActiveTab('firewall')}
+        >
+          {t('device_converter.tab_firewall')}
+        </button>
+        <button
           className={`btn ${activeTab === 'cheatsheet' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('cheatsheet')}
         >
           {t('device_converter.tab_cheatsheet')}
         </button>
       </div>
+
+      {activeTab === 'firewall' && (
+        <FirewallPolicyTranslator initialData={fwInitial} onShare={onShare} />
+      )}
 
       {activeTab === 'converter' && (
         <div>
@@ -760,7 +659,7 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
                 </select>
                 {sourceVendor === 'auto' && detectedVendor && (
                   <span className="hint" style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>
-                    {t('device_converter.detected_hint')}: <strong>{detectedVendor.toUpperCase()}</strong> ({detectedCategory === 'security' ? 'Firewall' : 'Switch/Router'})
+                    {t('device_converter.detected_hint')}: <strong>{detectedVendor.toUpperCase()}</strong>
                   </span>
                 )}
               </div>
@@ -772,7 +671,7 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
                   value={targetVendor}
                   onChange={e => setTargetVendor(e.target.value)}
                 >
-                  {targetPlatformsFiltered.map(p => (
+                  {CONVERTER_PLATFORMS.map(p => (
                     <option key={p.id} value={p.id}>
                       {p.label.startsWith('vendor_') ? t(`device_converter.${p.label}`) : p.label}
                     </option>
@@ -802,7 +701,7 @@ function DeviceConfigConverter({ initialData, onShare, onNav }) {
                   lineHeight: '1.4',
                   resize: 'vertical'
                 }}
-                placeholder={detectedCategory === 'security' ? "access-list OUTSIDE extended permit tcp any host 10.1.1.10 eq 80" : t('device_converter.input_placeholder')}
+                placeholder={t('device_converter.input_placeholder')}
                 value={sourceConfig}
                 onChange={e => setSourceConfig(e.target.value)}
               />

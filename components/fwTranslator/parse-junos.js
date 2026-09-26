@@ -428,6 +428,14 @@
         continue;
       }
 
+      // zone interfaces (FW-11 additive)
+      if (p[0] === 'security' && p[1] === 'zones' && p[2] === 'security-zone' && p[3] && p[4] === 'interfaces' && p[5]) {
+        var zIface = p[3];
+        if (!policy.zones[zIface]) policy.zones[zIface] = { ifaces: [], line: st.line };
+        policy.zones[zIface].ifaces.push(p[5]);
+        continue;
+      }
+
       // zone address-book
       if (p[0] === 'security' && p[1] === 'zones' && p[2] === 'security-zone' && p[4] === 'address-book') {
         var an2 = p[6];
@@ -616,7 +624,8 @@
         dstRefs: pol.dst.length ? pol.dst : ['any'],
         svcRefs: pol.app.length ? pol.app : ['any'],
         srcIntf: pol.global ? pol.fromZones : [],
-        dstIntf: pol.global ? pol.toZones : []
+        dstIntf: pol.global ? pol.toZones : [],
+        negate: { src: !!pol.srcExcl, dst: !!pol.dstExcl, svc: false }
       });
       if (pol.identity) IR.pushUnsup(rule, 'user', 'source-identity', pol.line);
       if (pol.dynapp && pol.dynapp !== 'any' && pol.dynapp !== 'none') IR.pushUnsup(rule, 'app_id', pol.dynapp, pol.line);
