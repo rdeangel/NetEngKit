@@ -392,6 +392,8 @@ const TOOLS = [
   { id: 'config-diff', label: 'Config Diff Viewer', group: 'Tools', type: 'tool', keywords: 'config diff compare cisco ios nx-os juniper junos arista eos side-by-side syntax highlight network device configuration' },
   { id: 'config-redactor', label: 'Config Redactor', group: 'Tools', type: 'tool', keywords: 'redact config sanitize obfuscate mask password ip-obfuscation snmp key credential security api-key token bearer' },
   { id: 'config-parser', label: 'Device Config Parser', group: 'Tools', type: 'tool', keywords: 'config parser translator junos juniper cisco ios ios-xe ios-xr nxos nx-os asa arista eos fortinet fortios fortigate aruba aoscx aos-cx huawei vrp ce comware h3c hpe dell os10 paloalto pan-os palo-alto vyos extreme exos mikrotik routeros checkpoint gaia f5 bigip tmsh tmos firewall policy acl rule aggregate ae lag lacp port-channel bundle-ether eth-trunk bond bonding trunk vlan vrf routing-instance vdom zone interface bgp ospf isis mpls ldp svi irb decode hierarchy auto-detect ntp tacacs radius syslog snmp vpc nbm fex' },
+  { id: 'fw-rule-analyzer', label: 'Firewall Rule Shadowing Analyzer', group: 'Tools', type: 'tool',
+    keywords: 'firewall rule shadow shadowed shadowing redundant duplicate contradiction conflict acl access-list audit cleanup optimizer policy order unused cisco ios asa iptables fortigate fortios juniper srx junos firewall-filter object-group address-book' },
   { id: 'device-converter', label: 'Device Config Converter', group: 'Tools', type: 'tool', keywords: 'device switch config converter migration translate cisco ios junos arista eos aruba aos-cx comware vlan trunk access port-channel lacp stp firewall rule policy security asa palo alto fortios pan-os fortinet acl access-list', subTools: [
     { labelKey: 'device_converter.tab_converter',  nav: { activeTab: 'converter' },  keywords: 'device converter convert translate migrate paste config source target vendor' },
     { labelKey: 'device_converter.tab_cheatsheet', nav: { activeTab: 'cheatsheet' }, keywords: 'cheatsheet syntax reference vlan interface commands' },
@@ -763,6 +765,7 @@ function App() {
       case 'mac': return <MACTools initialData={hashData} onShare={handleShare} />;
       case 'arp-parser': return <ARPTableParser initialData={hashData} onShare={handleShare} />;
       case 'config-parser': return <ConfigParser initialData={hashData} onShare={handleShare} />;
+      case 'fw-rule-analyzer': return <FirewallRuleAnalyzer initialData={hashData} onShare={handleShare} />;
       case 'mcast-toolkit': return <MulticastToolkit initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'ipfm-ref': return <IPFMRef />;
       case 'switching-ref': return <SwitchingRef initialData={hashData} onShare={handleShare} onNav={handleNav} />;

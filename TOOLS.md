@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **128** top-level entries: **114** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **129** top-level entries: **115** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **124** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **125** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -212,6 +212,28 @@ This file documents **124** of them as `###` headings (inputs, outputs, tabs, ke
 **Current Keywords:** _(none)_
 
 **Suggested Keywords to Add:** `acl access control list generator cisco juniper arista permit deny network range`
+
+---
+
+### Firewall Rule Shadowing Analyzer
+**ID:** `fw-rule-analyzer` | **Type:** Tool | **Offline**
+
+**Description:** Pastes a Cisco IOS/ASA ACL, iptables-save, FortiOS policy, or Junos SRX / firewall-filter rule base and reports shadowed, duplicate, and deny/permit-contradiction rules, plus merge candidates and any-wide permits. Analysis is scoped per ACL, chain, zone-pair, or FortiOS interface pair. Unsupported constructs (FQDN, user, schedule, App-ID, UTM, negation, IPv6) are listed as not analysed and never used as coverers.
+
+**Inputs:**
+- Syntax selector: auto-detect, Cisco IOS / IOS-XE ACL, Cisco ASA ACL, iptables / iptables-save, FortiOS (FortiGate), Junos (SRX policies / firewall filter)
+- Paste area for the ACL or policy, including object-groups / address-books / services
+
+**Outputs:**
+- Findings: shadowed, duplicate, contradiction, merge candidate, any-wide permit, undetermined (with covering rule ids and line numbers)
+- Not-analysed list (unsupported constructs and disabled rules)
+- Parser warnings (unparsed lines, ignored blocks — nothing dropped silently)
+- Cleanup text: safe removals, review list for contradictions, resulting order (no reordering), vendor-native removal commands
+- Share URL embedding the pasted config
+
+**Current Keywords:** `firewall rule shadow shadowed shadowing redundant duplicate contradiction conflict acl access-list audit cleanup optimizer policy order unused cisco ios asa iptables fortigate fortios juniper srx junos firewall-filter object-group address-book`
+
+**Suggested Keywords to Add:** _(none)_
 
 ---
 
@@ -3969,13 +3991,13 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 128 top-level entries in `components/app.jsx` — 114 tools, 14 references.
+**Registry (source of truth):** 129 top-level entries in `components/app.jsx` — 115 tools, 14 references.
 
-**This catalog:** 124 `###` headings.
+**This catalog:** 125 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
-- IPv4 Subnet & Addressing — 8
+- IPv4 Subnet & Addressing — 9
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1

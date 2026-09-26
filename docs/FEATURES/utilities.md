@@ -1,8 +1,8 @@
 # Utilities
 
-The **44** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
+The **45** Tools-group entries that are **not** `server: true`. Calculators, parsers, generators, and config helpers that run in the browser. The other 12 Tools entries are on [diagnostics.md](diagnostics.md).
 
-Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 44 have no `###` heading yet — named in the last section, not given a fake anchor.
+Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TOOLS.md#diagnostics--tools). Six of these 45 have no `###` heading yet — named in the last section, not given a fake anchor.
 
 ## DNS, syslog, SNMP, CLI, flow export, synthetic probes (7)
 
@@ -14,11 +14,11 @@ Catalog: [TOOLS.md](../../TOOLS.md), mostly under [Diagnostics & Tools](../../TO
 
 Certificate Chain Validator can call `/api/get-cert-chain` when the proxy is up; it is **not** `server: true` and still works as a client-side PEM checker.
 
-## Device config and automation (12)
+## Device config and automation (13)
 
-[Device config parser](../../TOOLS.md#device-config-parser), [device config converter](../../TOOLS.md#device-config-converter), [config redactor](../../TOOLS.md#config-redactor), [config diff viewer](../../TOOLS.md#config-diff-viewer), [SSH config generator](../../TOOLS.md#ssh-config-generator), [NX-API request builder](../../TOOLS.md#nx-api--nexus-request-builder), [Arista eAPI builder](../../TOOLS.md#arista-eapi-builder), [Cisco DNAC builder](../../TOOLS.md#cisco-dnac-builder), [Ansible inventory converter](../../TOOLS.md#ansible-inventory-converter), [Terraform snippet builder](../../TOOLS.md#terraform-snippet-builder), [LLDP/CDP parser](../../TOOLS.md#lldp--cdp-parser), [routing table parser](../../TOOLS.md#routing-table-parser).
+[Device config parser](../../TOOLS.md#device-config-parser), [device config converter](../../TOOLS.md#device-config-converter), [config redactor](../../TOOLS.md#config-redactor), [config diff viewer](../../TOOLS.md#config-diff-viewer), [SSH config generator](../../TOOLS.md#ssh-config-generator), [NX-API request builder](../../TOOLS.md#nx-api--nexus-request-builder), [Arista eAPI builder](../../TOOLS.md#arista-eapi-builder), [Cisco DNAC builder](../../TOOLS.md#cisco-dnac-builder), [Ansible inventory converter](../../TOOLS.md#ansible-inventory-converter), [Terraform snippet builder](../../TOOLS.md#terraform-snippet-builder), [LLDP/CDP parser](../../TOOLS.md#lldp--cdp-parser), [routing table parser](../../TOOLS.md#routing-table-parser), [firewall rule shadowing analyzer](../../TOOLS.md#firewall-rule-shadowing-analyzer).
 
-Parser and converter headings sit under Routing / Switching in the catalog. Registry `group:` is Tools.
+Parser and converter headings sit under Routing / Switching in the catalog. The firewall rule shadowing analyzer heading sits under IPv4 next to ACL Generator. Registry `group:` is Tools.
 
 ## Text, diagrams, units, ops (11)
 
