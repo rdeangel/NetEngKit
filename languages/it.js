@@ -11544,7 +11544,10 @@ TRANSLATIONS["it"] = {
     "fw_note_unused_objects": "{count} oggetti non referenziati non emessi: {names}",
     "fw_note_nat_rules_present": "L'origine contiene regole NAT. La traduzione NAT avverrà in v2 — nessuna emessa.",
     "fw_note_zone_unmapped": "La zona {zone} non ha interfacce di destinazione — definirla sulla destinazione prima del commit.",
-    "fw_note_zone_merge": "Zone {zones} unite in {target} — l'ordine delle regole tra di esse è ora rilevante."
+    "fw_note_zone_merge": "Zone {zones} unite in {target} — l'ordine delle regole tra di esse è ora rilevante.",
+    "fw_input_cap_warn": "L'input ha raggiunto il limite di {cap} caratteri — vengono tradotti solo i primi {cap} caratteri.",
+    "fw_input_cap_dropped": "{over} altri caratteri sono stati scartati. Dividi la configurazione in sezioni e traducila in batch per una copertura completa.",
+    "fw_input_cap_batch": "Dividi la configurazione in sezioni e traducila in batch per una copertura completa."
 },
   "dns_zone":   {
     "title": "Generatore di file di zona DNS",

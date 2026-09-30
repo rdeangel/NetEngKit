@@ -11544,7 +11544,10 @@ TRANSLATIONS["vi"] = {
     "fw_note_unused_objects": "{count} đối tượng không được tham chiếu đã không xuất ra: {names}",
     "fw_note_nat_rules_present": "Nguồn có chứa quy tắc NAT. Việc chuyển đổi NAT sẽ có trong v2 — không có quy tắc nào được xuất ra.",
     "fw_note_zone_unmapped": "Vùng {zone} chưa có giao diện đích — hãy định nghĩa trên thiết bị đích trước khi commit.",
-    "fw_note_zone_merge": "Các vùng {zones} được gộp vào {target} — thứ tự quy tắc giữa chúng hiện có ảnh hưởng."
+    "fw_note_zone_merge": "Các vùng {zones} được gộp vào {target} — thứ tự quy tắc giữa chúng hiện có ảnh hưởng.",
+    "fw_input_cap_warn": "Đầu vào đã đạt giới hạn {cap} ký tự — chỉ {cap} ký tự đầu được dịch.",
+    "fw_input_cap_dropped": "{over} ký tự nữa đã bị loại. Hãy chia cấu hình thành các phần và dịch theo từng đợt để đảm bảo phạm vi đầy đủ.",
+    "fw_input_cap_batch": "Hãy chia cấu hình thành các phần và dịch theo từng đợt để đảm bảo phạm vi đầy đủ."
 },
   "dns_zone":   {
     "title": "Trình tạo tệp vùng DNS",

@@ -11525,7 +11525,10 @@ TRANSLATIONS["ko"] = {
     "fw_note_unused_objects": "참조되지 않은 객체 {count}개가 생성되지 않음: {names}",
     "fw_note_nat_rules_present": "원본에 NAT 규칙이 포함되어 있습니다. NAT 변환은 v2에서 지원 예정이며 생성되지 않았습니다.",
     "fw_note_zone_unmapped": "존 {zone}에 대상 인터페이스가 없음 — commit 전에 대상 장비에서 정의하세요.",
-    "fw_note_zone_merge": "존 {zones}이(가) {target}(으)로 병합됨 — 존 간 규칙 평가 순서가 중요합니다."
+    "fw_note_zone_merge": "존 {zones}이(가) {target}(으)로 병합됨 — 존 간 규칙 평가 순서가 중요합니다.",
+    "fw_input_cap_warn": "입력이 {cap}자 제한에 도달했습니다 — 처음 {cap}자만 번역됩니다.",
+    "fw_input_cap_dropped": "{over}자가 추가로 삭제되었습니다. 전체를 처리하려면 설정을 섹션으로 나누어 일괄 번역하세요.",
+    "fw_input_cap_batch": "전체를 처리하려면 설정을 섹션으로 나누어 일괄 번역하세요."
 },
   "dns_zone":   {
     "title": "DNS 영역 파일 빌더",

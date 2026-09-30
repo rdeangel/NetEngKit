@@ -11524,7 +11524,10 @@ TRANSLATIONS["de"] = {
     "fw_note_unused_objects": "{count} unreferenzierte Objekte nicht ausgegeben: {names}",
     "fw_note_nat_rules_present": "Quelle enthält NAT-Regeln. NAT-Übersetzung folgt in v2 — keine ausgegeben.",
     "fw_note_zone_unmapped": "Zone {zone} hat keine Zielschnittstellen — vor dem Commit auf dem Ziel definieren.",
-    "fw_note_zone_merge": "Zonen {zones} in {target} zusammengeführt — Regelreihenfolge über diese hinweg ist jetzt relevant."
+    "fw_note_zone_merge": "Zonen {zones} in {target} zusammengeführt — Regelreihenfolge über diese hinweg ist jetzt relevant.",
+    "fw_input_cap_warn": "Die Eingabe hat das Limit von {cap} Zeichen erreicht — nur die ersten {cap} Zeichen werden übersetzt.",
+    "fw_input_cap_dropped": "{over} weitere Zeichen wurden verworfen. Teilen Sie die Konfiguration in Abschnitte und übersetzen Sie sie stapelweise für eine vollständige Abdeckung.",
+    "fw_input_cap_batch": "Teilen Sie die Konfiguration in Abschnitte und übersetzen Sie sie stapelweise für eine vollständige Abdeckung."
 },
   "dns_zone": {
     "title": "DNS Zone-Datei-Generator",

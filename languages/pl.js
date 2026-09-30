@@ -11544,7 +11544,10 @@ TRANSLATIONS["pl"] = {
     "fw_note_unused_objects": "{count} nieużywanych obiektów nie zostało wyemitowanych: {names}",
     "fw_note_nat_rules_present": "Źródło zawiera reguły NAT. Translacja NAT nastąpi w wersji 2 — żadna nie została wyemitowana.",
     "fw_note_zone_unmapped": "Strefa {zone} nie ma interfejsów docelowych — zdefiniuj ją w systemie docelowym przed zatwierdzeniem.",
-    "fw_note_zone_merge": "Strefy {zones} połączone w {target} — kolejność reguł między nimi ma teraz znaczenie."
+    "fw_note_zone_merge": "Strefy {zones} połączone w {target} — kolejność reguł między nimi ma teraz znaczenie.",
+    "fw_input_cap_warn": "Wejście osiągnęło limit {cap} znaków — tłumaczone jest tylko pierwsze {cap} znaków.",
+    "fw_input_cap_dropped": "Odrzucono kolejne {over} znaków. Podziel konfigurację na sekcje i tłumacz ją partiami, aby uzyskać pełne pokrycie.",
+    "fw_input_cap_batch": "Podziel konfigurację na sekcje i tłumacz ją partiami, aby uzyskać pełne pokrycie."
 },
   "dns_zone":   {
     "title": "Generator plików strefy DNS",

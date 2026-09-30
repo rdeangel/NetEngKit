@@ -11524,7 +11524,10 @@ TRANSLATIONS["zh-CN"] = {
     "fw_note_unused_objects": "{count} 个未被引用的对象未输出: {names}",
     "fw_note_nat_rules_present": "源配置包含 NAT 规则。NAT 转换功能将在 v2 中提供 — 本次未输出。",
     "fw_note_zone_unmapped": "区域 {zone} 未绑定目标接口 — commit 前请在目标设备上定义。",
-    "fw_note_zone_merge": "区域 {zones} 已合并至 {target} — 跨区域规则的评估顺序现已具有影响。"
+    "fw_note_zone_merge": "区域 {zones} 已合并至 {target} — 跨区域规则的评估顺序现已具有影响。",
+    "fw_input_cap_warn": "输入已达 {cap} 字符上限——仅翻译前 {cap} 个字符。",
+    "fw_input_cap_dropped": "另有 {over} 个字符被丢弃。请将配置分段并分批翻译，以获得完整覆盖。",
+    "fw_input_cap_batch": "请将配置分段并分批翻译，以获得完整覆盖。"
 },
   "dns_zone":   {
     "title": "DNS 区域文件生成器",

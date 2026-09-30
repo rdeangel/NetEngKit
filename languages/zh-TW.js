@@ -11598,7 +11598,10 @@ TRANSLATIONS["zh-TW"] = {
     "fw_note_unused_objects": "{count} 個未被參照的物件未輸出: {names}",
     "fw_note_nat_rules_present": "來源配置包含 NAT 規則。NAT 轉換功能將在 v2 中提供 — 本次未輸出。",
     "fw_note_zone_unmapped": "區域 {zone} 未繫結目標介面 — commit 前請在目標設備上定義。",
-    "fw_note_zone_merge": "區域 {zones} 已合併至 {target} — 跨區域規則的評估順序現已具有影響。"
+    "fw_note_zone_merge": "區域 {zones} 已合併至 {target} — 跨區域規則的評估順序現已具有影響。",
+    "fw_input_cap_warn": "輸入已達 {cap} 字元上限——僅翻譯前 {cap} 個字元。",
+    "fw_input_cap_dropped": "另有 {over} 個字元被捨棄。請將設定分段並分批翻譯，以獲得完整涵蓋。",
+    "fw_input_cap_batch": "請將設定分段並分批翻譯，以獲得完整涵蓋。"
 },
   "dns_zone":   {
     "title": "DNS 區域檔案產生器",

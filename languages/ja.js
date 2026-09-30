@@ -11496,7 +11496,10 @@ TRANSLATIONS["ja"] = {
     "fw_note_unused_objects": "参照されていない {count} 個のオブジェクトは出力されませんでした: {names}",
     "fw_note_nat_rules_present": "変換元にNATルールが含まれています。NAT変換はv2で対応予定のため、出力されませんでした。",
     "fw_note_zone_unmapped": "ゾーン {zone} に変換先インターフェースがありません — commit前に変換先で定義してください。",
-    "fw_note_zone_merge": "ゾーン {zones} が {target} に統合されました — ゾーン間でのルールの評価順序に注意してください。"
+    "fw_note_zone_merge": "ゾーン {zones} が {target} に統合されました — ゾーン間でのルールの評価順序に注意してください。",
+    "fw_input_cap_warn": "入力が{cap}文字の上限に達しました — 先頭の{cap}文字のみ翻訳されます。",
+    "fw_input_cap_dropped": "さらに{over}文字が破棄されました。全体をカバーするには、設定をセクションに分割してバッチごとに翻訳してください。",
+    "fw_input_cap_batch": "全体をカバーするには、設定をセクションに分割してバッチごとに翻訳してください。"
 },
   "dns_zone":   {
     "title": "DNSゾーンファイルビルダー",

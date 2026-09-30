@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo } = React;
 
 const FWPT_SOURCES = ['auto', 'fortios', 'panos', 'junos', 'asa', 'ftd'];
-const FWPT_MAX = 200000;
+const FWPT_MAX = 3000000;
 
 // ponytail: debounce + useMemo is enough for typical pastes.
 // A Web Worker is the upgrade path for 20k-line configs.
@@ -61,6 +61,7 @@ function FirewallPolicyTranslator({ initialData, onShare }) {
   const [debounced, setDebounced] = useState({ fwSource, fwText });
   const [copied, copy] = useCopy();
   const [copiedReport, copyReport] = useCopy();
+  const [fwOver, setFwOver] = useState(0);
 
   useEffect(() => {
     const h = setTimeout(() => setDebounced({ fwSource, fwText }), 300);
@@ -165,6 +166,7 @@ function FirewallPolicyTranslator({ initialData, onShare }) {
     const p = P[v];
     if (p && p.sample) {
       setFwText(String(p.sample).slice(0, FWPT_MAX));
+      setFwOver(0);
       if (fwSource === 'auto') setFwSource('fortios');
     }
   };
@@ -276,7 +278,7 @@ function FirewallPolicyTranslator({ initialData, onShare }) {
           <button className="btn btn-sm btn-ghost" onClick={loadSample} style={{ border: '1px solid var(--border)' }}>
             {t('device_converter.fw_load_sample')}
           </button>
-          <button className="btn btn-sm btn-ghost" onClick={() => setFwText('')} style={{ border: '1px solid var(--border)' }}>
+          <button className="btn btn-sm btn-ghost" onClick={() => { setFwText(''); setFwOver(0); }} style={{ border: '1px solid var(--border)' }}>
             {t('device_converter.fw_clear')}
           </button>
         </div>
@@ -290,9 +292,26 @@ function FirewallPolicyTranslator({ initialData, onShare }) {
           style={{ fontFamily: 'var(--mono)', fontSize: '0.85rem', minHeight: 280, width: '100%' }}
           placeholder={t('device_converter.fw_input_placeholder')}
           value={fwText}
-          onChange={e => setFwText(e.target.value.slice(0, FWPT_MAX))}
+          onChange={e => {
+            const v = e.target.value;
+            setFwText(v.slice(0, FWPT_MAX));
+            setFwOver(Math.max(0, v.length - FWPT_MAX));
+          }}
         />
       </div>
+
+      {(fwOver > 0 || fwText.length >= FWPT_MAX) && (
+        <div className="card" style={{ marginBottom: '1.5rem', borderColor: 'var(--warning)' }}>
+          <div style={{ color: 'var(--warning)', fontWeight: 600 }}>
+            {t('device_converter.fw_input_cap_warn', { cap: FWPT_MAX.toLocaleString() })}
+          </div>
+          <div className="hint" style={{ marginTop: 4 }}>
+            {fwOver > 0
+              ? t('device_converter.fw_input_cap_dropped', { over: fwOver.toLocaleString() })
+              : t('device_converter.fw_input_cap_batch')}
+          </div>
+        </div>
+      )}
 
       {zoneRows.length > 0 && (
         <div className="card" style={{ marginBottom: '1.5rem' }}>
