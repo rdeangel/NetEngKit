@@ -106,6 +106,7 @@ const TOOLS = [
     { labelKey: 'switching.etherchannel_title',  nav: { tab: 'ether' }, keywords: 'etherchannel port-channel lacp pagp bonding aggregation link bundling' },
     { labelKey: 'switching.vpc_title',           nav: { tab: 'vpc' },   keywords: 'vpc nexus peer-link keepalive dual-homed consistency orphan' },
   ] },
+  { id: 'stp-simulator', label: 'STP / RSTP Election Simulator', group: 'Switching', type: 'tool', keywords: 'stp rstp pvst rapid-pvst spanning-tree 802.1d 802.1w root bridge election root port designated alternate backup blocking port cost priority bridge id simulator what-if topology' },
   { id: 'lacp-tool', label: 'LACP / Port-Channel', group: 'Switching', type: 'tool' },
   { id: 'qinq-config', label: 'QinQ / VLAN Translation', group: 'Switching', type: 'tool', keywords: 'qinq 802.1ad vlan translation tunnel stacking double-tag provider bridging' },
   { id: 'pvlan-designer', label: 'Private VLAN (PVLAN) Designer', group: 'Switching', type: 'tool',
@@ -770,6 +771,7 @@ function App() {
       case 'mcast-toolkit': return <MulticastToolkit initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'ipfm-ref': return <IPFMRef />;
       case 'switching-ref': return <SwitchingRef initialData={hashData} onShare={handleShare} onNav={handleNav} />;
+      case 'stp-simulator': return <STPSimulator initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'mpls-ref': return <MPLSRef />;
       case 'vxlan-ref': return <VXLANRef />;
       case 'dns': return <DNSLookup initialData={hashData} onShare={handleShare} />;

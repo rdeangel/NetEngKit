@@ -1,6 +1,6 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **129** top-level entries: **115** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **130** top-level entries: **116** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
 This file documents **125** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
@@ -572,6 +572,8 @@ This file documents **125** of them as `###` headings (inputs, outputs, tabs, ke
 
 **Description:** Reference for Spanning Tree Protocol variants, EtherChannel, and Nexus vPC — covering port states, timers, bridge ID calculator, and config snippets.
 
+See also: [STP / RSTP Election Simulator](#stp--rstp-election-simulator) for a multi-switch root bridge and port role election.
+
 **Tabs:**
 
 #### STP / Spanning Tree (`stp`)
@@ -594,6 +596,31 @@ Sub-tabs: Variants, States, Timers, Bridge ID Calculator, Config Snippets
 - NX-OS config snippets
 
 **Current Keywords:** `stp spanning-tree vpc etherchannel lacp layer2 switching rstp mstp pvst rapid root bridge port cost priority variants states timers convergence port-channel pagp bonding aggregation link bundling nexus peer-link keepalive dual-homed consistency orphan`
+
+---
+
+### STP / RSTP Election Simulator
+**ID:** `stp-simulator` | **Type:** Tool | **Offline**
+
+**Description:** Models a switched topology and runs the STP / RSTP / PVST+ / Rapid PVST+ election: root bridge, root port, designated port, alternate and backup roles, with the tie-break field that decided each one. Roles are computed identically for every variant; 802.1D / PVST+ label non-forwarding ports Blocking, RSTP variants Discarding. Timers, convergence, BPDU/root guard, edge ports, MST and CLI generation are not modelled (see Switching (STP/VPC) for timers, BPDU fields and the Bridge ID builder).
+
+**Inputs:**
+- Protocol (802.1D, 802.1w, PVST+, Rapid PVST+) and path cost method (short 802.1D-1998 / long 802.1t)
+- Switches (max 16): name, bridge priority (steps of 4096), bridge MAC, up/down, per-VLAN priority overrides (PVST variants)
+- Links (max 32): ends with switch, port number and port priority; speed (10M to 400G) or manual cost; up/down; "+ end" turns a link into a shared segment (the only way, besides a self-loop, to get a Backup port)
+- VLAN list (PVST variants, max 8)
+- Presets: triangle, mixed-speed square, dual uplink, shared segment, campus core/distribution/access
+- What-if: force links or switches down and compare against the baseline
+
+**Outputs:**
+- Root bridge per component with BID and why (priority / MAC), per-VLAN root strip
+- Port-role table (switch, port, port ID, link, cost, root path cost, role, state, decided by) with Copy All (TSV)
+- Per-switch summary (BID, root port, root path cost, forwarding / blocked counts)
+- Mermaid topology diagram (root highlighted, blocked ends dashed; source shown if Mermaid does not load)
+- What-if diff: changed ports and root-bridge change
+- Share URL restores the topology, what-if and selected VLAN
+
+**Current Keywords:** `stp rstp pvst rapid-pvst spanning-tree 802.1d 802.1w root bridge election root port designated alternate backup blocking port cost priority bridge id simulator what-if topology`
 
 ---
 
@@ -3992,9 +4019,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 129 top-level entries in `components/app.jsx` — 115 tools, 14 references.
+**Registry (source of truth):** 130 top-level entries in `components/app.jsx` — 116 tools, 14 references.
 
-**This catalog:** 125 `###` headings.
+**This catalog:** 126 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 

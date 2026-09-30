@@ -1,10 +1,11 @@
 # Switching
 
-Layer-2 design and reference: spanning tree, port-channels, QinQ, private VLANs, VXLAN/EVPN, SPAN, 802.1X. All **11** Switching entries are client-side.
+Layer-2 design and reference: spanning tree, port-channels, QinQ, private VLANs, VXLAN/EVPN, SPAN, 802.1X. All **12** Switching entries are client-side.
 
 Catalog: [TOOLS.md](../../TOOLS.md). Section: [Switching & Layer 2](../../TOOLS.md#switching--layer-2).
 
 - [Switching (STP/vPC) reference](../../TOOLS.md#switching-stpvpc)
+- [STP / RSTP election simulator](../../TOOLS.md#stp--rstp-election-simulator)
 - [LACP / port-channel](../../TOOLS.md#lacp--port-channel)
 - [QinQ / VLAN translation](../../TOOLS.md#qinq--vlan-translation)
 - [Private VLAN (PVLAN) designer](../../TOOLS.md#private-vlan-pvlan-designer)
