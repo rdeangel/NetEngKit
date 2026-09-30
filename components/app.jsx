@@ -315,6 +315,7 @@ const TOOLS = [
   { id: 'aescrypt', label: 'Text & File Encryption', group: 'Tools', type: 'tool', online: false, keywords: 'aes gcm encrypt decrypt password pbkdf2 cipher file text crypto symmetric aes256 key derivation secure' },
   { id: 'regex', label: 'Regex Find & Replace', group: 'Tools', type: 'tool' },
   { id: 'net-table-sorter', label: 'Network Table Sorter', group: 'Tools', type: 'tool', keywords: 'sort table natural interface ip ipv4 ipv6 cidr mac spreadsheet excel csv tsv markdown cabling schedule ipam column order' },
+  { id: 'vlan-planner', label: 'VLAN Planner & Allocator', group: 'Tools', type: 'tool', keywords: 'vlan plan planner allocator allocation ipam subnet site pod 802.1q svi reserved 1002 duplicate overlap audit csv spreadsheet p2p /31 ipv6 /64 addressing scheme' },
   { id: 'cert-gen', label: 'Self-Signed Cert Gen', group: 'Tools', type: 'tool' },
   { id: 'cert-chain', label: 'Certificate Chain Validator', group: 'Tools', type: 'tool', keywords: 'cert-chain certificate chain builder validator trust path root intermediate leaf pem signature verify expiration validity mismatch ssl tls node-forge' },
   { id: 'cypher', label: 'Cypher Deck', group: 'Tools', type: 'tool', keywords: 'cipher encoding decoding encoder decoder', subTools: [
@@ -755,6 +756,7 @@ function App() {
     switch (activeTool) {
       case 'subnet': return <SubnetCalc onShare={handleShare} initialData={hashData} onNav={handleNav} />;
       case 'subnet-planner': return <SubnetPlanner onShare={handleShare} initialData={hashData} onNav={handleNav} />;
+      case 'vlan-planner': return <VlanPlanner initialData={hashData} onShare={handleShare} />;
       case 'subnet-slicer': return <SubnetHostSlicer onShare={handleShare} initialData={hashData} />;
       case 'converter': return <IPConverter initialData={hashData} onShare={handleShare} onNav={handleNav} />;
       case 'ipv6': return <IPv6Tools initialData={hashData} onShare={handleShare} />;

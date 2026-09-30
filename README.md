@@ -25,7 +25,7 @@ From a clone, `node scripts/proxy.js` listens on **8080** (`PORT` overrides). `n
 
 ## Client vs server
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **130** entries: **116** tools and **14** references. Most run in the browser with no server. **Fourteen** (`server: true`) need the optional Node process (`scripts/proxy.js` or Docker). **Eleven** of those fourteen also need the internet (`online: true`). There is no product REST API.
+The in-app registry (`components/app.jsx` `TOOLS`) has **131** entries: **117** tools and **14** references. Most run in the browser with no server. **Fourteen** (`server: true`) need the optional Node process (`scripts/proxy.js` or Docker). **Eleven** of those fourteen also need the internet (`online: true`). There is no product REST API.
 
 Default listen port is **8080** (`PORT` overrides). `npm start` uses 8880. Building `NetEngKit-offline.html` or `NetEngKit-file.html` needs `npm install` first (`esbuild`). Only `scripts/proxy.js` is Node-built-ins-only.
 

@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **130** top-level entries: **116** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **131** top-level entries: **117** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **125** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **126** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 
@@ -703,6 +703,38 @@ Sub-tabs: Variants, States, Timers, Bridge ID Calculator, Config Snippets
 **Current Keywords:** `pvlan private vlan rfc5517 isolated community promiscuous primary secondary host-association mapping vtp transparent cisco nxos arista junos`
 
 **Suggested Keywords to Add:** `port isolation protected port switchport protected`
+
+---
+
+### VLAN Planner & Allocator
+**ID:** `vlan-planner` | **Type:** Tool | **Offline**
+
+**Description:** Plans and audits a multi-site VLAN and IP addressing scheme: carves VLAN IDs and IPv4 subnets per site from fixed ranges and pools, or audits a pasted spreadsheet for collisions. Registry `group:` is Tools; the heading sits here next to the PVLAN Designer. Cross-links to the IPv4 Subnet Calculator and the PVLAN Designer.
+
+**Tabs:**
+
+#### Plan (`plan`)
+**Inputs:**
+- Sites: name, optional L2 domain (sites sharing a domain share one VLAN ID namespace), VLAN range, IPv4 pool (/8 to /31), optional IPv6 block (/64 or shorter)
+- Roles per site: name, prefix (/16 to /31, /31 = RFC 3021 point-to-point), VLAN count, optional IPv6 /64
+
+**Outputs:**
+- Allocation table: VLAN ID, name, IPv4 subnet (largest blocks first, size-aligned), gateway, usable hosts, IPv6 /64 (VLAN 110 becomes `:110::/64` with a /48 or shorter block)
+- Findings: exhausted ID range or pool, overlapping site pools, reserved IDs (0, 4095, 1002–1005), VLAN 1, NX-OS internal range, invalid site config
+- Per-site utilisation summary; copy all (TSV with header), export CSV, copy summary; share URL
+
+#### Audit (`audit`)
+**Inputs:**
+- Pasted or dropped CSV/TSV (`site,vlan,name,subnet,subnet6`; header optional, common column aliases recognised)
+- Optional: check against the Plan tab sites (VLAN range, IPv4 pool, shared domains)
+
+**Outputs:**
+- Findings: duplicate VLAN ID with different names, same subnet on different VLANs, overlapping subnets, out-of-range or out-of-pool rows, host bits set (SVI address pasted as the network), reserved/invalid IDs, VLAN 1, same ID meaning different things across domains, duplicate rows, parse errors with line numbers
+- Parsed rows with per-row status; copy all, export normalised CSV
+
+**Current Keywords:** `vlan plan planner allocator allocation ipam subnet site pod 802.1q svi reserved 1002 duplicate overlap audit csv spreadsheet p2p /31 ipv6 /64 addressing scheme`
+
+**Suggested Keywords to Add:** _(none)_
 
 ---
 
@@ -4019,9 +4051,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 130 top-level entries in `components/app.jsx` — 116 tools, 14 references.
+**Registry (source of truth):** 131 top-level entries in `components/app.jsx` — 117 tools, 14 references.
 
-**This catalog:** 126 `###` headings.
+**This catalog:** 127 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -4029,7 +4061,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - IPv6 — 2
 - Cross-Version Addressing — 5
 - Multicast Toolkit — 1
-- Switching & Layer 2 — 12
+- Switching & Layer 2 — 13
 - Routing & Layer 3 — 15
 - Infrastructure, QoS & Planning — 24
 - Media & Broadcast — 2
