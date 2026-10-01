@@ -1814,6 +1814,49 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ---
 
+### IPv4 Fragmentation Simulator
+**ID:** `ipv4-frag-sim` | **Type:** Tool | **Offline**
+
+**Description:** Per-datagram simulation of IPv4 fragmentation: how one packet splits, re-splits at each hop, is dropped under DF, and reassembles. Complements MTU & Encapsulation (`mtu`), which does overhead arithmetic (base MTU minus stacked encapsulation bytes), and Packet Header Map (`packet-headers`), which documents the header bit layout; this tool does not repeat either and links to both. IPv4 only.
+
+#### Path MTU / DF (`pmtud`)
+Default tab. Walks a DF-set packet along the path and shows the ICMP type 3 code 4 exchange.
+
+**Inputs:**
+- Size (Total Length or IP payload), IP header length 20-60, Identification (decimal or 0x hex)
+- Link MTUs in path order (first entry is the sender egress), with presets
+- Router type: RFC 1191 next-hop MTU, or legacy (Next-Hop MTU = 0, RFC 1191 plateau table)
+- Option: ICMP type 3 code 4 filtered on the return path
+
+**Outputs:**
+- Attempt timeline: size sent, delivered / dropped at hop N, sender action
+- ICMP word layout (type, code, checksum, next-hop MTU, quoted original header)
+- Path MTU and TCP MSS, or the PMTUD blackhole explanation with ping reproduction lines
+- Copy All (TSV)
+
+#### Fragmentation (`split`)
+**Inputs:** Same datagram and path inputs, plus a DF toggle and an options-copied toggle for headers longer than 20 bytes.
+
+**Outputs:**
+- Per-hop fragment tables (re-fragmentation keeps the parent's MF on the last piece), final fragment table with ID, Total Length, header, payload, offset in 8-byte units and bytes, MF, slack
+- Explanation of why only the last fragment may be a non-multiple of 8
+- Byte-range map drawn to scale (original payload ruler plus one bar per fragment)
+- Copy All (TSV), JSON export, and send-to-reassembly
+
+#### Reassembly (`reassembly`)
+**Inputs:** Fragments in any order, one per line as `id offset length mf` (length = IP payload bytes of that fragment, offset in bytes or 8-byte units), or this tool's JSON export.
+
+**Outputs:**
+- Coverage bar with covered ranges, gaps and overlapping ranges
+- State: complete, incomplete (would time out; notes whether ICMP time exceeded is sent), or invalid
+- Findings: gaps, overlapping byte ranges, duplicates, ID mismatch, missing last fragment, misaligned non-last fragment
+
+**Current Keywords:** `ipv4 fragmentation fragment reassembly mtu pmtud path mtu discovery df dont fragment mf more fragments offset icmp type 3 code 4 frag needed blackhole ping -df mss jumbo overlay rfc791 rfc1191`
+
+**Suggested Keywords to Add:** `ipv6 fragment header (v2) tcpdump frag`
+
+---
+
 ### WLAN / 802.11 Planner
 **ID:** `wlan-tool` | **Type:** Tool | **Offline**
 
@@ -4051,9 +4094,9 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 
 ## Summary
 
-**Registry (source of truth):** 131 top-level entries in `components/app.jsx` — 117 tools, 14 references.
+**Registry (source of truth):** 132 top-level entries in `components/app.jsx` — 118 tools, 14 references.
 
-**This catalog:** 127 `###` headings.
+**This catalog:** 128 `###` headings.
 
 **Heading counts in this file** (not registry `group:` values):
 
@@ -4063,7 +4106,7 @@ The relationship table can be rendered as a Mermaid flowchart (Left-Right or Top
 - Multicast Toolkit — 1
 - Switching & Layer 2 — 13
 - Routing & Layer 3 — 15
-- Infrastructure, QoS & Planning — 24
+- Infrastructure, QoS & Planning — 25
 - Media & Broadcast — 2
 - Diagnostics & Tools — 54
 - Education & Entertainment — 1

@@ -1,14 +1,14 @@
 # Infrastructure
 
-Physical plant, QoS, wireless/IoT, TCP math, and platform planning. All **28** Infrastructure entries are client-side. None are `server: true`.
+Physical plant, QoS, wireless/IoT, TCP math, and platform planning. All **29** Infrastructure entries are client-side. None are `server: true`.
 
 Catalog: [TOOLS.md](../../TOOLS.md). Most headings sit under [Infrastructure, QoS & Planning](../../TOOLS.md#infrastructure-qos--planning). A few (port reference, k8s, Docker/Podman, rack) are filed under the catalog’s Diagnostics section; links still go to those headings.
 
 The catalog still has a leftover [WLAN / 802.11 Planner](../../TOOLS.md#wlan--80211-planner) heading. That id is not in the registry — use [Wireless & RF Planner](../../TOOLS.md#wireless--rf-planner).
 
-## Models, headers, QoS, CoPP, TCP (8)
+## Models, headers, QoS, CoPP, TCP (9)
 
-[OSI & TCP/IP model](../../TOOLS.md#osi--tcpip-model), [packet header map](../../TOOLS.md#packet-header-map), [TCP flag decoder](../../TOOLS.md#tcp-flag-decoder), [QoS / DSCP bit map](../../TOOLS.md#qos--dscp-bit-map), [CoPP / control plane policing builder](../../TOOLS.md#copp--control-plane-policing-builder), [MTU & encapsulation](../../TOOLS.md#mtu--encapsulation), [TCP congestion visualizer](../../TOOLS.md#tcp-congestion-visualizer), [TCP throughput & BDP](../../TOOLS.md#tcp-throughput--bdp-calculator).
+[OSI & TCP/IP model](../../TOOLS.md#osi--tcpip-model), [packet header map](../../TOOLS.md#packet-header-map), [TCP flag decoder](../../TOOLS.md#tcp-flag-decoder), [QoS / DSCP bit map](../../TOOLS.md#qos--dscp-bit-map), [CoPP / control plane policing builder](../../TOOLS.md#copp--control-plane-policing-builder), [MTU & encapsulation](../../TOOLS.md#mtu--encapsulation), [IPv4 fragmentation simulator](../../TOOLS.md#ipv4-fragmentation-simulator), [TCP congestion visualizer](../../TOOLS.md#tcp-congestion-visualizer), [TCP throughput & BDP](../../TOOLS.md#tcp-throughput--bdp-calculator).
 
 ## Cabling and power (4)
 

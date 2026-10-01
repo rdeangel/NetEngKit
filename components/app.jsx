@@ -211,6 +211,7 @@ const TOOLS = [
       { labelKey: 'copp_builder.tab_reference', nav: { activeTab: 'reference' }, keywords: 'copp profile strict moderate lenient dense system-cpp-policy ddos-protection deployment guidance rate-limit dialect' },
     ] },
   { id: 'mtu', label: 'MTU & Encapsulation', group: 'Infrastructure', type: 'tool' },
+  { id: 'ipv4-frag-sim', label: 'IPv4 Fragmentation Simulator', group: 'Infrastructure', type: 'tool', keywords: 'ipv4 fragmentation fragment reassembly mtu pmtud path mtu discovery df dont fragment mf more fragments offset icmp type 3 code 4 frag needed blackhole ping -df mss jumbo overlay rfc791 rfc1191' },
   { id: 'wifi-rf-planner', label: 'Wireless & RF Planner', group: 'Infrastructure', type: 'tool', keywords: 'wifi wireless rf planner airtime capacity mcs roaming 802.11 spectrum fast transition', subTools: [
     { labelKey: 'wifi_rf.tab_design', nav: { tab: 'design' }, keywords: 'wifi wireless rf planner link budget fspl fresnel path loss' },
     { labelKey: 'wifi_rf.tab_channels', nav: { tab: 'channels' }, keywords: 'channel plan unii 2.4ghz 5ghz 6ghz' },
@@ -845,6 +846,7 @@ function App() {
       case 'regex': return <RegexTool initialData={hashData} onShare={handleShare} />;
       case 'net-table-sorter': return <NetTableSorter initialData={hashData} onShare={handleShare} />;
       case 'mtu': return <MTUCalc initialData={hashData} onShare={handleShare} />;
+      case 'ipv4-frag-sim': return <IPv4FragSimulator initialData={hashData} onShare={handleShare} />;
       case 'dhcp': return <DHCPPlanner initialData={hashData} onShare={handleShare} />;
       case 'iplist': return <IPListGenerator initialData={hashData} onShare={handleShare} />;
       case 'cli-ref': return <CLIReference initialData={hashData} onNav={handleNav} />;
