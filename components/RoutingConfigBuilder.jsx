@@ -443,6 +443,180 @@ const CONFIG_MAP = {
   huawei: HUAWEI_CONFIGS,
 };
 
+// ─── EIGRP metric calculator panel (classic vs wide) — math in eigrpMetricLib.js ───
+const EIGRP_M_DEFAULT = { bw:'10000', delayUs:'1000', rel:'255', load:'1', mtu:'1500', ext:'0',
+  k:{ k1:'1', k2:'0', k3:'1', k4:'0', k5:'0', k6:'0' } };
+const EIGRP_K_KEYS = ['k1','k2','k3','k4','k5','k6'];
+const EIGRP_RIB_SCALE = 128;
+
+function EigrpMetricPanel() {
+  const M = window.EigrpMetric;
+  const { t } = useTranslation();
+  const [m, setM] = usePersistentState('routing-cfg:eigrp-metric', EIGRP_M_DEFAULT);
+  const [showTerms, setShowTerms] = useState(false);
+  const set = (key, val) => setM(p => ({ ...p, [key]: val }));
+  const setK = (key, val) => setM(p => ({ ...p, k: { ...p.k, [key]: val } }));
+
+  const calc = useMemo(() => {
+    const raw = [m.bw, m.delayUs, m.rel, m.load, m.mtu, m.ext, ...EIGRP_K_KEYS.map(k => m.k[k])];
+    if (raw.some(s => String(s).trim() === '')) return null; // incomplete input: stay silent
+    const n = {
+      bwKbps: Number(m.bw), delayUs: Number(m.delayUs), reliability: Number(m.rel), load: Number(m.load),
+      mtu: Number(m.mtu), extAttr: Number(m.ext),
+      k: Object.fromEntries(EIGRP_K_KEYS.map(k => [k, Number(m.k[k])])),
+    };
+    const errors = M.validate(n);
+    if (errors.length) return { errors };
+    const delayTens = M.usToTens(n.delayUs);
+    const delayPs = M.usToPs(n.delayUs);
+    const common = { bwKbps: n.bwKbps, reliability: n.reliability, load: n.load, k: n.k };
+    return {
+      errors, delayTens, delayPs,
+      c: M.classic({ ...common, delayTens }),
+      w: M.wide({ ...common, delayPs, extAttr: n.extAttr, ribScale: EIGRP_RIB_SCALE }),
+      bwKbps: n.bwKbps, delayUs: n.delayUs,
+    };
+  }, [m]);
+
+  const fmt = (x) => x.toLocaleString();
+  const mono = { fontFamily:'var(--mono)' };
+  const box = { background:'var(--panel)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:10, ...mono, fontSize:12, color:'var(--text)' };
+
+  const field = (id, labelKey, value, onChange, hintKey, extra) => (
+    <div className="field" key={id}>
+      <label className="label">{t('eigrp_metric.' + labelKey)}</label>
+      <input className="input" inputMode="decimal" value={value} onChange={e => onChange(e.target.value)} style={mono}/>
+      {hintKey && <div className="hint">{t('eigrp_metric.' + hintKey)}</div>}
+      {extra}
+    </div>
+  );
+
+  const errText = (e) => {
+    const p = e.params || {};
+    const field = p.field === 'reliability' || p.field === 'load' ? t('eigrp_metric.' + p.field) : p.field;
+    return t('eigrp_metric.err_' + e.code.toLowerCase(), { ...p, field });
+  };
+
+  const k5Line = (k5) => k5.applied
+    ? t('eigrp_metric.term_k5_applied', { num: fmt(k5.num), den: fmt(k5.den) })
+    : t('eigrp_metric.term_k5_skipped');
+
+  const termRows = (rows) => rows.map(([label, val], i) => (
+    <div key={i} style={{display:'flex',justifyContent:'space-between',gap:12,padding:'2px 0'}}>
+      <span style={{color:'var(--muted)'}}>{label}</span>
+      <span style={{color:'var(--cyan)'}}>{val}</span>
+    </div>
+  ));
+
+  const c = calc && calc.c, w = calc && calc.w;
+  const kv = EIGRP_K_KEYS.map(k => m.k[k]);
+  const reasonNote = (r) => r.reason === 'K5_ZERO_DEN' && <div className="hint" style={{color:'var(--red)'}}>{t('eigrp_metric.unreach_k5')}</div>;
+
+  return (
+    <div className="card fadein">
+      <div className="card-title">{t('eigrp_metric.title')}</div>
+      <div className="hint" style={{marginBottom:10}}>{t('eigrp_metric.intro')}</div>
+
+      <div className="label" style={{marginBottom:4}}>{t('eigrp_metric.inputs_title')}</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8}}>
+        {field('bw', 'bw', m.bw, v => set('bw', v), 'bw_hint')}
+        {field('delay', 'delay', m.delayUs, v => set('delayUs', v), 'delay_hint', calc && calc.c && (
+          <div style={{...mono,fontSize:11,color:'var(--cyan)',marginTop:4}}>
+            <div>{t('eigrp_metric.delay_tens', { tens: fmt(calc.delayTens) })}</div>
+            <div>{t('eigrp_metric.delay_ps', { ps: fmt(calc.delayPs) })}</div>
+            {calc.delayUs > 0 && calc.delayTens === 0 && <div style={{color:'var(--yellow)'}}>{t('eigrp_metric.classic_floor_warn')}</div>}
+          </div>
+        ))}
+        {field('rel', 'reliability', m.rel, v => set('rel', v), 'reliability_hint')}
+        {field('load', 'load', m.load, v => set('load', v), 'load_hint')}
+        {field('mtu', 'mtu', m.mtu, v => set('mtu', v))}
+        {field('ext', 'ext_attr', m.ext, v => set('ext', v), 'ext_attr_hint')}
+      </div>
+      {calc && calc.c && calc.bwKbps > 10000000 && (
+        <div className="hint" style={{color:'var(--yellow)'}}>{t('eigrp_metric.classic_bw_floor_warn', { bw: fmt(calc.c.bwScaled) })}</div>
+      )}
+
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'14px 0 4px'}}>
+        <div className="label" style={{marginBottom:0}}>{t('eigrp_metric.kvals_title')}</div>
+        <button className="btn btn-ghost btn-sm" onClick={() => setM(p => ({ ...p, k: EIGRP_M_DEFAULT.k }))}>{t('eigrp_metric.reset_k')}</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(120px,1fr))',gap:8}}>
+        {EIGRP_K_KEYS.map(k => (
+          <div className="field" key={k}>
+            <label className="label">{t('eigrp_metric.' + k)}</label>
+            <input className="input" inputMode="numeric" value={m.k[k]} onChange={e => setK(k, e.target.value)} style={mono}/>
+          </div>
+        ))}
+      </div>
+      <div className="hint">{t('eigrp_metric.kvals_hint')}</div>
+      <div style={{...box,marginTop:6}}>
+        <div>{t('eigrp_metric.cmd_classic', { cmd: '0 ' + kv.slice(0, 5).join(' ') })}</div>
+        <div>{t('eigrp_metric.cmd_wide', { cmd: '0 ' + kv.join(' ') })}</div>
+      </div>
+      <div className="hint">{t('eigrp_metric.tos_hint')}</div>
+
+      {calc && calc.errors.length > 0 && (
+        <div className="hint" style={{color:'var(--red)',marginTop:10}}>{errText(calc.errors[0])}</div>
+      )}
+
+      {c && (
+        <>
+          <div className="two-col grid-mobile-1" style={{marginTop:14}}>
+            <div style={box}>
+              <div className="label">{t('eigrp_metric.classic_title')}</div>
+              <div style={{fontSize:20,color:c.unreachable?'var(--red)':'var(--green)'}}>{fmt(c.composite)}</div>
+              {c.reason === 'CLASSIC_SATURATED' && <div className="hint" style={{color:'var(--red)'}}>{t('eigrp_metric.classic_saturated')}</div>}
+              {reasonNote(c)}
+            </div>
+            <div style={box}>
+              <div className="label">{t('eigrp_metric.wide_title')}</div>
+              <div style={{fontSize:20,color:w.unreachable?'var(--red)':'var(--green)'}}>{fmt(w.composite)}</div>
+              <div className="hint">{t('eigrp_metric.rib_metric', { scale: EIGRP_RIB_SCALE })}: <span style={{color:'var(--cyan)'}}>{fmt(w.ribMetric)}</span></div>
+              {w.reason === 'WIDE_SATURATED' && <div className="hint" style={{color:'var(--red)'}}>{t('eigrp_metric.wide_saturated')}</div>}
+              {w.ribCapped && <div className="hint" style={{color:'var(--yellow)'}}>{t('eigrp_metric.rib_capped')}</div>}
+              {reasonNote(w)}
+            </div>
+          </div>
+          <div className="hint" style={{marginTop:6}}>{t('eigrp_metric.mtu_note')}</div>
+
+          <button className="btn btn-ghost btn-sm" style={{marginTop:8}} onClick={() => setShowTerms(s => !s)}>
+            {showTerms ? t('eigrp_metric.hide_terms') : t('eigrp_metric.show_terms')}
+          </button>
+          {showTerms && (
+            <div className="two-col grid-mobile-1" style={{marginTop:8}}>
+              <div style={box}>
+                {termRows([
+                  [t('eigrp_metric.term_bw_scaled'), fmt(c.bwScaled)],
+                  [t('eigrp_metric.term_delay_scaled'), fmt(c.delayScaled)],
+                  [t('eigrp_metric.term_k1'), fmt(c.terms.k1)],
+                  [t('eigrp_metric.term_k2'), fmt(c.terms.k2)],
+                  [t('eigrp_metric.term_k3'), fmt(c.terms.k3)],
+                  [t('eigrp_metric.term_sum'), fmt(c.sum256)],
+                  [k5Line(c.k5), ''],
+                  [t('eigrp_metric.composite'), fmt(c.composite)],
+                ])}
+              </div>
+              <div style={box}>
+                {termRows([
+                  [t('eigrp_metric.term_throughput'), fmt(w.throughput)],
+                  [t('eigrp_metric.term_latency'), fmt(w.latency)],
+                  [t('eigrp_metric.term_k1'), fmt(w.terms.k1)],
+                  [t('eigrp_metric.term_k2'), fmt(w.terms.k2)],
+                  [t('eigrp_metric.term_k3'), fmt(w.terms.k3)],
+                  [t('eigrp_metric.term_k6'), fmt(w.terms.k6)],
+                  [t('eigrp_metric.term_sum'), fmt(w.sum)],
+                  [k5Line(w.k5), ''],
+                  [t('eigrp_metric.composite'), fmt(w.composite)],
+                ])}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function RoutingConfigBuilder({ onShare, initialData }) {
   const { t } = useTranslation();
   const [platform, setPlatform] = usePersistentState('routing-cfg:platform', initialData?.platform ?? 'cisco_ios');
@@ -614,6 +788,8 @@ function RoutingConfigBuilder({ onShare, initialData }) {
           </div>
         </div>
       )}
+
+      {protocol === 'eigrp' && <EigrpMetricPanel />}
 
       {/* Quick Reference */}
       <div className="card">
