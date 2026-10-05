@@ -2,7 +2,7 @@
 
 Real failure modes, verified against the current code. Run modes: [running.md](../SETUP/running.md). Ports, proxy, and capabilities: [Configuration](../CONFIGURATION/README.md). Docker caps: [docker.md](../DEPLOYMENT/docker.md).
 
-Most of the 118 registry entries run in the browser. Fourteen need `scripts/proxy.js` or Docker. Eleven of those fourteen also need the internet.
+Most of the 132 registry entries run in the browser. Fourteen need `scripts/proxy.js` or Docker. Eleven of those fourteen also need the internet.
 
 ## Blank page on `file://`
 

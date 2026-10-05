@@ -4,7 +4,7 @@ Five ways to run it. Pick by whether you need a CORS proxy, host binaries (nmap,
 
 **Ports:** Default listen port is **8080** (`PORT` overrides). `npm start` uses 8880.
 
-Most of the 118 registry entries run in the browser. Fourteen (`server: true`) call the optional Node server. Eleven of those fourteen also need the internet (`online: true`). The rest of this page is how to get a process listening; [TOOLS.md](../../TOOLS.md) is the catalog.
+Most of the 132 registry entries run in the browser. Fourteen (`server: true`) call the optional Node server. Eleven of those fourteen also need the internet (`online: true`). The rest of this page is how to get a process listening; [TOOLS.md](../../TOOLS.md) is the catalog.
 
 ## Mode comparison
 

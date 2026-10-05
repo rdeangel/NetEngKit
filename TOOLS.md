@@ -1,8 +1,8 @@
 # NetEngKit tools catalog
 
-The in-app registry (`components/app.jsx` `TOOLS`) has **131** top-level entries: **117** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
+The in-app registry (`components/app.jsx` `TOOLS`) has **132** top-level entries: **118** tools and **14** references. Fourteen need the optional local server; eleven of those also need the internet.
 
-This file documents **126** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
+This file documents **128** of them as `###` headings (inputs, outputs, tabs, keywords). Section titles have no counts — those rot. Heading totals live in [Summary](#summary). Area overviews: [docs/FEATURES/](docs/FEATURES/README.md).
 
 ---
 

@@ -2,7 +2,7 @@
 
 NetEngKit has a handful of real knobs: listen port, the CORS proxy, host-binary capabilities, and UI language. There is no product REST API and no config file. `/api/*` routes in `scripts/proxy.js` are helpers the app calls; they are not a public surface.
 
-Most of the 118 registry entries run in the browser with no server. Fourteen are flagged `server: true`. Eleven of those fourteen are also `online: true`. Run modes: [running.md](../SETUP/running.md). Catalog: [TOOLS.md](../../TOOLS.md).
+Most of the 132 registry entries run in the browser with no server. Fourteen are flagged `server: true`. Eleven of those fourteen are also `online: true`. Run modes: [running.md](../SETUP/running.md). Catalog: [TOOLS.md](../../TOOLS.md).
 
 ## PORT
 
@@ -75,7 +75,7 @@ Sidebar badges and search (`online` / `server`) come from `components/app.jsx` `
 
 | Need | Count | What it means in practice |
 |------|-------|---------------------------|
-| Nothing extra | **104** of 118 | No `server` / `online` flag. Calculators, parsers, references. |
+| Nothing extra | **118** of 132 | No `server` / `online` flag. Calculators, parsers, references. |
 | Local server, no extra internet | **3** | `scanner`, `iperf`, `wireshark`. Talk to `/api/*` and host binaries. |
 | Local server **and** internet | **11** | Also `online: true`. Mixed: some call `/api/*`, some need `/proxy/fetch`, some fetch public APIs from the browser. |
 
