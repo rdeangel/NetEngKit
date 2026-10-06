@@ -143,6 +143,44 @@ async function validateHostAddress(hostname) {
   return addresses.map(a => a.address);
 }
 
+function getNetworkInterfaces() {
+  const list = [];
+  try {
+    const out = execFileSync('tcpdump', ['-D'], { encoding: 'utf8', timeout: 3000, stdio: ['ignore', 'pipe', 'ignore'] });
+    for (const line of out.split('\n')) {
+      const match = line.match(/^\d+\.([^\s]+)(?:\s+(.*))?$/);
+      if (match) {
+        const name = match[1];
+        const desc = match[2] || '';
+        list.push({ name, desc });
+      }
+    }
+  } catch {}
+
+  const os = require('os');
+  const osIfaces = os.networkInterfaces();
+  const existing = new Set(list.map(i => i.name));
+
+  if (!existing.has('any')) {
+    list.unshift({ name: 'any', desc: 'All interfaces' });
+    existing.add('any');
+  }
+
+  for (const [name, addrs] of Object.entries(osIfaces)) {
+    const ipv4 = (addrs || []).find(a => a.family === 'IPv4' || a.family === 4)?.address || '';
+    if (!existing.has(name)) {
+      list.push({ name, desc: ipv4 ? `IP: ${ipv4}` : '' });
+      existing.add(name);
+    } else {
+      const item = list.find(i => i.name === name);
+      if (item && ipv4 && !item.desc.includes(ipv4)) {
+        item.desc = item.desc ? `${item.desc} (${ipv4})` : `IP: ${ipv4}`;
+      }
+    }
+  }
+  return list;
+}
+
 function ip4ToInt(ip) {
   const parts = ip.split('.').map(p => parseInt(p, 10));
   if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return null;
@@ -868,9 +906,17 @@ const server = http.createServer(async (req, res) => {
     try { execFileSync('python3', ['-c', 'import scapy'], { stdio: 'ignore', timeout: 5000 }); available['scapy'] = true; }
     catch { available['scapy'] = false; }
     const pingSweep = coreTools.every(t => available[t]);
+    const interfaces = getNetworkInterfaces();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     const localIPs = getLocalIPs();
-    res.end(JSON.stringify({ pingSweep, nmap: available.nmap, fping: available.fping, tcpdump: available.tcpdump, tshark: available.tshark, speedtest: available.speedtest, librespeed: available['librespeed-cli'], iperf3: available.iperf3, iperf2: available.iperf, scapy: available.scapy, localIP: localIPs.ipv4 || '127.0.0.1', localIPv4: localIPs.ipv4, localIPv6: localIPs.ipv6, tools: available }));
+    res.end(JSON.stringify({ pingSweep, nmap: available.nmap, fping: available.fping, tcpdump: available.tcpdump, tshark: available.tshark, speedtest: available.speedtest, librespeed: available['librespeed-cli'], iperf3: available.iperf3, iperf2: available.iperf, scapy: available.scapy, localIP: localIPs.ipv4 || '127.0.0.1', localIPv4: localIPs.ipv4, localIPv6: localIPs.ipv6, interfaces, tools: available }));
+    return;
+  }
+
+  // ── Network interfaces ────────────────────────────────────────────────────
+  if (pathname === '/api/interfaces') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ interfaces: getNetworkInterfaces() }));
     return;
   }
 

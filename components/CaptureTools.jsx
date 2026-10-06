@@ -169,15 +169,18 @@ function CaptureTools({ onShare, initialData, onNav }) {
   });
   const [tcpdumpAvail, setTcpdumpAvail] = useState(null);
   const [tsharkAvail,  setTsharkAvail]  = useState(null);
+  const [ifaces,       setIfaces]       = useState([]);
   const [tsScanning,   setTsScanning]   = useState(false);
   const [tsLines,      setTsLines]      = useState([]);
-  const [tsExitCode,   setTsExitCode]   = useState(null);
-  const [tsWrittenFile, setTsWrittenFile] = useState(null);
-  const [tsAutoFile] = useState(() => {
+  const generatePcapFilename = (prefix = 'capture') => {
     const now = new Date();
     const p = n => String(n).padStart(2, '0');
-    return `tshark_${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}.pcap`;
-  });
+    return `${prefix}_${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}_${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}.pcap`;
+  };
+
+  const [tsExitCode,   setTsExitCode]   = useState(null);
+  const [tsWrittenFile, setTsWrittenFile] = useState(null);
+  const [tsAutoFile, setTsAutoFile] = useState(() => generatePcapFilename('tshark'));
   const [tsFullscreen, setTsFullscreen] = useState(false);
   const tsEsRef     = useRef(null);
   const tsTermRef   = useRef(null);
@@ -197,11 +200,7 @@ function CaptureTools({ onShare, initialData, onNav }) {
   const [tdAtBottom,     setTdAtBottom]     = useState(true);
   const [tdWrittenFile,  setTdWrittenFile]  = useState(null);
   const [tdFullscreen,   setTdFullscreen]   = useState(false);
-  const [tdAutoFile]                        = useState(() => {
-    const now = new Date();
-    const p = n => String(n).padStart(2, '0');
-    return `capture_${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}.pcap`;
-  });
+  const [tdAutoFile, setTdAutoFile]         = useState(() => generatePcapFilename('capture'));
 
   useEffect(() => {
     if (initialData) {
@@ -229,6 +228,17 @@ function CaptureTools({ onShare, initialData, onNav }) {
       .then(data => {
         setTcpdumpAvail(data.tcpdump ?? false);
         setTsharkAvail(data.tshark ?? false);
+        if (Array.isArray(data.interfaces) && data.interfaces.length > 0) {
+          setIfaces(data.interfaces);
+          const names = data.interfaces.map(i => i.name);
+          if (!names.includes('eth0')) {
+            const preferred = data.interfaces.find(i => i.name !== 'lo' && !i.name.startsWith('br-') && !i.name.startsWith('veth')) || data.interfaces[0];
+            if (preferred) {
+              setTd(s => s.iface === 'eth0' ? { ...s, iface: preferred.name } : s);
+              setTs(s => s.iface === 'eth0' ? { ...s, iface: preferred.name } : s);
+            }
+          }
+        }
       })
       .catch(() => { setTcpdumpAvail(false); setTsharkAvail(false); });
   }, []);
@@ -649,13 +659,15 @@ function CaptureTools({ onShare, initialData, onNav }) {
   };
 
   const startTcpdump = useCallback(() => {
-    const effectiveWriteFile = td.writeFile.trim() || tdAutoFile;
+    const freshFilename = generatePcapFilename('capture');
+    setTdAutoFile(freshFilename);
+    const effectiveWriteFile = td.writeFile.trim() || freshFilename;
     setTdLines([]); setTdPackets([]); setTdExpandedRows(new Set());
     setTdExitCode(null); setTdScanning(true);
     setTdWrittenFile(td.mode === 'live' ? effectiveWriteFile : null);
     setTdAtBottom(true);
     // Reset output format and timestamp — non-default values break table parsing
-    setTd(s => ({ ...s, output: '', timestamp: '' }));
+    setTd(s => ({ ...s, output: '', timestamp: '', writeFile: '' }));
 
     const params = new URLSearchParams({
       iface: td.iface || 'eth0',
@@ -676,6 +688,7 @@ function CaptureTools({ onShare, initialData, onNav }) {
       const msg = JSON.parse(e.data);
       if (msg.type === 'done') {
         setTdExitCode(Number(msg.line)); setTdScanning(false); es.close();
+        setTdAutoFile(generatePcapFilename('capture'));
       } else {
         setTdLines(prev => [...prev, { type: msg.type, text: msg.line }]);
         // Continuation lines (leading whitespace) belong to the previous packet
@@ -701,19 +714,23 @@ function CaptureTools({ onShare, initialData, onNav }) {
         }
       }
     };
-    es.onerror = () => { setTdScanning(false); es.close(); };
-  }, [td, tdAutoFile]);
+    es.onerror = () => { setTdScanning(false); es.close(); setTdAutoFile(generatePcapFilename('capture')); };
+  }, [td]);
 
   const stopTcpdump = () => {
     if (tdEsRef.current) { tdEsRef.current.close(); tdEsRef.current = null; }
     setTdScanning(false);
+    setTdAutoFile(generatePcapFilename('capture'));
   };
 
   const startTshark = useCallback(() => {
     if (ts.mode !== 'live') return;
-    const effectiveWriteFile = ts.writeFile.trim() || tsAutoFile;
+    const freshFilename = generatePcapFilename('tshark');
+    setTsAutoFile(freshFilename);
+    const effectiveWriteFile = ts.writeFile.trim() || freshFilename;
     setTsLines([]); setTsExitCode(null); setTsScanning(true);
     setTsWrittenFile(effectiveWriteFile);
+    setTs(s => ({ ...s, writeFile: '' }));
 
     const safeFmt = (ts.outputFmt === 'json' || ts.outputFmt === 'pdml') ? 'default' : ts.outputFmt;
     if (safeFmt !== ts.outputFmt) setTs(s => ({ ...s, outputFmt: safeFmt }));
@@ -734,16 +751,18 @@ function CaptureTools({ onShare, initialData, onNav }) {
       const msg = JSON.parse(e.data);
       if (msg.type === 'done') {
         setTsExitCode(Number(msg.line)); setTsScanning(false); es.close();
+        setTsAutoFile(generatePcapFilename('tshark'));
       } else {
         setTsLines(prev => [...prev, msg.line]);
       }
     };
-    es.onerror = () => { setTsScanning(false); es.close(); };
-  }, [ts, tsAutoFile]);
+    es.onerror = () => { setTsScanning(false); es.close(); setTsAutoFile(generatePcapFilename('tshark')); };
+  }, [ts]);
 
   const stopTshark = () => {
     if (tsEsRef.current) { tsEsRef.current.close(); tsEsRef.current = null; }
     setTsScanning(false);
+    setTsAutoFile(generatePcapFilename('tshark'));
   };
 
   return (
@@ -1204,7 +1223,29 @@ function CaptureTools({ onShare, initialData, onNav }) {
                   {ts.mode==='live'?(
                     <div className="field">
                       <label className="label">{t('wireshark.tshark.builder.iface')}</label>
-                      <input className="input" placeholder={t('wireshark.tshark.builder.iface_placeholder')} value={ts.iface} onChange={e=>setTs(s=>({...s,iface:e.target.value}))}/>
+                      {ifaces.length > 0 ? (
+                        <select
+                          className="select"
+                          value={ts.iface}
+                          onChange={e => setTs(s => ({ ...s, iface: e.target.value }))}
+                        >
+                          {ifaces.map(i => (
+                            <option key={i.name} value={i.name}>
+                              {i.name}{i.desc ? ` — ${i.desc}` : ''}
+                            </option>
+                          ))}
+                          {!ifaces.some(i => i.name === ts.iface) && ts.iface && (
+                            <option value={ts.iface}>{ts.iface}</option>
+                          )}
+                        </select>
+                      ) : (
+                        <input
+                          className="input"
+                          placeholder={t('wireshark.tshark.builder.iface_placeholder')}
+                          value={ts.iface}
+                          onChange={e => setTs(s => ({ ...s, iface: e.target.value }))}
+                        />
+                      )}
                     </div>
                   ):(
                     <div className="field">
@@ -1405,8 +1446,31 @@ function CaptureTools({ onShare, initialData, onNav }) {
             {td.mode === 'live' ? (
               <div className="field" style={{ margin: 0 }}>
                 <label className="label">{t('wireshark.tcpdump.iface_label')}</label>
-                <input className="input" value={td.iface} placeholder={t('wireshark.tcpdump.iface_placeholder')}
-                  onChange={e => setTd(s => ({ ...s, iface: e.target.value }))} disabled={tdScanning} />
+                {ifaces.length > 0 ? (
+                  <select
+                    className="select"
+                    value={td.iface}
+                    onChange={e => setTd(s => ({ ...s, iface: e.target.value }))}
+                    disabled={tdScanning}
+                  >
+                    {ifaces.map(i => (
+                      <option key={i.name} value={i.name}>
+                        {i.name}{i.desc ? ` — ${i.desc}` : ''}
+                      </option>
+                    ))}
+                    {!ifaces.some(i => i.name === td.iface) && td.iface && (
+                      <option value={td.iface}>{td.iface}</option>
+                    )}
+                  </select>
+                ) : (
+                  <input
+                    className="input"
+                    value={td.iface}
+                    placeholder={t('wireshark.tcpdump.iface_placeholder')}
+                    onChange={e => setTd(s => ({ ...s, iface: e.target.value }))}
+                    disabled={tdScanning}
+                  />
+                )}
               </div>
             ) : (
               <div className="field" style={{ margin: 0 }}>
