@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-06
+
+### Since v1.1.0
+### ✨ Features
+- feat(tools): list capture interfaces and rotate auto pcap filenames ([649b2e8](https://github.com/rdeangel/NetEngKit/commit/649b2e8))
+- feat(security): add session token auth and Host allow-list to proxy ([2a0afbc](https://github.com/rdeangel/NetEngKit/commit/2a0afbc))
+### 📝 Chore
+- chore(scripts): remove one-off i18n helpers and test-doh.js ([f606e8e](https://github.com/rdeangel/NetEngKit/commit/f606e8e))
+
 ## [1.1.0] - 2026-10-05
 
 ### Since v1.0.0

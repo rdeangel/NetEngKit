@@ -1,6 +1,6 @@
 ---
 name: "NetEngKit"
-version: "1.1.0"
+version: "1.1.1"
 author: "RDA"
 colors:
   primary: "#00d4c8"
