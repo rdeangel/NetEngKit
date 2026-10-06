@@ -14,7 +14,6 @@ internal/
 to_translate.json
 
 #agent
-.archon/*
 .keleon/
 CLAUDE.md
 GEMINI.md
@@ -22,6 +21,7 @@ GEMINI.md
 .firecrawl/*
 .playwright-mcp/
 .env*
+!.env.example
 source.json
 sections_de.json
 iplist_source.json

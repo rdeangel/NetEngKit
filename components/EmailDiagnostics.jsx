@@ -6,6 +6,9 @@ const DNS_API = 'https://dns.google/resolve';
 
 async function dnsLookup(name, type) {
   const res = await fetch(`${DNS_API}?name=${encodeURIComponent(name)}&type=${type}`);
+  if (!res.ok) {
+    throw new Error(`DNS query failed with status ${res.status}`);
+  }
   const data = await res.json();
   return data;
 }
@@ -201,7 +204,7 @@ function EmailDiagnostics({ onShare, initialData }) {
       const hasMX = mxRecords.length > 0;
       const score = checks.reduce((acc, v) => acc + (v==='pass'?25:v==='warn'?15:v==='info'?20:0), 0) + (hasMX?25:0);
 
-      setResults({ spf, spfRecord, mx: mxRecords, dmarc, dmarcRecord, dkim, dkimRecord, score, hasMX });
+      setResults({ domain: d, spf, spfRecord, mx: mxRecords, dmarc, dmarcRecord, dkim, dkimRecord, score, hasMX });
     } catch (e) {
       setErr(t('email.err_failed', 'Analysis failed') + ': ' + e.message);
     }
@@ -439,7 +442,7 @@ function EmailDiagnostics({ onShare, initialData }) {
               </>
             ) : (
               <div style={{padding:'10px 14px',background:'rgba(245,158,11,.1)',border:'1px solid var(--yellow)',borderRadius:'var(--radius)',color:'var(--yellow)',fontSize:12}}>
-                ⚠ {t('email.dmarc_none', { domain: d })}
+                ⚠ {t('email.dmarc_none', 'No DMARC record found — email receivers have no policy guidance. Add a TXT record at _dmarc.{domain} starting with "v=DMARC1".', { domain: results.domain || domain })}
               </div>
             )}
             {results.dmarc.issues.length > 0 && (
@@ -460,8 +463,8 @@ function EmailDiagnostics({ onShare, initialData }) {
             <div style={{fontSize:12,color:'var(--muted)',lineHeight:1.8}}>
               {!results.hasMX && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_add_mx','Add MX records')}</strong> — {t('email.rec_add_mx_desc','Required for receiving email at this domain.')}</div>}
               {!results.spfRecord && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_add_spf','Add SPF record')}</strong> — {t('email.rec_add_spf_desc','Create a TXT record:')} <code style={{fontFamily:'var(--mono)',color:'var(--green)',background:'var(--panel)',padding:'2px 6px',borderRadius:4}}>v=spf1 include:_spf.google.com ~all</code></div>}
-              {!results.dkimRecord && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_enable_dkim','Enable DKIM signing')}</strong> — {t('email.rec_enable_dkim_desc','Publish a public key in DNS at')} <code style={{fontFamily:'var(--mono)',color:'var(--purple)',background:'var(--panel)',padding:'2px 6px',borderRadius:4}}>selector._domainkey.{domain}</code></div>}
-              {!results.dmarcRecord && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_add_dmarc','Add DMARC policy')}</strong> — {t('email.rec_add_dmarc_desc','Start with monitoring:')} <code style={{fontFamily:'var(--mono)',color:'var(--yellow)',background:'var(--panel)',padding:'2px 6px',borderRadius:4}}>v=DMARC1; p=none; rua=mailto:dmarc@{domain}</code></div>}
+              {!results.dkimRecord && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_enable_dkim','Enable DKIM signing')}</strong> — {t('email.rec_enable_dkim_desc','Publish a public key in DNS at')} <code style={{fontFamily:'var(--mono)',color:'var(--purple)',background:'var(--panel)',padding:'2px 6px',borderRadius:4}}>selector._domainkey.{results.domain || domain}</code></div>}
+              {!results.dmarcRecord && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_add_dmarc','Add DMARC policy')}</strong> — {t('email.rec_add_dmarc_desc','Start with monitoring:')} <code style={{fontFamily:'var(--mono)',color:'var(--yellow)',background:'var(--panel)',padding:'2px 6px',borderRadius:4}}>v=DMARC1; p=none; rua=mailto:dmarc@{results.domain || domain}</code></div>}
               {results.dmarcRecord && results.dmarc.tags.p === 'none' && <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_upgrade_dmarc','Upgrade DMARC policy')}</strong> — {t('email.rec_upgrade_dmarc_from','Move from')} <code style={{fontFamily:'var(--mono)'}}>p=none</code> → <code style={{fontFamily:'var(--mono)'}}>p=quarantine</code> → <code style={{fontFamily:'var(--mono)'}}>p=reject</code> {t('email.rec_upgrade_dmarc_to','as you gain confidence.')}</div>}
               {results.spf.issues.some(i=>i.msg?.includes('+all')) && <div>• <strong style={{color:'var(--red)'}}>{t('email.rec_urgent_all','URGENT: Remove \"+all\"')}</strong> — {t('email.rec_urgent_all_desc','This allows anyone to send email as your domain. Use \"~all\" or \"-all\".')}</div>}
               <div>• <strong style={{color:'var(--text)'}}>{t('email.rec_test_delivery','Test email delivery')}</strong> — {t('email.rec_test_delivery_prefix','Send a test email to')} <a href="mailto:mail-tester@example.com" style={{color:'var(--cyan)'}}>mail-tester@webemai.ltestersonline.com</a> {t('email.rec_test_delivery_or','or use')} <a href="https://www.mail-tester.com" target="_blank" rel="noopener" style={{color:'var(--cyan)'}}>mail-tester.com</a> {t('email.rec_test_delivery_suffix','for a full spam score.')}</div>

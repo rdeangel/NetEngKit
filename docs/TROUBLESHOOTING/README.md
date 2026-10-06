@@ -52,9 +52,9 @@ The i18n string `cap_needs_net_raw` exists; Capture Toolkit does not currently r
 
 ## CORS / proxy failures
 
-APIs such as SSL Labs do not send `Access-Control-Allow-Origin`. The proxy fetches them server-side (`GET /proxy/fetch?url=<encoded>`) and always adds `Access-Control-Allow-Origin: *`. Timeout is 30 seconds. Missing `?url=` is 400; upstream failure is 502.
+APIs such as SSL Labs do not send `Access-Control-Allow-Origin`. The proxy fetches them server-side (`GET /proxy/fetch?url=<encoded>`). Requests require authentication (session token via cookie, `X-NetEngKit-Token`, or `nekToken`). The proxy enforces HTTPS-only, blocks private/reserved IP ranges, caps body size to 2 MiB, caps redirects to 3 hops, and serves content as sandboxed `text/plain` (or JSON when `meta=1`). Timeout is 30 seconds. Missing `?url=` is 400; upstream failure is 502.
 
-If the proxy is not running, the browser talks to SSL Labs (or to `http://localhost:8080/proxy/fetch?…`) and you get a CORS error or a connection refused. Start `node scripts/proxy.js` or Docker, then set the proxy field if `PORT` is not 8080.
+If the proxy is not running, the browser talks to SSL Labs (or to `http://localhost:8080/proxy/fetch?…`) and you get a CORS error or a connection refused. Start `node scripts/proxy.js` or Docker, then set the proxy field if `PORT` is not 8080. If accessing via a LAN IP or custom domain, ensure `NETENGKIT_HOSTS` includes your hostname/IP to avoid HTTP 403 errors.
 
 Security Headers has a paste-raw tab that never hits the network. SSL Inspector and Redirect Checker do not.
 

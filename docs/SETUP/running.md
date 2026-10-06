@@ -13,7 +13,7 @@ Most of the 132 registry entries run in the browser. Fourteen (`server: true`) c
 | **Pages / offline HTML** | Open the Pages site, or a `NetEngKit-*-Offline.html` release file | No — assets are inlined | CI / `build:offline` | No | Using the kit |
 | **Static HTTP** | `python3 -m http.server 8080` then open `NetEngKit.html` | Yes (unpkg + Google Fonts) | None | No | Edit and refresh |
 | **Proxy server** | `node scripts/proxy.js` (or `npm start`) | Yes, if you serve the source HTML | None | Yes | Testing the 14 server tools |
-| **Docker** | `docker compose up` or `docker run -p 8080:8080 …` | No for the UI (image is pre-bundled). Yes for the 11 online tools | `docker build` | Yes | Sharing / self-host |
+| **Docker** | `docker compose up` or `docker run --network host …` | No for the UI (image is pre-bundled). Yes for the 11 online tools | `docker build` | Yes | Sharing / self-host |
 | **file://** | Open `NetEngKit-file.html` | Yes (CDN + fonts) | `build:file` after each change | No | Opening from disk without a server |
 
 ## Pages / offline HTML
@@ -60,11 +60,11 @@ From a git clone this serves the **source** HTML, so you still need internet for
 
 ```bash
 docker compose up
-# or: docker build -t netengkit . && docker run -p 8080:8080 netengkit
+# or: docker build -t netengkit . && docker run --network host --cap-add=NET_RAW --cap-add=NET_ADMIN netengkit
 # then open http://localhost:8080
 ```
 
-The image bundles HTML at build time (the Dockerfile runs `npm install` then `bundle.js` inside the builder stage) and starts `scripts/proxy.js` on **8080**. Compose maps `8080:8080` and grants `NET_RAW`. Image contents, pull URLs, and the security note live in [Docker deployment](../DEPLOYMENT/docker.md).
+The image bundles HTML at build time (the Dockerfile runs `npm install` then `bundle.js` inside the builder stage) and starts `scripts/proxy.js` on **8080**. Compose uses `network_mode: host` and grants `NET_RAW` and `NET_ADMIN`. Image contents, pull URLs, and the security note live in [Docker deployment](../DEPLOYMENT/docker.md).
 
 ## file://
 

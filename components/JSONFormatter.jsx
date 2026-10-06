@@ -679,7 +679,8 @@ function hlJson(json) {
     if (/^"/.test(m)) cls = /:$/.test(m) ? 'json-key' : 'json-string';
     else if (/true|false/.test(m)) cls = 'json-boolean';
     else if (/null/.test(m)) cls = 'json-null';
-    return `<span class="${cls}">${m}</span>`;
+    const esc = m.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="${cls}">${esc}</span>`;
   });
 }
 function hlXml(xml) {

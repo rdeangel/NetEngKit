@@ -22,10 +22,49 @@ const https   = require('https');
 const fs      = require('fs');
 const path    = require('path');
 const url     = require('url');
+const crypto  = require('crypto');
+const net     = require('net');
+const dns     = require('dns');
 const { execFileSync, spawn } = require('child_process');
+
+process.on('uncaughtException', (err) => {
+  console.error('[proxy] Uncaught exception:', err);
+});
+
+// Load .env if present (zero dependencies)
+(function loadDotEnv() {
+  const envCandidates = [
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(__dirname, '..', '.env'),
+  ];
+  for (const envPath of envCandidates) {
+    if (fs.existsSync(envPath)) {
+      try {
+        const content = fs.readFileSync(envPath, 'utf8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const eqIdx = trimmed.indexOf('=');
+          if (eqIdx !== -1) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            let val = trimmed.slice(eqIdx + 1).trim();
+            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+              val = val.slice(1, -1);
+            }
+            if (!(key in process.env)) {
+              process.env[key] = val;
+            }
+          }
+        }
+        break;
+      } catch {}
+    }
+  }
+})();
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const ROOT = path.join(__dirname, '..');
+const API_TOKEN = crypto.randomBytes(24).toString('hex');
 
 /** Return the first non-loopback IPv4 and IPv6 addresses on this host. */
 function getLocalIPs() {
@@ -44,6 +83,198 @@ function getLocalIPs() {
 
 function getLocalIP() { return getLocalIPs().ipv4 || '127.0.0.1'; }
 
+function isPrivateOrBlockedIPv4(ip) {
+  const parts = ip.split('.').map(p => parseInt(p, 10));
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return true;
+  const [a, b, c, d] = parts;
+  if (a === 0) return true; // 0.0.0.0/8
+  if (a === 10) return true; // 10.0.0.0/8
+  if (a === 127) return true; // 127.0.0.0/8
+  if (a === 169 && b === 254) return true; // 169.254.0.0/16
+  if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
+  if (a === 192 && b === 168) return true; // 192.168.0.0/16
+  if (a === 100 && b >= 64 && b <= 127) return true; // 100.64.0.0/10 (CGNAT)
+  if (a === 192 && b === 0 && c === 2) return true; // TEST-NET-1
+  if (a === 198 && (b === 18 || b === 19)) return true; // Benchmarking
+  if (a === 198 && b === 51 && c === 100) return true; // TEST-NET-2
+  if (a === 203 && b === 0 && c === 113) return true; // TEST-NET-3
+  if (a >= 224) return true; // Multicast & Reserved
+  return false;
+}
+
+function isPrivateOrBlockedIPv6(ip) {
+  const clean = ip.toLowerCase();
+  const v4Mapped = clean.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4Mapped) {
+    return isPrivateOrBlockedIPv4(v4Mapped[1]);
+  }
+  if (clean === '::' || clean === '::1') return true;
+  if (/^f[cd][0-9a-f]{2}:/i.test(clean) || /^f[cd]/i.test(clean)) return true; // ULA fc00::/7
+  if (/^fe[89ab][0-9a-f]:/i.test(clean) || /^fe80:/i.test(clean)) return true; // Link-local fe80::/10
+  if (/^ff[0-9a-f]{2}:/i.test(clean)) return true; // Multicast ff00::/8
+  if (/^100::/i.test(clean)) return true; // Discard 100::/64
+  if (/^2001:db8:/i.test(clean)) return true; // Documentation
+  return false;
+}
+
+function isPrivateOrBlockedIP(ip) {
+  const family = net.isIP(ip);
+  if (family === 4) return isPrivateOrBlockedIPv4(ip);
+  if (family === 6) return isPrivateOrBlockedIPv6(ip);
+  return true;
+}
+
+async function validateHostAddress(hostname) {
+  if (net.isIP(hostname)) {
+    if (isPrivateOrBlockedIP(hostname)) {
+      throw new Error(`Blocked IP address: ${hostname}`);
+    }
+    return [hostname];
+  }
+  const addresses = await dns.promises.lookup(hostname, { all: true });
+  if (!addresses || addresses.length === 0) {
+    throw new Error(`DNS resolution returned no addresses for ${hostname}`);
+  }
+  for (const addr of addresses) {
+    if (isPrivateOrBlockedIP(addr.address)) {
+      throw new Error(`Resolved to blocked IP: ${addr.address}`);
+    }
+  }
+  return addresses.map(a => a.address);
+}
+
+function ip4ToInt(ip) {
+  const parts = ip.split('.').map(p => parseInt(p, 10));
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return null;
+  return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0;
+}
+
+function matchCidr4(ip, cidr) {
+  const slash = cidr.indexOf('/');
+  if (slash === -1) return false;
+  const subnetStr = cidr.slice(0, slash);
+  const prefix = parseInt(cidr.slice(slash + 1), 10);
+  if (isNaN(prefix) || prefix < 0 || prefix > 32) return false;
+  const ipInt = ip4ToInt(ip);
+  const subnetInt = ip4ToInt(subnetStr);
+  if (ipInt === null || subnetInt === null) return false;
+  if (prefix === 0) return true;
+  const mask = ((0xFFFFFFFF << (32 - prefix))) >>> 0;
+  return (ipInt & mask) === (subnetInt & mask);
+}
+
+function isRfc1918(ip) {
+  const parts = ip.split('.').map(p => parseInt(p, 10));
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return false;
+  const [a, b] = parts;
+  if (a === 10) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  return false;
+}
+
+function isAllowedHost(hostHeader) {
+  if (!hostHeader || typeof hostHeader !== 'string') return false;
+  let host = hostHeader.trim().toLowerCase();
+  if (host.startsWith('[')) {
+    const end = host.indexOf(']');
+    if (end !== -1) host = host.slice(1, end);
+  } else {
+    const colon = host.indexOf(':');
+    if (colon !== -1) host = host.slice(0, colon);
+  }
+
+  const envHosts = (process.env.NETENGKIT_HOSTS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+  // If NETENGKIT_HOSTS includes '*', permit all hosts
+  if (envHosts.includes('*')) return true;
+
+  const allowed = new Set(['localhost', '127.0.0.1', '::1']);
+  const ips = getLocalIPs();
+  if (ips.ipv4) allowed.add(ips.ipv4.toLowerCase());
+  if (ips.ipv6) allowed.add(ips.ipv6.toLowerCase());
+
+  const os = require('os');
+  for (const addrs of Object.values(os.networkInterfaces())) {
+    for (const addr of (addrs || [])) {
+      if (addr.address) allowed.add(addr.address.toLowerCase());
+    }
+  }
+
+  if (allowed.has(host)) return true;
+
+  for (const h of envHosts) {
+    let pattern = h;
+    if (pattern.startsWith('[')) {
+      const end = pattern.indexOf(']');
+      if (end !== -1) pattern = pattern.slice(1, end);
+    } else {
+      const colon = pattern.indexOf(':');
+      if (colon !== -1) pattern = pattern.slice(0, colon);
+    }
+
+    if (pattern === host) return true;
+
+    // Allow RFC 1918 private IPs if 'lan' or 'private' specified
+    if ((pattern === 'lan' || pattern === 'private') && isRfc1918(host)) {
+      return true;
+    }
+
+    // Allow CIDR matching e.g. 192.168.1.0/24 or 10.0.0.0/8
+    if (pattern.includes('/') && matchCidr4(host, pattern)) {
+      return true;
+    }
+
+    // Allow wildcard domains e.g. *.lan, *.local, *.example.com
+    if (pattern.startsWith('*.')) {
+      const suffix = pattern.slice(1);
+      if (host.endsWith(suffix) && host.length > suffix.length) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function parseCookie(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader) return cookies;
+  for (const pair of cookieHeader.split(';')) {
+    const idx = pair.indexOf('=');
+    if (idx !== -1) {
+      cookies[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+    }
+  }
+  return cookies;
+}
+
+function verifyToken(token) {
+  if (!token || typeof token !== 'string') return false;
+  const a = Buffer.from(token);
+  const b = Buffer.from(API_TOKEN);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+const ALLOWED_DOH_HOSTS = new Set([
+  'dns.google',
+  'cloudflare-dns.com',
+  'family.cloudflare-dns.com',
+  'dns.quad9.net',
+  'dns11.quad9.net',
+  'dns.adguard-dns.com',
+  'family.adguard-dns.com',
+  'doh.opendns.com',
+  'doh.familyshield.opendns.com',
+  'doh.cleanbrowsing.org',
+  'dns.nextdns.io',
+  'dns.mullvad.net',
+  'dns0.eu',
+]);
+
+const PCAP_FILE_REGEX = /^[A-Za-z0-9_-]{1,64}\.pcap(ng)?$/;
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js':   'text/javascript',
@@ -57,26 +288,61 @@ const MIME = {
 };
 
 // ---------------------------------------------------------------------------
-// Upstream fetch (follows one redirect, 15s timeout)
+// Upstream fetch (HTTPS-only, SSRF protected, max 3 redirects, 2 MiB cap)
 // ---------------------------------------------------------------------------
 
-function fetchUpstream(targetUrl) {
-  return new Promise((resolve, reject) => {
-    const mod = targetUrl.startsWith('https') ? https : http;
-    const req = mod.get(targetUrl, {
+const MAX_BODY_SIZE = 2 * 1024 * 1024; // 2 MiB
+
+function fetchUpstream(targetUrl, maxRedirects = 3, followRedirects = true) {
+  return new Promise(async (resolve, reject) => {
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(targetUrl);
+    } catch {
+      return reject(new Error('Invalid URL'));
+    }
+
+    if (parsedUrl.protocol !== 'https:') {
+      return reject(new Error('Only https: URLs are permitted'));
+    }
+
+    try {
+      await validateHostAddress(parsedUrl.hostname);
+    } catch (e) {
+      return reject(e);
+    }
+
+    const req = https.get(parsedUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0 NetEngKit-Proxy/1.0' },
     }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return fetchUpstream(res.headers.location).then(resolve, reject);
+      if (followRedirects && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (maxRedirects <= 0) {
+          res.destroy();
+          return reject(new Error('Too many redirects'));
+        }
+        res.resume();
+        const nextUrl = new URL(res.headers.location, targetUrl).toString();
+        return fetchUpstream(nextUrl, maxRedirects - 1, followRedirects).then(resolve, reject);
       }
+
       const chunks = [];
-      res.on('data', c => chunks.push(c));
+      let totalLength = 0;
+      res.on('data', (c) => {
+        totalLength += c.length;
+        if (totalLength > MAX_BODY_SIZE) {
+          req.destroy(new Error('Response body exceeded 2 MiB limit'));
+          return;
+        }
+        chunks.push(c);
+      });
       res.on('end', () => resolve({
-        status:      res.statusCode,
-        headers:     res.headers,
-        body:        Buffer.concat(chunks),
+        status:  res.statusCode,
+        headers: res.headers,
+        body:    Buffer.concat(chunks),
       }));
+      res.on('error', reject);
     });
+
     req.on('error', reject);
     req.setTimeout(30000, () => req.destroy(new Error('Upstream timeout')));
   });
@@ -230,19 +496,34 @@ function parseDnsResponse(buf) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (!isAllowedHost(req.headers.host)) {
+      const received = req.headers.host || '';
+      console.warn(`[SECURITY] Blocked request with unallowed Host header: "${received}"`);
+      res.writeHead(403, { 'Content-Type': 'text/plain' });
+      res.end(`Host "${received}" not allowed. Set NETENGKIT_HOSTS to allow this host (e.g. NETENGKIT_HOSTS=* or NETENGKIT_HOSTS=${received}).\n`);
+      return;
+    }
+
     const parsed   = url.parse(req.url, true);
-    const pathname = decodeURIComponent(parsed.pathname);
+    const pathname = decodeURIComponent(parsed.pathname || '');
 
-    res.setHeader('Access-Control-Allow-Origin',  '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    const safeUrl = req.url.replace(/([?&]nekToken=)[^&]*/g, '$1[REDACTED]');
+    console.log(`[${new Date().toISOString()}] ${req.method} ${safeUrl}`);
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
       res.end();
       return;
+    }
+
+    if (pathname.startsWith('/api/') || pathname.startsWith('/proxy/')) {
+      const cookies = parseCookie(req.headers.cookie);
+      const ok = [cookies['NetEngKit-Token'], req.headers['x-netengkit-token'], parsed.query.nekToken].some(verifyToken);
+      if (!ok) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'unauthorized' }));
+        return;
+      }
     }
 
   // ── Regular DNS lookup ────────────────────────────────────────────────────
@@ -316,7 +597,7 @@ const server = http.createServer(async (req, res) => {
         }));
       }
 
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         Status: 0,
         Question: [{ name: dot(qname), type: typeNum[recordType] }],
@@ -324,7 +605,7 @@ const server = http.createServer(async (req, res) => {
       }));
     } catch (e) {
       const nxdomain = e.code === 'ENOTFOUND' || e.code === 'ENODATA';
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         Status: nxdomain ? 3 : 2,
         Question: [{ name: dot(qname), type: typeNum[recordType] }],
@@ -340,8 +621,31 @@ const server = http.createServer(async (req, res) => {
     const { name: qname, type: qtype, url: dohUrl, json: isJson } = parsed.query;
 
     if (!qname || !dohUrl) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing name or url parameter' }));
+      return;
+    }
+
+    let target;
+    try {
+      target = new URL(dohUrl);
+    } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid url parameter' }));
+      return;
+    }
+
+    if (target.protocol !== 'https:' || !ALLOWED_DOH_HOSTS.has(target.hostname)) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Disallowed DoH provider host' }));
+      return;
+    }
+
+    try {
+      await validateHostAddress(target.hostname);
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Blocked host address: ' + e.message }));
       return;
     }
 
@@ -353,12 +657,10 @@ const server = http.createServer(async (req, res) => {
       let data;
       if (isJson === '1') {
         // Google-style JSON API — just proxy the request
-        const target = new URL(dohUrl);
         target.searchParams.set('name', qname);
         target.searchParams.set('type', recordType);
         data = await new Promise((resolve, reject) => {
-          const mod = target.protocol === 'https:' ? https : http;
-          mod.get(target.toString(), { timeout: 8000 }, (upstream) => {
+          https.get(target.toString(), { timeout: 8000 }, (upstream) => {
             let body = '';
             upstream.on('data', c => body += c);
             upstream.on('end', () => {
@@ -372,7 +674,6 @@ const server = http.createServer(async (req, res) => {
         // Uses HTTP/2 as required by RFC 8484 §5.2 (many servers reject HTTP/1.1)
         const queryBuf = buildDnsQuery(qname, typeNum[recordType]);
         const dnsParam = queryBuf.toString('base64url');
-        const target = new URL(dohUrl);
         target.searchParams.set('dns', dnsParam);
 
         const wireBuf = await new Promise((resolve, reject) => {
@@ -403,10 +704,10 @@ const server = http.createServer(async (req, res) => {
         data = parseDnsResponse(wireBuf);
       }
 
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(data));
     } catch (e) {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ Status: 2, Question: [{ name: qname, type: typeNum[recordType] }], Answer: [], Comment: e.message }));
     }
     return;
@@ -414,7 +715,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── Get cert chain ────────────────────────────────────────────────────────
   if (pathname === '/api/get-cert-chain') {
-    const { domain, port } = parsed.query;
+    const { domain } = parsed.query;
     if (!domain) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing domain parameter' }));
@@ -423,7 +724,7 @@ const server = http.createServer(async (req, res) => {
 
     const cleanDomain = domain.trim().replace(/^https?:\/\//i, '').split('/')[0].split(':')[0];
     const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(cleanDomain);
-    const isHostname = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,15}$/.test(cleanDomain) || /^localhost$/.test(cleanDomain);
+    const isHostname = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,15}$/.test(cleanDomain);
 
     if (!isIp && !isHostname) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -431,7 +732,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const targetPort = parseInt(port || '443', 10);
+    try {
+      await validateHostAddress(cleanDomain);
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Disallowed host: ' + e.message }));
+      return;
+    }
+
+    const targetPort = 443; // Restricted to 443 to prevent internal port scanning
     const tls = require('tls');
     const crypto = require('crypto');
     let socket;
@@ -655,7 +964,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const scriptPath = path.join(__dirname, 'subnet_scan.sh');
@@ -707,7 +1015,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const nmapSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -772,7 +1079,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const iperfRunSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -824,7 +1130,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const iperfSrvSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -865,7 +1170,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const fpingSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -902,7 +1206,21 @@ const server = http.createServer(async (req, res) => {
 
     if (nodns === '-n' || nodns === '-nn') baseArgs.push(nodns);
     if (linkLayer === '1') baseArgs.push('-e');
-    if (filter && filter.length < 500) baseArgs.push(filter);
+    if (filter) {
+      const trimmed = filter.trim();
+      if (trimmed.startsWith('-')) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Filter cannot start with -');
+        return;
+      }
+      if (trimmed.length < 500) baseArgs.push(trimmed);
+    }
+
+    if (writeFile && !PCAP_FILE_REGEX.test(writeFile)) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end('Invalid writeFile parameter');
+      return;
+    }
 
     // Display process: output flags apply here (for human-readable SSE stream)
     const displayArgs = [...baseArgs];
@@ -914,7 +1232,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const tdSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -929,7 +1246,7 @@ const server = http.createServer(async (req, res) => {
 
     // Capture process — always writes pcap to /tmp, silent (no stdout/stderr needed)
     let captureProc = null;
-    if (writeFile && /^[a-zA-Z0-9._-]+$/.test(writeFile)) {
+    if (writeFile) {
       const captureArgs = [...baseArgs, '-w', path.join('/tmp', writeFile)];
       captureProc = spawn('tcpdump', captureArgs, { stdio: 'ignore' });
     }
@@ -944,14 +1261,14 @@ const server = http.createServer(async (req, res) => {
   // ── tcpdump PCAP download ─────────────────────────────────────────────────
   if (pathname === '/api/tcpdump-download') {
     const { file } = parsed.query;
-    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+    if (!file || !PCAP_FILE_REGEX.test(file)) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file');
+      res.end('Invalid file parameter');
       return;
     }
     const filePath = path.join('/tmp', file);
     fs.stat(filePath, (err, stat) => {
-      if (err) {
+      if (err || !stat.isFile()) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('File not found');
         return;
@@ -960,9 +1277,15 @@ const server = http.createServer(async (req, res) => {
         'Content-Type': 'application/vnd.tcpdump.pcap',
         'Content-Disposition': `attachment; filename="${file}"`,
         'Content-Length': stat.size,
-        'Access-Control-Allow-Origin': '*',
       });
-      fs.createReadStream(filePath).pipe(res);
+      const stream = fs.createReadStream(filePath);
+      stream.on('error', () => {
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+        }
+        res.end();
+      });
+      stream.pipe(res);
     });
     return;
   }
@@ -970,13 +1293,13 @@ const server = http.createServer(async (req, res) => {
   // ── tcpdump PCAP cleanup ──────────────────────────────────────────────────
   if (pathname === '/api/tcpdump-cleanup') {
     const { file } = parsed.query;
-    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+    if (!file || !PCAP_FILE_REGEX.test(file)) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file');
+      res.end('Invalid file parameter');
       return;
     }
     fs.unlink(path.join('/tmp', file), () => {
-      res.writeHead(200, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end('ok');
     });
     return;
@@ -995,6 +1318,21 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (captureFilter) {
+      const trimmed = captureFilter.trim();
+      if (trimmed.startsWith('-')) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Capture filter cannot start with -');
+        return;
+      }
+    }
+
+    if (writeFile && !PCAP_FILE_REGEX.test(writeFile)) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end('Invalid writeFile parameter');
+      return;
+    }
+
     const fifoPath = path.join('/tmp', `ts_fifo_${Date.now()}`);
     try { execFileSync('mkfifo', [fifoPath]); } catch (e) {
       res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -1004,7 +1342,10 @@ const server = http.createServer(async (req, res) => {
 
     // tcpdump capture args — writes pcap to FIFO (and optionally to /tmp file)
     const tdArgs = ['-i', iface, '-U']; // -U flushes pcap per packet
-    if (captureFilter && captureFilter.length < 500) tdArgs.push(captureFilter);
+    if (captureFilter) {
+      const trimmed = captureFilter.trim();
+      if (trimmed.length < 500) tdArgs.push(trimmed);
+    }
     const cnt = parseInt(count, 10);
     if (cnt >= 1 && cnt <= 100000) tdArgs.push('-c', String(cnt));
 
@@ -1022,7 +1363,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const tsSend = (type, line) => res.write(`data: ${JSON.stringify({ type, line })}\n\n`);
@@ -1043,7 +1383,7 @@ const server = http.createServer(async (req, res) => {
 
     // File-capture process — tcpdump writes directly to /tmp, silent
     let tdCapture = null;
-    if (writeFile && /^[a-zA-Z0-9._-]+$/.test(writeFile)) {
+    if (writeFile) {
       tdCapture = spawn('tcpdump', [...tdArgs, '-w', path.join('/tmp', writeFile)], { stdio: 'ignore' });
       tdCapture.on('error', () => {});
     }
@@ -1060,14 +1400,14 @@ const server = http.createServer(async (req, res) => {
   // ── tshark PCAP download ──────────────────────────────────────────────────
   if (pathname === '/api/tshark-download') {
     const { file } = parsed.query;
-    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+    if (!file || !PCAP_FILE_REGEX.test(file)) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file');
+      res.end('Invalid file parameter');
       return;
     }
     const filePath = path.join('/tmp', file);
     fs.stat(filePath, (err, stat) => {
-      if (err) {
+      if (err || !stat.isFile()) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('File not found');
         return;
@@ -1076,9 +1416,15 @@ const server = http.createServer(async (req, res) => {
         'Content-Type': 'application/vnd.tcpdump.pcap',
         'Content-Disposition': `attachment; filename="${file}"`,
         'Content-Length': stat.size,
-        'Access-Control-Allow-Origin': '*',
       });
-      fs.createReadStream(filePath).pipe(res);
+      const stream = fs.createReadStream(filePath);
+      stream.on('error', () => {
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+        }
+        res.end();
+      });
+      stream.pipe(res);
     });
     return;
   }
@@ -1086,13 +1432,13 @@ const server = http.createServer(async (req, res) => {
   // ── tshark PCAP cleanup ───────────────────────────────────────────────────
   if (pathname === '/api/tshark-cleanup') {
     const { file } = parsed.query;
-    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+    if (!file || !PCAP_FILE_REGEX.test(file)) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file');
+      res.end('Invalid file parameter');
       return;
     }
     fs.unlink(path.join('/tmp', file), () => {
-      res.writeHead(200, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end('ok');
     });
     return;
@@ -1100,7 +1446,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── Speedtest nearby server list ─────────────────────────────────────────
   if (pathname === '/api/speedtest-servers') {
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     const proc = spawn('speedtest', ['--servers', '--format=json', '--accept-license', '--accept-gdpr']);
     let out = '';
     proc.stdout.on('data', d => { out += d.toString(); });
@@ -1118,7 +1464,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type':  'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const serverId = parsed.query.serverId;
@@ -1169,10 +1514,10 @@ const server = http.createServer(async (req, res) => {
         const m = line.match(/^(\d+):\s+(.+?)\s+\((https?:\/\/[^)]+)\)\s+\[Sponsor:\s+(.+?)(?:\s+@\s+(https?:\/\/\S+))?\]/);
         if (m) servers.push({ id: m[1], name: m[2], url: m[3], sponsor: m[4], sponsorUrl: m[5] || '' });
       }
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(servers));
     } catch (e) {
-      res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
     }
     return;
@@ -1186,7 +1531,6 @@ const server = http.createServer(async (req, res) => {
       'Content-Type':  'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection':    'keep-alive',
-      'Access-Control-Allow-Origin': '*',
     });
 
     const { serverId, serverJson } = parsed.query;
@@ -1282,14 +1626,25 @@ const server = http.createServer(async (req, res) => {
       res.end('Missing ?url= parameter');
       return;
     }
+    const follow = parsed.query.follow !== '0';
     try {
-      const upstream = await fetchUpstream(target);
-      const forwardHeaders = { 'Access-Control-Allow-Origin': '*' };
-      const skip = new Set(['transfer-encoding', 'connection', 'keep-alive', 'upgrade']);
-      for (const [k, v] of Object.entries(upstream.headers)) {
-        if (!skip.has(k)) forwardHeaders[k] = v;
+      const upstream = await fetchUpstream(target, 3, follow);
+      if (parsed.query.meta === '1') {
+        const safeHeaders = { ...upstream.headers };
+        delete safeHeaders['set-cookie'];
+        delete safeHeaders['set-cookie2'];
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        res.end(JSON.stringify({ status: upstream.status, headers: safeHeaders }));
+        return;
       }
-      res.writeHead(upstream.status, forwardHeaders);
+      res.writeHead(upstream.status, {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': 'sandbox',
+      });
       res.end(upstream.body);
     } catch (e) {
       res.writeHead(502, { 'Content-Type': 'text/plain' });
@@ -1299,17 +1654,71 @@ const server = http.createServer(async (req, res) => {
   }
 
   // ── Static files ──────────────────────────────────────────────────────────
-  const rel      = pathname === '/' ? 'NetEngKit.html' : pathname.slice(1);
-  const filePath = path.join(ROOT, rel);
+  const rel = pathname === '/' ? 'NetEngKit.html' : pathname.replace(/^\/+/, '');
+  const normalizedRel = path.normalize(rel);
 
-  // Prevent path traversal
-  if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
-    res.writeHead(403);
+  // Deny any path segment starting with '.' (blocks .git, .env, .., etc.)
+  const segments = normalizedRel.split(/[\\/]/);
+  if (segments.some(s => s.startsWith('.'))) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
     res.end('Forbidden');
     return;
   }
 
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+  // Deny always prefixes
+  if (
+    normalizedRel.startsWith('internal' + path.sep) || normalizedRel === 'internal' ||
+    normalizedRel.startsWith('node_modules' + path.sep) || normalizedRel === 'node_modules' ||
+    normalizedRel.startsWith('scripts' + path.sep) || normalizedRel === 'scripts'
+  ) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden');
+    return;
+  }
+
+  const isAllowedExact = [
+    'NetEngKit.html',
+    'manifest.json',
+    'sw.js',
+    'version.js',
+    'ip-utils.js',
+    'oui-db.js',
+    'logo.svg',
+    'mermaid.min.js',
+  ].includes(normalizedRel);
+
+  const isAllowedDir = [
+    'components/',
+    'languages/',
+    'icons/',
+    'data/',
+  ].some(prefix => normalizedRel.startsWith(prefix) || normalizedRel.startsWith(prefix.replace('/', path.sep)));
+
+  if (!isAllowedExact && !isAllowedDir) {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not found');
+    return;
+  }
+
+  const filePath = path.resolve(ROOT, normalizedRel);
+
+  // Prevent path traversal
+  if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden');
+    return;
+  }
+
+  let stat;
+  try {
+    stat = fs.statSync(filePath);
+  } catch {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not found');
+    return;
+  }
+
+  if (!stat.isFile()) {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not found');
     return;
@@ -1319,12 +1728,34 @@ const server = http.createServer(async (req, res) => {
   const mime = MIME[ext] || 'application/octet-stream';
   let   body = fs.readFileSync(filePath);
 
-  // Inject LOCAL_PROXY so components auto-use the local proxy
+  // Inject token and LOCAL_PROXY so components auto-use the local proxy with auth
   if (ext === '.html') {
+    res.setHeader('Set-Cookie', `NetEngKit-Token=${API_TOKEN}; Path=/; SameSite=Strict; HttpOnly`);
     body = Buffer.from(
       body.toString('utf8').replace(
         '</head>',
-        `  <script>window.LOCAL_PROXY = '/proxy/fetch?url=';</script>\n  </head>`
+        `  <script>
+    window.NETENGKIT_TOKEN = '${API_TOKEN}';
+    window.LOCAL_PROXY = '/proxy/fetch?url=';
+    (function() {
+      const origFetch = window.fetch;
+      window.fetch = function(input, init) {
+        try {
+          const rawUrl = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+          const u = new URL(rawUrl, window.location.href);
+          if (u.origin === window.location.origin && (u.pathname.startsWith('/api/') || u.pathname.startsWith('/proxy/'))) {
+            init = init || {};
+            const headers = new Headers(init.headers || (typeof input === 'object' && input.headers ? input.headers : {}));
+            if (!headers.has('X-NetEngKit-Token')) {
+              headers.set('X-NetEngKit-Token', window.NETENGKIT_TOKEN);
+            }
+            init.headers = headers;
+          }
+        } catch (_) {}
+        return origFetch.call(this, input, init);
+      };
+    })();
+  </script>\n  </head>`
       )
     );
   }
@@ -1342,5 +1773,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`NetEngKit — http://localhost:${PORT}`);
+  console.log(`API token armed — ${API_TOKEN}`);
   console.log(`CORS proxy     — http://localhost:${PORT}/proxy/fetch?url=<encoded>`);
 });

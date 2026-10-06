@@ -33,7 +33,13 @@ function RedirectChecker({ onShare, initialData }) {
     return () => window.removeEventListener('app:request-share', handle);
   }, [url, followMax, method, onShare]);
 
-  const proxyUrl = target => `${proxy.trim()}${encodeURIComponent(target)}`;
+  const proxyUrl = target => {
+    const p = proxy.trim();
+    if (p.includes('/proxy/fetch')) {
+      return `${p}${encodeURIComponent(target)}${p.includes('?') ? '&' : '?'}meta=1&follow=0`;
+    }
+    return `${p}${encodeURIComponent(target)}`;
+  };
   const hasProxy = proxy.trim().length > 0;
 
   const STATUS_COLORS = {
@@ -63,27 +69,31 @@ function RedirectChecker({ onShare, initialData }) {
         const fetchUrl = proxyUrl(currentUrl);
         const resp = await fetch(fetchUrl, { method: 'GET', redirect: 'manual' });
 
-        // Try to read the response headers
-        const headers = {};
-        resp.headers.forEach((v, k) => headers[k.toLowerCase()] = v);
-
-        // If using our proxy, we might get JSON back with status/headers
+        let headers = {};
         let status = resp.status;
-        let location = headers['location'];
-        let contentType = headers['content-type'] || '';
-        let server = headers['server'] || '';
+        let location = null;
+        let contentType = '';
+        let server = '';
 
-        // Try parsing as JSON (our proxy format)
-        let extraHeaders = {};
+        let metaParsed = false;
         try {
           const json = await resp.json();
-          if (json.status) status = json.status;
-          if (json.headers) {
-            extraHeaders = json.headers;
-            location = location || json.headers['location'] || json.headers['Location'];
-            server = server || json.headers['server'] || json.headers['Server'];
+          if (json.status) {
+            status = json.status;
+            headers = json.headers || {};
+            location = headers['location'] || headers['Location'] || null;
+            server = headers['server'] || headers['Server'] || '';
+            contentType = headers['content-type'] || headers['Content-Type'] || '';
+            metaParsed = true;
           }
         } catch {}
+
+        if (!metaParsed) {
+          resp.headers.forEach((v, k) => headers[k.toLowerCase()] = v);
+          location = headers['location'] || null;
+          contentType = headers['content-type'] || '';
+          server = headers['server'] || '';
+        }
 
         const isRedirect = status >= 300 && status < 400;
         const statusClass = String(status)[0];
@@ -95,7 +105,7 @@ function RedirectChecker({ onShare, initialData }) {
           server: server || null,
           contentType: contentType || null,
           isRedirect,
-          headers: { ...headers, ...extraHeaders },
+          headers,
         });
 
         if (!isRedirect || !location) break;

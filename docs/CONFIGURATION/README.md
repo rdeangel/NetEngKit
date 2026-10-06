@@ -17,6 +17,35 @@ Most of the 132 registry entries run in the browser with no server. Fourteen are
 
 Open `http://localhost:<port>/`. `/` serves `NetEngKit.html`. Change the container mapping if you change `PORT` inside Docker; see [docker.md](../DEPLOYMENT/docker.md).
 
+## NETENGKIT_HOSTS
+
+To protect against DNS rebinding attacks, `scripts/proxy.js` validates the HTTP `Host` header against an allow-list (`localhost`, `127.0.0.1`, `::1`, and the host's local network interface IP addresses).
+
+When running in a container, behind a reverse proxy, or accessing NetEngKit from another device on your LAN using a custom hostname, domain, or IP address, pass the `NETENGKIT_HOSTS` environment variable:
+
+```bash
+# Allow any host (recommended for reverse proxies or trusted home/lab setups)
+NETENGKIT_HOSTS=* node scripts/proxy.js
+
+# Allow all private RFC 1918 subnets (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+NETENGKIT_HOSTS=lan node scripts/proxy.js
+
+# Allow specific CIDR subnets or wildcard domains
+NETENGKIT_HOSTS=192.168.1.0/24,*.lan,*.local node scripts/proxy.js
+
+# Allow specific hostnames or IP addresses
+NETENGKIT_HOSTS=netengkit.lan,192.168.1.100 node scripts/proxy.js
+```
+
+Or in `docker-compose.yml`:
+
+```yaml
+environment:
+  - NETENGKIT_HOSTS=*  # or: lan, 192.168.1.0/24, myhost.lan
+```
+
+Requests with unrecognised `Host` headers receive HTTP 403 (`Host "<received>" not allowed. Set NETENGKIT_HOSTS to allow this host`).
+
 ## CORS proxy (`/proxy/fetch`)
 
 APIs such as SSL Labs do not send `Access-Control-Allow-Origin`. The proxy fetches them server-side:
@@ -25,7 +54,14 @@ APIs such as SSL Labs do not send `Access-Control-Allow-Origin`. The proxy fetch
 GET /proxy/fetch?url=<encoded-target>
 ```
 
-Missing `?url=` is HTTP 400. Upstream timeout is **30 seconds**. 3xx responses with `Location` are followed. The response forwards upstream status and headers (minus hop-by-hop ones) and always adds `Access-Control-Allow-Origin: *`. Fetch failure is HTTP 502.
+Requests require authentication (session token via cookie, `X-NetEngKit-Token`, or `nekToken`). The proxy enforces:
+- **HTTPS-only:** Plain `http://` targets are rejected (HTTP 502).
+- **Private IP blocking:** RFC 1918, loopback, link-local, multicast, and cloud metadata (`169.254.169.254`) addresses are blocked.
+- **Resource caps:** Maximum 3 redirects (pass `&follow=0` to inspect intermediate redirects) and a 2 MiB response body limit.
+- **Sandboxed output:** Standard requests return `text/plain` with `X-Content-Type-Options: nosniff` and `Content-Security-Policy: sandbox`.
+- **Metadata mode:** Pass `&meta=1` to receive `{ status, headers }` as JSON (used by Security Headers and Redirect Checker).
+
+Missing `?url=` is HTTP 400. Upstream timeout is **30 seconds**. Fetch failure is HTTP 502.
 
 This is the same process as the static file server. `scripts/proxy.js` uses Node built-ins only — no `npm install` for the proxy itself.
 

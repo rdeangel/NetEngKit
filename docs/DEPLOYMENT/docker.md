@@ -36,21 +36,23 @@ docker compose up
 # then open http://localhost:8080
 ```
 
-`docker-compose.yml` builds `.`, tags `netengkit:latest`, names the container `NetEngKit`, maps `8080:8080`, sets `PORT=8080`, adds `cap_add: NET_RAW`, and restarts `unless-stopped`.
+`docker-compose.yml` builds `.`, tags `netengkit:latest`, names the container `NetEngKit`, uses `network_mode: host`, sets `PORT=8080`, adds `cap_add: NET_RAW` and `NET_ADMIN`, and restarts `unless-stopped`.
+
+Host networking gives diagnostic tools (ping sweep, Scapy packet crafter, tcpdump, nmap) direct access to physical LAN interfaces, and automatically allows incoming HTTP requests to the host's LAN IPs without requiring extra `NETENGKIT_HOSTS` configuration.
 
 Without compose:
 
 ```bash
 docker build -t netengkit .
-docker run -p 8080:8080 --cap-add=NET_RAW netengkit
+docker run --network host --cap-add=NET_RAW --cap-add=NET_ADMIN netengkit
 ```
 
-Published images (no local build): [releases.md](releases.md). Map the same host port, and pass `--cap-add=NET_RAW` if you need capture or packet send. `docker run -p 8080:8080 …` without that cap still starts the UI and the proxy; nmap/tcpdump/scapy then fail at the kernel.
+Published images (no local build): [releases.md](releases.md). Pass `--network host` and `--cap-add=NET_RAW --cap-add=NET_ADMIN` so capture and packet send tools work on your LAN.
 
-Change the listen port inside the container with `PORT`. Map it on the host to match:
+Change the listen port inside the container with `PORT` (binds directly on host when using host networking):
 
 ```bash
-docker run -p 3000:3000 -e PORT=3000 --cap-add=NET_RAW netengkit
+docker run --network host -e PORT=3000 --cap-add=NET_RAW --cap-add=NET_ADMIN netengkit
 ```
 
 ## Security

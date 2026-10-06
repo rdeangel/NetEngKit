@@ -3,10 +3,14 @@ services:
     build: .
     image: netengkit:latest
     container_name: NetEngKit
-    ports:
-      - "8080:8080"
+    network_mode: host
+    env_file:
+      - path: .env
+        required: false
     environment:
-      - PORT=8080
+      - PORT=${PORT:-8080}
+      - NETENGKIT_HOSTS=${NETENGKIT_HOSTS:-*}
     cap_add:
       - NET_RAW
+      - NET_ADMIN
     restart: unless-stopped

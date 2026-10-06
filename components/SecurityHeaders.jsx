@@ -150,13 +150,23 @@ function SecurityHeaders({ onShare, onNav, initialData }) {
       if (activeTab === 'url') {
         if (!proxy.trim()) { setError(t('sechdrs.err_no_proxy')); setLoading(false); return; }
         const target = url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`;
-        const resp = await fetch(`${proxy.trim()}${encodeURIComponent(target)}`);
+        const p = proxy.trim();
+        const fetchUrl = p.includes('/proxy/fetch')
+          ? `${p}${encodeURIComponent(target)}${p.includes('?') ? '&' : '?'}meta=1`
+          : `${p}${encodeURIComponent(target)}`;
+        const resp = await fetch(fetchUrl);
         let respHeaders = {};
+        let metaParsed = false;
         try {
           const json = await resp.json();
-          if (json.headers) respHeaders = json.headers;
+          if (json.headers) {
+            respHeaders = json.headers;
+            metaParsed = true;
+          }
         } catch {}
-        resp.headers.forEach((v, k) => { if (!respHeaders[k]) respHeaders[k] = v; });
+        if (!metaParsed) {
+          resp.headers.forEach((v, k) => { if (!respHeaders[k]) respHeaders[k] = v; });
+        }
         headers = respHeaders;
       } else {
         const parsed = parseRaw(rawInput);

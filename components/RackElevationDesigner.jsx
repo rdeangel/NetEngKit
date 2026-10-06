@@ -176,16 +176,24 @@ function redBuildASCII(devices, rackU, rackName, showPower, showWeight, airflow)
 }
 
 // ── SVG generator ─────────────────────────────────────────────────────
+const escXml = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&apos;');
+
 function redBuildSVG(devices, rackU, rackName, showPower, showWeight) {
+  const safeRackU = Math.max(1, Math.min(60, parseInt(rackU, 10) || 42));
   const uHeight  = 22;
   const leftPad  = 38;   // left U label strip width
   const rightPad = 38;   // right U label strip width
   const rackDraw = 320;  // rack interior width
   const svgWidth = leftPad + rackDraw + rightPad; // 396 — labels fit inside viewport
   const topPad   = 64;
-  const svgHeight = topPad + rackU * uHeight + 20;
+  const svgHeight = topPad + safeRackU * uHeight + 20;
 
-  const slots    = redBuildLayout(devices, rackU);
+  const slots    = redBuildLayout(devices, safeRackU);
   const rendered = new Set();
   const out      = [];
 
@@ -193,24 +201,24 @@ function redBuildSVG(devices, rackU, rackName, showPower, showWeight) {
   out.push(`<rect width="${svgWidth}" height="${svgHeight}" fill="#1a1d23" rx="6"/>`);
 
   // Title & stats centred over the full SVG
-  out.push(`<text x="${svgWidth / 2}" y="22" text-anchor="middle" fill="#00d4c8" font-size="14" font-weight="bold">${rackName}</text>`);
-  const totalPower  = devices.reduce((s, d) => s + (d.powerW  || 0), 0);
-  const totalWeight = devices.reduce((s, d) => s + (d.weightKg || 0), 0);
-  let statsText = `[${rackU}U]`;
+  out.push(`<text x="${svgWidth / 2}" y="22" text-anchor="middle" fill="#00d4c8" font-size="14" font-weight="bold">${escXml(rackName)}</text>`);
+  const totalPower  = (devices || []).reduce((s, d) => s + (Number(d.powerW) || 0), 0);
+  const totalWeight = (devices || []).reduce((s, d) => s + (Number(d.weightKg) || 0), 0);
+  let statsText = `[${safeRackU}U]`;
   if (showPower  && totalPower)  statsText += `  ${totalPower}W`;
   if (showWeight && totalWeight) statsText += `  ${totalWeight.toFixed(1)}kg`;
-  out.push(`<text x="${svgWidth / 2}" y="42" text-anchor="middle" fill="#6b7280" font-size="11">${statsText}</text>`);
+  out.push(`<text x="${svgWidth / 2}" y="42" text-anchor="middle" fill="#6b7280" font-size="11">${escXml(statsText)}</text>`);
 
   // Left and right label column backgrounds
-  out.push(`<rect x="0"                       y="${topPad}" width="${leftPad}"  height="${rackU * uHeight}" fill="#111827"/>`);
-  out.push(`<rect x="${leftPad + rackDraw}"    y="${topPad}" width="${rightPad}" height="${rackU * uHeight}" fill="#111827"/>`);
+  out.push(`<rect x="0"                       y="${topPad}" width="${leftPad}"  height="${safeRackU * uHeight}" fill="#111827"/>`);
+  out.push(`<rect x="${leftPad + rackDraw}"    y="${topPad}" width="${rightPad}" height="${safeRackU * uHeight}" fill="#111827"/>`);
 
   // Rack frame
   const rx = leftPad;
-  out.push(`<rect x="${rx}" y="${topPad}" width="${rackDraw}" height="${rackU * uHeight}" fill="#0d0f13" stroke="#374151" stroke-width="2"/>`);
+  out.push(`<rect x="${rx}" y="${topPad}" width="${rackDraw}" height="${safeRackU * uHeight}" fill="#0d0f13" stroke="#374151" stroke-width="2"/>`);
 
-  for (let u = rackU; u >= 1; u--) {
-    const y   = topPad + (rackU - u) * uHeight;
+  for (let u = safeRackU; u >= 1; u--) {
+    const y   = topPad + (safeRackU - u) * uHeight;
     const dev = slots[u];
     const midY = y + uHeight / 2 + 4;
 
@@ -224,22 +232,25 @@ function redBuildSVG(devices, rackU, rackName, showPower, showWeight) {
     if (!dev || rendered.has(dev.id)) continue;
     rendered.add(dev.id);
 
-    const devTopY   = topPad + (rackU - u) * uHeight + 1;
-    const devH      = dev.heightU * uHeight - 2;
-    const typeInfo  = RED_TYPE_MAP[dev.type] || { label: dev.type, color: '#374151' };
-    const fillColor = typeInfo.color || '#374151';
+    const devHeightU = Math.max(1, parseInt(dev.heightU, 10) || 1);
+    const devTopY    = topPad + (safeRackU - u) * uHeight + 1;
+    const devH       = devHeightU * uHeight - 2;
+    const typeInfo   = RED_TYPE_MAP[dev.type] || { label: dev.type, color: '#374151' };
+    const fillColor  = typeInfo.color || '#374151';
 
     out.push(`<rect x="${rx + 2}" y="${devTopY}" width="${rackDraw - 4}" height="${devH}" fill="${fillColor}" fill-opacity="0.85" rx="3" stroke="${fillColor}" stroke-width="1"/>`);
 
     const label     = dev.name || typeInfo.label;
     const maxChars  = Math.floor((rackDraw - 16) / 7);
     const truncated = label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label;
-    const textMidY  = devTopY + devH / 2 + (dev.heightU >= 2 ? -4 : 4);
-    out.push(`<text x="${rx + rackDraw / 2}" y="${textMidY}" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">${truncated}</text>`);
+    const textMidY  = devTopY + devH / 2 + (devHeightU >= 2 ? -4 : 4);
+    out.push(`<text x="${rx + rackDraw / 2}" y="${textMidY}" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">${escXml(truncated)}</text>`);
 
-    if (dev.heightU >= 2) {
-      const sub = [dev.powerW ? `${dev.powerW}W` : '', dev.weightKg ? `${dev.weightKg}kg` : ''].filter(Boolean).join('  ');
-      if (sub) out.push(`<text x="${rx + rackDraw / 2}" y="${textMidY + 16}" text-anchor="middle" fill="#d1d5db" font-size="10">${sub}</text>`);
+    if (devHeightU >= 2) {
+      const pW  = Number(dev.powerW) || 0;
+      const wKg = Number(dev.weightKg) || 0;
+      const sub = [pW ? `${pW}W` : '', wKg ? `${wKg}kg` : ''].filter(Boolean).join('  ');
+      if (sub) out.push(`<text x="${rx + rackDraw / 2}" y="${textMidY + 16}" text-anchor="middle" fill="#d1d5db" font-size="10">${escXml(sub)}</text>`);
     }
   }
 
